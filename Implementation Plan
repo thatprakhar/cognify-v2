@@ -1,0 +1,661 @@
+# Cognify V2 — Technical Architecture & Implementation Design
+
+## Overview
+
+Cognify is a **"Chat-in, UX-out"** product: users type queries into a chat input, and instead of text responses, the system generates interactive UI experiences. The architecture is built around a **three-agent LLM pipeline**, a **composable component library** of UI primitives ("Lego blocks"), and a **dynamic renderer** that turns structured JSON specs into live React experiences.
+
+---
+
+## 1. System Diagram
+
+```mermaid
+graph TB
+    subgraph Client ["Browser (Next.js App)"]
+        Chat["Chat Panel<br/>(left side)"]
+        Renderer["Dynamic Renderer<br/>(right side)"]
+        Chat -->|user query| API
+        API -->|SSE stream| Chat
+        API -->|final JSON spec| Renderer
+    end
+
+    subgraph Server ["Next.js API Routes"]
+        API["POST /api/generate<br/>(SSE endpoint)"]
+        Auth["NextAuth<br/>OAuth middleware"]
+        RL["Rate Limiter<br/>middleware"]
+        API --> Pipeline
+    end
+
+    subgraph Pipeline ["Three-Agent Pipeline"]
+        A1["Agent 1: Intent<br/>Understands what user wants"]
+        A2["Agent 2: UX Selector<br/>Picks experience structure"]
+        A3["Agent 3: Renderer<br/>Outputs component JSON spec"]
+        A1 -->|IntentSpec| A2
+        A2 -->|UXPlan| A3
+        A3 -->|UISpec JSON| API
+    end
+
+    subgraph LLM ["LLM Provider"]
+        Provider["Claude / OpenAI<br/>(provider-agnostic adapter)"]
+    end
+
+    Pipeline --> Provider
+
+    subgraph ComponentLib ["Lego Block Library"]
+        Quiz & Form & Chart & Cards
+        Wiki & Hero & Table & Tabs
+        Slider & Grid & Stack & Image
+    end
+
+    Renderer --> ComponentLib
+```
+
+---
+
+## 2. Component & Service Boundaries
+
+### Frontend (Next.js App Router)
+
+| Module | Responsibility |
+|--------|---------------|
+| `ChatPanel` | Left sidebar — input, message bubbles, status indicators |
+| `ExperiencePanel` | Right side — hosts the dynamic renderer output |
+| `DynamicRenderer` | Recursive JSON → React component mapper |
+| `blocks/*` | Individual Lego-block primitives (Quiz, Chart, Cards, etc.) |
+| `useGenerate` hook | Manages SSE connection, streaming state, final spec |
+
+### Backend (Next.js API Routes)
+
+| Module | Responsibility |
+|--------|---------------|
+| `POST /api/generate` | Main endpoint — runs pipeline, streams progress via SSE |
+| `POST /api/chat` | Follow-up messages after experience renders |
+| `GET /api/auth/*` | NextAuth OAuth handlers |
+| `middleware.ts` | Auth check + rate limiting on `/api/*` routes |
+| `lib/pipeline/` | Three-agent orchestrator |
+| `lib/agents/intent.ts` | Agent 1: Intent extraction |
+| `lib/agents/ux-selector.ts` | Agent 2: UX plan selection |
+| `lib/agents/renderer.ts` | Agent 3: JSON spec generation |
+| `lib/llm/provider.ts` | Provider-agnostic LLM adapter |
+| `lib/schema/validator.ts` | JSON schema validation + component allowlist |
+
+---
+
+## 3. JSON Schemas
+
+### 3a. Agent 1 Output — IntentSpec
+
+```json
+{
+  "$schema": "IntentSpec",
+  "query": "Help me understand how neural networks work",
+  "intent": "explanation",
+  "domain": "machine-learning",
+  "complexity": "intermediate",
+  "goalType": "understand",
+  "requiredInputs": [],
+  "contextFromChat": []
+}
+```
+
+**`goalType`** enum: `"understand"` | `"decide"` | `"analyze"` | `"create"` | `"compare"` | `"learn"`
+
+**`requiredInputs`**: array of `{ "type": "csv" | "text" | "selection", "label": string, "description": string }` — what the system needs from the user before it can generate.
+
+### 3b. Agent 2 Output — UXPlan
+
+```json
+{
+  "$schema": "UXPlan",
+  "experienceType": "wiki",
+  "layout": "single-column",
+  "sections": [
+    { "role": "hero", "purpose": "Visual hook + title" },
+    { "role": "content", "purpose": "Core explanation with visuals" },
+    { "role": "interactive", "purpose": "Try-it-yourself simulation" },
+    { "role": "summary", "purpose": "Key takeaways" }
+  ],
+  "interactionModel": "scroll-through",
+  "estimatedBlocks": 8
+}
+```
+
+**`experienceType`** enum: `"quiz"` | `"dashboard"` | `"wiki"` | `"form"` | `"comparison"` | `"slides"` | `"hybrid"`
+
+**`interactionModel`** enum: `"scroll-through"` | `"step-by-step"` | `"tabbed"` | `"interactive"`
+
+### 3c. Agent 3 Output — UISpec (the core schema)
+
+```json
+{
+  "$schema": "UISpec",
+  "version": "1.0",
+  "title": "How Neural Networks Work",
+  "theme": { "accent": "#2563eb" },
+  "root": {
+    "type": "Stack",
+    "props": { "gap": "lg" },
+    "children": [
+      {
+        "type": "Hero",
+        "props": {
+          "title": "Neural Networks",
+          "subtitle": "From biological neurons to artificial intelligence",
+          "visual": "brain-network"
+        }
+      },
+      {
+        "type": "WikiSection",
+        "props": {
+          "heading": "What is a Neural Network?",
+          "body": "A neural network is a computing system inspired by...",
+          "aside": {
+            "type": "InfoCard",
+            "props": {
+              "title": "Key Insight",
+              "content": "Every neural network is just matrix multiplication + activation functions."
+            }
+          }
+        }
+      },
+      {
+        "type": "Tabs",
+        "props": {
+          "tabs": ["Perceptron", "Deep Networks", "CNNs"]
+        },
+        "children": [
+          {
+            "type": "WikiSection",
+            "props": { "heading": "The Perceptron", "body": "..." }
+          },
+          {
+            "type": "WikiSection",
+            "props": { "heading": "Deep Networks", "body": "..." }
+          },
+          {
+            "type": "WikiSection",
+            "props": { "heading": "CNNs", "body": "..." }
+          }
+        ]
+      },
+      {
+        "type": "Quiz",
+        "props": {
+          "questions": [
+            {
+              "question": "What does an activation function do?",
+              "options": ["Stores data", "Introduces non-linearity", "Compresses images"],
+              "correct": 1
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
+```
+
+> [!IMPORTANT]
+> The UISpec is a **recursive tree structure**. Every node has `type` (from the allowlist), `props` (type-specific), and optional `children` (array of nodes). This is how nesting works — a `Tabs` block can contain `WikiSection` blocks, which can contain `InfoCard` blocks, etc.
+
+---
+
+## 4. Lego Block Component Library (Allowlist)
+
+### Layout Blocks
+| Block | Purpose | Nestable? |
+|-------|---------|-----------|
+| `Stack` | Vertical flex container | ✅ parent |
+| `Grid` | CSS grid layout (2-4 columns) | ✅ parent |
+| `Tabs` | Tabbed navigation container | ✅ parent |
+| `Accordion` | Collapsible sections | ✅ parent |
+| `Columns` | Side-by-side columns | ✅ parent |
+
+### Content Blocks
+| Block | Purpose | Nestable? |
+|-------|---------|-----------|
+| `Hero` | Large title + subtitle + optional visual | ❌ leaf |
+| `WikiSection` | Heading + rich text body + optional aside | ✅ has `aside` slot |
+| `InfoCard` | Highlighted card with title + content | ❌ leaf |
+| `StatCard` | Single metric with label + trend | ❌ leaf |
+| `Table` | Data table with headers + rows | ❌ leaf |
+| `Image` | Image with caption (placeholder/generated) | ❌ leaf |
+| `Callout` | Highlighted tip/warning/note box | ❌ leaf |
+| `Divider` | Visual separator | ❌ leaf |
+
+### Interactive Blocks
+| Block | Purpose | Nestable? |
+|-------|---------|-----------|
+| `Quiz` | Multi-question quiz with scoring | ❌ leaf |
+| `Form` | Input fields that collect user data | ❌ leaf |
+| `FileUpload` | CSV/file upload with preview | ❌ leaf |
+| `Slider` | Range input for parameters | ❌ leaf |
+| `Chart` | Recharts-powered visualization | ❌ leaf |
+| `ProgressTracker` | Step indicator for multi-step flows | ❌ leaf |
+
+### Rules
+1. **Only these types are allowed.** The validator rejects any `type` not in this list.
+2. **Leaf blocks cannot have `children`.** The validator rejects if they do.
+3. **Parent blocks must have `children`.** Empty parents are rejected.
+4. **Props are validated per-type** using a per-block JSON schema.
+
+---
+
+## 5. Prompting Strategy
+
+### Agent 1: Intent Extraction
+
+```
+SYSTEM: You are an intent extraction agent for Cognify. Given a user's chat message
+and conversation history, output a JSON object matching the IntentSpec schema.
+
+Rules:
+- NEVER output free text. ONLY output valid JSON.
+- Identify the user's goal: do they want to understand, decide, analyze, create, compare, or learn?
+- Identify the domain and complexity level.
+- If the user needs to provide data (CSV, selections, etc.) before you can proceed, list them in requiredInputs.
+- If this is a follow-up message, include relevant context from the chat history.
+
+Output ONLY this JSON structure:
+{
+  "query": "<original query>",
+  "intent": "<one of: explanation, analysis, decision, creation, comparison, learning>",
+  "domain": "<topic domain>",
+  "complexity": "<basic | intermediate | advanced>",
+  "goalType": "<understand | decide | analyze | create | compare | learn>",
+  "requiredInputs": [],
+  "contextFromChat": []
+}
+```
+
+Few-shot examples are appended per domain.
+
+### Agent 2: UX Selection
+
+```
+SYSTEM: You are a UX architect agent. Given an IntentSpec, decide the best interactive
+experience structure. Consider:
+- "understand" goals → wiki or slides
+- "decide" goals → quiz or comparison
+- "analyze" goals → dashboard with charts
+- "learn" goals → quiz + wiki hybrid
+- "create" goals → form + result display
+
+Output ONLY this JSON structure:
+{
+  "experienceType": "<quiz | dashboard | wiki | form | comparison | slides | hybrid>",
+  "layout": "<single-column | two-column | tabbed | step-by-step>",
+  "sections": [{ "role": "<string>", "purpose": "<string>" }],
+  "interactionModel": "<scroll-through | step-by-step | tabbed | interactive>",
+  "estimatedBlocks": <number>
+}
+```
+
+### Agent 3: UI Rendering
+
+```
+SYSTEM: You are a UI rendering agent for Cognify. Given an IntentSpec and UXPlan,
+generate a complete UISpec JSON that will be rendered as an interactive React experience.
+
+AVAILABLE COMPONENTS (you may ONLY use these):
+[... full allowlist with props schema for each ...]
+
+Rules:
+- ONLY output valid JSON matching the UISpec schema.
+- ONLY use component types from the allowlist above.
+- The root must be a layout block (Stack, Grid, Tabs, etc.).
+- Leaf blocks (Hero, InfoCard, Quiz, Chart, etc.) cannot have children.
+- Parent blocks (Stack, Grid, Tabs, etc.) must have children.
+- Keep content concise but informative. No filler text.
+- Use real, accurate information. Do not hallucinate facts.
+- For charts, provide realistic data arrays, not placeholder data.
+```
+
+### Enforcement Strategy
+1. All three agents use `response_format: { type: "json_object" }` (OpenAI) or equivalent.
+2. System prompts explicitly ban free-form text output.
+3. Every agent output is validated against its JSON schema before passing to the next agent.
+4. If validation fails, the agent is re-prompted once with the validation error. If it fails again, return a graceful error to the user.
+
+---
+
+## 6. Validation & Security Plan
+
+### Schema Validation
+- Use **Zod** schemas for all three agent outputs (IntentSpec, UXPlan, UISpec).
+- Every agent output is parsed with `schema.safeParse()` — invalid outputs are rejected.
+- UISpec tree is validated recursively: every node's `type` must be in the allowlist, props must match the type's schema, nesting rules must be respected.
+
+### Component Allowlist
+- The renderer maintains a `BLOCK_REGISTRY` map: `Record<string, React.ComponentType>`.
+- If a `type` is not in the registry, it is **not rendered** (skipped with a warning, not crashed).
+- New blocks are added explicitly by a developer — the LLM cannot invent new component types.
+
+### Prompt Injection Defense
+- User input is **never** interpolated directly into system prompts. It's placed in a clearly delimited `<user_query>` block.
+- Agent outputs are validated before being used as input to the next agent.
+- The renderer only reads from validated `props` — no `dangerouslySetInnerHTML`, no `eval`, no dynamic `import()`.
+- Rate limiting prevents abuse (see below).
+
+### Rate Limiting
+- **Per-user**: 20 generations/hour, 100/day (configurable).
+- **Global**: circuit breaker if LLM costs exceed daily threshold.
+- Implementation: in-memory rate counter (or Redis later) in Next.js middleware.
+
+---
+
+## 7. Rendering Strategy
+
+### Dynamic Renderer (recursive component mapper)
+
+```tsx
+// Pseudocode for the core renderer
+function BlockRenderer({ node }) {
+  const Component = BLOCK_REGISTRY[node.type]
+  if (!Component) return <UnknownBlock type={node.type} />
+
+  const children = node.children?.map((child, i) => (
+    <BlockRenderer key={i} node={child} />
+  ))
+
+  return <Component {...node.props}>{children}</Component>
+}
+
+// Usage
+<BlockRenderer node={uiSpec.root} />
+```
+
+### State Machine for Generation Flow
+
+```mermaid
+stateDiagram-v2
+    [*] --> Idle
+    Idle --> Streaming : user submits query
+    Streaming --> IntentParsed : Agent 1 complete
+    IntentParsed --> NeedsInput : requiredInputs not empty
+    NeedsInput --> Streaming : user provides input
+    IntentParsed --> UXPlanned : Agent 2 complete
+    UXPlanned --> Rendering : Agent 3 streaming
+    Rendering --> Complete : UISpec validated
+    Complete --> Conversational : chat unlocked
+    Conversational --> Streaming : follow-up query
+    Streaming --> Error : validation failure
+    Error --> Idle : user dismisses
+```
+
+### SSE Streaming Protocol
+
+The `/api/generate` endpoint streams events to the client:
+
+```
+event: status
+data: {"stage": "intent", "message": "Understanding your query..."}
+
+event: status
+data: {"stage": "ux", "message": "Designing the best experience..."}
+
+event: status
+data: {"stage": "rendering", "message": "Building your interactive experience..."}
+
+event: spec
+data: {"type": "partial", "blocks": 3, "total": 8}
+
+event: complete
+data: { ... full UISpec JSON ... }
+
+event: error
+data: {"message": "Failed to generate experience", "code": "VALIDATION_ERROR"}
+```
+
+---
+
+## 8. Data Model
+
+Since data is ephemeral (no persistence), the "data model" exists only in-memory during a session. However, we define the shapes for when persistence is added later.
+
+### Session (in-memory)
+
+```ts
+interface Session {
+  id: string
+  userId: string          // from OAuth
+  messages: Message[]     // chat history
+  currentSpec: UISpec | null
+  pipeline: PipelineState
+  createdAt: Date
+}
+
+interface Message {
+  id: string
+  role: 'user' | 'system' | 'status'
+  content: string
+  timestamp: Date
+  metadata?: { stage?: string, spec?: UISpec }
+}
+
+interface PipelineState {
+  status: 'idle' | 'running' | 'complete' | 'error'
+  currentStage: 'intent' | 'ux' | 'rendering' | null
+  intentSpec: IntentSpec | null
+  uxPlan: UXPlan | null
+  uiSpec: UISpec | null
+  error: string | null
+}
+```
+
+### User Profile (future — stored in DB)
+
+```ts
+interface UserProfile {
+  id: string
+  email: string
+  name: string
+  provider: 'google' | 'github'
+  preferences: {
+    theme: 'light' | 'dark'
+    complexity: 'basic' | 'intermediate' | 'advanced'
+    favoriteTopics: string[]
+  }
+  createdAt: Date
+}
+```
+
+---
+
+## 9. API Endpoints
+
+| Method | Path | Purpose | Auth | Rate Limit |
+|--------|------|---------|------|------------|
+| `POST` | `/api/generate` | Run 3-agent pipeline, stream progress via SSE | ✅ | 20/hr |
+| `POST` | `/api/chat` | Follow-up conversation after experience renders | ✅ | 60/hr |
+| `GET` | `/api/auth/[...nextauth]` | OAuth callback handlers | ❌ | — |
+| `POST` | `/api/auth/[...nextauth]` | OAuth sign-in/sign-out | ❌ | — |
+
+### `POST /api/generate` — Request
+
+```json
+{
+  "query": "Help me understand how neural networks work",
+  "sessionId": "abc-123",
+  "chatHistory": [
+    { "role": "user", "content": "Help me understand how neural networks work" }
+  ]
+}
+```
+
+### `POST /api/generate` — Response (SSE stream)
+
+See SSE protocol in Section 7 above.
+
+### `POST /api/chat` — Request
+
+```json
+{
+  "message": "Can you add a comparison table for CNNs vs RNNs?",
+  "sessionId": "abc-123",
+  "currentSpec": { "...existing UISpec..." },
+  "chatHistory": [...]
+}
+```
+
+### `POST /api/chat` — Response (SSE stream)
+
+Same SSE protocol — may return an updated/modified UISpec or a new one.
+
+---
+
+## 10. Caching Strategy (deferred — not MVP)
+
+When implemented later:
+- **Cache key**: `sha256(query + userId + chatHistory.length)`
+- **Cache store**: Redis or in-memory LRU
+- **Cached artifacts**: IntentSpec, UXPlan, UISpec (all three)
+- **TTL**: 24 hours
+- **Invalidation**: user clicks "Regenerate" button
+- **Benefit**: skip all 3 agent calls for repeated queries
+
+---
+
+## 11. Project Structure
+
+```
+cognify-v2/
+├── app/
+│   ├── layout.tsx              # Root layout + providers
+│   ├── page.tsx                # Home page (chat + experience panels)
+│   ├── api/
+│   │   ├── generate/route.ts   # SSE pipeline endpoint
+│   │   ├── chat/route.ts       # Follow-up chat endpoint
+│   │   └── auth/[...nextauth]/route.ts
+│   └── globals.css
+├── components/
+│   ├── chat/
+│   │   ├── ChatPanel.tsx       # Left sidebar
+│   │   ├── ChatInput.tsx       # Input + prompt chips
+│   │   ├── MessageBubble.tsx   # User/system message
+│   │   └── StatusIndicator.tsx # Real-time pipeline status
+│   ├── experience/
+│   │   ├── ExperiencePanel.tsx # Right side container
+│   │   └── BlockRenderer.tsx   # Recursive JSON → React
+│   └── blocks/                 # Lego block primitives
+│       ├── layout/
+│       │   ├── Stack.tsx
+│       │   ├── Grid.tsx
+│       │   ├── Tabs.tsx
+│       │   ├── Accordion.tsx
+│       │   └── Columns.tsx
+│       ├── content/
+│       │   ├── Hero.tsx
+│       │   ├── WikiSection.tsx
+│       │   ├── InfoCard.tsx
+│       │   ├── StatCard.tsx
+│       │   ├── Table.tsx
+│       │   ├── Callout.tsx
+│       │   └── Divider.tsx
+│       └── interactive/
+│           ├── Quiz.tsx
+│           ├── Form.tsx
+│           ├── FileUpload.tsx
+│           ├── Slider.tsx
+│           ├── Chart.tsx
+│           └── ProgressTracker.tsx
+├── lib/
+│   ├── pipeline/
+│   │   ├── orchestrator.ts     # Runs 3 agents sequentially
+│   │   ├── stream.ts           # SSE helper
+│   │   └── types.ts            # IntentSpec, UXPlan, UISpec types
+│   ├── agents/
+│   │   ├── intent.ts           # Agent 1
+│   │   ├── ux-selector.ts      # Agent 2
+│   │   └── renderer.ts         # Agent 3
+│   ├── llm/
+│   │   ├── provider.ts         # Abstract LLM interface
+│   │   ├── openai.ts           # OpenAI adapter
+│   │   └── claude.ts           # Claude adapter
+│   ├── schema/
+│   │   ├── intent.ts           # Zod schema for IntentSpec
+│   │   ├── ux-plan.ts          # Zod schema for UXPlan
+│   │   ├── ui-spec.ts          # Zod schema for UISpec
+│   │   └── blocks.ts           # Per-block prop schemas
+│   ├── auth/
+│   │   └── config.ts           # NextAuth configuration
+│   └── rate-limit/
+│       └── limiter.ts          # In-memory rate limiter
+├── hooks/
+│   ├── useGenerate.ts          # SSE + generation state hook
+│   └── useChat.ts              # Chat state management
+├── package.json
+├── next.config.ts
+├── tsconfig.json
+└── .env.local                  # API keys, OAuth secrets
+```
+
+---
+
+## 12. Milestone Plan — First 2 Weeks
+
+### Week 1: Foundation + Pipeline
+
+| Day | Milestone | Deliverable |
+|-----|-----------|-------------|
+| 1 | **Scaffold** | Next.js project, deps installed, folder structure, env vars |
+| 1 | **Auth** | NextAuth with Google OAuth working, protected routes |
+| 2 | **LLM Adapter** | Provider-agnostic adapter, tested with one provider |
+| 2 | **Agent 1** | Intent extraction agent with system prompt + Zod validation |
+| 3 | **Agent 2+3** | UX selector + renderer agents, full pipeline runs end-to-end |
+| 3 | **SSE Streaming** | `/api/generate` streams real status updates to client |
+| 4 | **Zod Schemas** | All three output schemas validated, retry logic on failure |
+| 4 | **Rate Limiting** | Middleware in place, per-user counters |
+| 5 | **Integration** | Pipeline callable from frontend, status events render in chat |
+
+### Week 2: Components + Polish
+
+| Day | Milestone | Deliverable |
+|-----|-----------|-------------|
+| 6 | **Block Library (layout)** | Stack, Grid, Tabs, Columns, Accordion |
+| 6 | **Block Library (content)** | Hero, WikiSection, InfoCard, StatCard, Table |
+| 7 | **Block Library (interactive)** | Quiz, Form, Chart, FileUpload, Slider |
+| 7 | **BlockRenderer** | Recursive renderer fully working with all blocks |
+| 8 | **Chat Panel** | Left sidebar with input, prompt chips, message bubbles, status |
+| 8 | **Experience Panel** | Right side rendering live UISpec output |
+| 9 | **Multi-turn** | Follow-up chat after experience renders, spec modification |
+| 10 | **End-to-end demo** | Full flow: type query → see pipeline status → interactive experience |
+
+---
+
+## Key Design Decisions
+
+> [!IMPORTANT]
+> **Why three agents instead of one?** Separation of concerns allows independent iteration. The intent agent can be swapped for a fine-tuned classifier later. The UX selector can incorporate user preferences. The renderer can be optimized per-experience-type. It's slower now but architecturally sound.
+
+> [!NOTE]
+> **Why Zod over JSON Schema?** Zod gives us TypeScript-native validation with type inference — one schema defines both the runtime validator and the TypeScript type. No separate type definitions to keep in sync.
+
+> [!NOTE]
+> **Why SSE over WebSockets?** SSE is simpler, HTTP-native, works through CDNs/proxies without configuration, and is perfectly suited for our unidirectional server→client streaming pattern. WebSockets would be overkill.
+
+---
+
+## Verification Plan
+
+### Automated Tests
+Since this is a new greenfield project, we'll verify incrementally:
+
+1. **Zod schema tests**: Unit tests for all three schemas — valid and invalid inputs.
+   - Run: `npm test -- --grep schema`
+
+2. **LLM adapter tests**: Mock LLM responses, verify provider adapter returns correct format.
+   - Run: `npm test -- --grep llm`
+
+3. **Pipeline integration test**: Mock all 3 agents, verify orchestrator runs them in sequence and handles errors.
+   - Run: `npm test -- --grep pipeline`
+
+### Manual Verification
+1. **Start dev server** (`npm run dev`), open `http://localhost:3000`
+2. **Sign in with Google OAuth** — verify redirect + session created
+3. **Type a query** (e.g., "Explain how neural networks work") — verify:
+   - Status messages stream in the chat panel (intent → ux → rendering)
+   - An interactive experience renders on the right side
+   - The experience uses real Lego blocks (not a text wall)
+4. **Click a prompt chip** — verify same flow works
+5. **Send a follow-up message** after experience renders — verify chat is unlocked and system responds
+6. **Rate limit test**: send 21 queries in quick succession — verify 429 error on the 21st
