@@ -2,6 +2,7 @@ import {
     SSEStatusEvent,
     SSEDebugEvent,
     SSESpecEvent,
+    SSESpecChunkEvent,
     SSECompleteEvent,
     SSEErrorEvent,
     PipelineStage,
@@ -40,6 +41,11 @@ export class SSEStreamer {
     specUpdate(blocks: number, total: number) {
         const payload: SSESpecEvent = { type: 'partial', blocks, total };
         this.sendEvent('spec', payload);
+    }
+
+    specChunk(partial: string) {
+        const payload: SSESpecChunkEvent = { type: 'spec-chunk', partial };
+        this.sendEvent('spec-chunk', payload);
     }
 
     complete(uiSpec: UISpec) {

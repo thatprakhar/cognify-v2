@@ -6,6 +6,7 @@ export interface GenerateOptions<T extends z.ZodType> {
     schema: T;
     temperature?: number;
     maxTokens?: number;
+    onChunk?: (partialJson: string) => void;
 }
 
 export abstract class LLMProvider {

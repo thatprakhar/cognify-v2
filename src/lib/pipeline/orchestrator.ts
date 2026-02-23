@@ -34,7 +34,9 @@ export class PipelineOrchestrator {
 
             // Stage 3: Rendering
             streamer.status('rendering', 'Building your interactive experience...');
-            const uiSpec = await this.renderAgent.render(intentSpec, uxPlan);
+            const uiSpec = await this.renderAgent.render(intentSpec, uxPlan, (chunk) => {
+                streamer.specChunk(chunk);
+            });
             streamer.debug('rendering', uiSpec);
 
             // Complete
