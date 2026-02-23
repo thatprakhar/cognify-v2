@@ -5,10 +5,11 @@ import { ChatPanel } from '@/components/chat/ChatPanel';
 import { ExperiencePanel } from '@/components/experience/ExperiencePanel';
 import { useChat } from '@/hooks/useChat';
 import { useGenerate } from '@/hooks/useGenerate';
+import { X } from 'lucide-react';
 
 export default function Home() {
   const { messages, addMessage } = useChat();
-  const { generate, isGenerating, currentStage, statusMessage, uiSpec, intentSpec, uxPlan, error } = useGenerate();
+  const { generate, isGenerating, currentStage, statusMessage, uiSpec, intentSpec, uxPlan, error, clearError } = useGenerate();
 
   const handleSendMessage = async (query: string) => {
     // Add user message to UI
@@ -40,9 +41,14 @@ export default function Home() {
           isGenerating={isGenerating}
         />
         {error && (
-          <div className="absolute bottom-4 right-4 bg-red-50 text-red-600 px-6 py-4 rounded-xl shadow-lg border border-red-100 max-w-md z-50">
-            <p className="font-semibold text-sm">Error generating experience</p>
-            <p className="text-sm opacity-90 mt-1">{error}</p>
+          <div className="absolute bottom-4 right-4 bg-red-50 text-red-600 px-6 py-4 rounded-xl shadow-lg border border-red-100 max-w-md z-50 flex items-start justify-between gap-4">
+            <div>
+              <p className="font-semibold text-sm">Error generating experience</p>
+              <p className="text-sm opacity-90 mt-1">{error}</p>
+            </div>
+            <button onClick={clearError} className="text-red-600 hover:text-red-800 transition-colors p-1 -mr-2">
+              <X size={16} />
+            </button>
           </div>
         )}
       </div>
