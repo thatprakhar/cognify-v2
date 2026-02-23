@@ -22,7 +22,6 @@ export class OpenAIProvider extends LLMProvider {
                 { role: "user", content: userPrompt }
             ],
             response_format: { type: "json_object" },
-            temperature,
             max_completion_tokens: maxTokens,
         });
 
