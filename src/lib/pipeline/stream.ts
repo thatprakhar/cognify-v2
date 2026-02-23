@@ -1,5 +1,6 @@
 import {
     SSEStatusEvent,
+    SSEDebugEvent,
     SSESpecEvent,
     SSECompleteEvent,
     SSEErrorEvent,
@@ -29,6 +30,11 @@ export class SSEStreamer {
     status(stage: PipelineStage, message: string) {
         const payload: SSEStatusEvent = { stage, message };
         this.sendEvent('status', payload);
+    }
+
+    debug(stage: PipelineStage, data: any) {
+        const payload: SSEDebugEvent = { stage, data };
+        this.sendEvent('debug', payload);
     }
 
     specUpdate(blocks: number, total: number) {
