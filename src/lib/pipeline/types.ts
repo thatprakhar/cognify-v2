@@ -78,7 +78,7 @@ export interface PipelineState {
 
 // --- SSE Events ---
 
-export type SSEEventType = 'status' | 'spec' | 'complete' | 'error' | 'debug'
+export type SSEEventType = 'status' | 'spec' | 'spec-chunk' | 'complete' | 'error' | 'debug'
 
 export interface SSEStatusEvent {
     stage: PipelineStage
@@ -94,6 +94,11 @@ export interface SSESpecEvent {
     type: 'partial'
     blocks: number
     total: number
+}
+
+export interface SSESpecChunkEvent {
+    type: 'spec-chunk'
+    partial: string
 }
 
 export interface SSECompleteEvent {
