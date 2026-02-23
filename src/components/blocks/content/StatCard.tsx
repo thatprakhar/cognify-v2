@@ -7,7 +7,7 @@ interface StatCardProps {
     trend?: string; // e.g. "+5%", "-2.3%", "0%"
 }
 
-export const StatCard: React.FC<StatCardProps> = ({ label, value, trend }) => {
+export const StatCard: React.FC<StatCardProps> = ({ label = '', value = '', trend }) => {
     let TrendIcon = Minus;
     let trendColor = 'text-zinc-500';
 

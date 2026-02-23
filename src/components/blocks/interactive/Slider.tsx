@@ -10,7 +10,7 @@ interface SliderProps {
     defaultValue?: number;
 }
 
-export const Slider: React.FC<SliderProps> = ({ label, min, max, step = 1, defaultValue }) => {
+export const Slider: React.FC<SliderProps> = ({ label = '', min = 0, max = 100, step = 1, defaultValue }) => {
     const [value, setValue] = useState(defaultValue ?? min);
 
     return (

@@ -5,7 +5,7 @@ interface WikiSectionProps {
     body: string;
 }
 
-export const WikiSection: React.FC<WikiSectionProps> = ({ heading, body }) => {
+export const WikiSection: React.FC<WikiSectionProps> = ({ heading = '', body = '' }) => {
     return (
         <section className="my-6">
             <h2 className="text-2xl font-semibold mb-3 text-black dark:text-white border-b border-zinc-200 dark:border-zinc-800 pb-2">

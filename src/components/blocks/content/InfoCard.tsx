@@ -7,7 +7,7 @@ interface InfoCardProps {
     icon?: string;
 }
 
-export const InfoCard: React.FC<InfoCardProps> = ({ title, content, icon }) => {
+export const InfoCard: React.FC<InfoCardProps> = ({ title = '', content = '', icon }) => {
     // Dynamically render icon from lucide-react if passed
     const IconComponent = icon && (LucideIcons as any)[icon];
 

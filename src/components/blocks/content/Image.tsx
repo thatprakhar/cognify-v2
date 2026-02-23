@@ -6,7 +6,7 @@ interface ImageProps {
     caption?: string;
 }
 
-export const Image: React.FC<ImageProps> = ({ url, alt, caption }) => {
+export const Image: React.FC<ImageProps> = ({ url = '', alt = '', caption }) => {
     return (
         <figure className="my-6">
             <div className="rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900">

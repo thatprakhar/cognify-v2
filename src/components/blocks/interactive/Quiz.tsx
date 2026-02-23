@@ -13,13 +13,16 @@ interface QuizProps {
     questions: QuizQuestion[];
 }
 
-export const Quiz: React.FC<QuizProps> = ({ questions }) => {
+export const Quiz: React.FC<QuizProps> = ({ questions = [] }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [selected, setSelected] = useState<number | null>(null);
     const [showResult, setShowResult] = useState(false);
     const [score, setScore] = useState(0);
 
     const question = questions[currentIndex];
+
+    // Gracefully handle undefined question during partial streaming
+    if (!question) return null;
 
     const handleSelect = (idx: number) => {
         if (selected !== null) return;
@@ -60,7 +63,7 @@ export const Quiz: React.FC<QuizProps> = ({ questions }) => {
             </h3>
 
             <div className="space-y-3">
-                {question.options.map((opt, idx) => {
+                {question.options?.map((opt, idx) => {
                     let btnClass = "border-zinc-200 dark:border-zinc-800 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20";
                     if (selected !== null) {
                         if (idx === question.correct) {
