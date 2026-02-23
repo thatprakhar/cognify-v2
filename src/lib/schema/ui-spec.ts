@@ -18,45 +18,43 @@ export const LEAF_BLOCKS = new Set<string>([...CONTENT_BLOCKS, ...INTERACTIVE_BL
 // --- Recursive UINode Schema ---
 
 const UINodeBaseSchema = z.object({
-    type: z.enum(ALL_BLOCKS),
-    props: z.record(z.unknown()).default({}),
+ type: z.enum(ALL_BLOCKS),
+ props: z.record(z.string(), z.unknown()).default({}),
 })
 
 export type UINodeSchema = z.infer<typeof UINodeBaseSchema> & {
-    children?: UINodeSchema[]
+ children?: UINodeSchema[]
 }
 
 // We use z.lazy for recursive types
 export const UINodeSchema: z.ZodType<UINodeSchema> = UINodeBaseSchema.extend({
-    children: z.lazy(() => z.array(UINodeSchema)).optional(),
-}).refine(
-    (node) => {
-        // Parent blocks must have children
-        if (PARENT_BLOCKS.has(node.type) && (!node.children || node.children.length === 0)) {
-            return false
-        }
-        // Leaf blocks cannot have children
-        if (LEAF_BLOCKS.has(node.type) && node.children && node.children.length > 0) {
-            return false
-        }
-        return true
-    },
-    (node) => ({
-        message: PARENT_BLOCKS.has(node.type)
-            ? `Layout block "${node.type}" must have at least one child`
-            : `Leaf block "${node.type}" cannot have children`,
-    })
-)
+ children: z.lazy(() => z.array(UINodeSchema)).optional(),
+}).superRefine((node, ctx) => {
+ // Parent blocks must have children
+ if (PARENT_BLOCKS.has(node.type) && (!node.children || node.children.length === 0)) {
+ ctx.addIssue({
+ code: z.ZodIssueCode.custom,
+ message: `Layout block "${node.type}" must have at least one child`,
+ });
+ }
+ // Leaf blocks cannot have children
+ if (LEAF_BLOCKS.has(node.type) && node.children && node.children.length > 0) {
+ ctx.addIssue({
+ code: z.ZodIssueCode.custom,
+ message: `Leaf block "${node.type}" cannot have children`,
+ });
+ }
+})
 
 // --- Agent 3: UISpec Schema ---
 
 export const UISpecThemeSchema = z.object({
-    accent: z.string().optional(),
+ accent: z.string().optional(),
 })
 
 export const UISpecSchema = z.object({
-    version: z.string().default('1.0'),
-    title: z.string(),
-    theme: UISpecThemeSchema.optional(),
-    root: UINodeSchema,
+ version: z.string().default('1.0'),
+ title: z.string(),
+ theme: UISpecThemeSchema.optional(),
+ root: UINodeSchema,
 })

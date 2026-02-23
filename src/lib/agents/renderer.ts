@@ -5,14 +5,14 @@ import { LLMProvider } from '../llm/provider';
 import { z } from 'zod';
 
 export class RendererAgent {
-  constructor(private provider: LLMProvider) { }
+ constructor(private provider: LLMProvider) { }
 
-  async render(
-    intentSpec: z.infer<typeof IntentSpecSchema>,
-    uxPlan: z.infer<typeof UXPlanSchema>,
-    onChunk?: (partialJson: string) => void
-  ): Promise<z.infer<typeof UISpecSchema>> {
-    const systemPrompt = `You are a UI rendering agent. Given an IntentSpec and UXPlan, generate a
+ async render(
+ intentSpec: z.infer<typeof IntentSpecSchema>,
+ uxPlan: z.infer<typeof UXPlanSchema>,
+ onChunk?: (partialJson: string) => void
+ ): Promise<z.infer<typeof UISpecSchema>> {
+ const systemPrompt = `You are a UI rendering agent. Given an IntentSpec and UXPlan, generate a
 complete UISpec JSON using ONLY the allowed component types.
 
 AVAILABLE COMPONENTS:
@@ -53,24 +53,24 @@ Rules:
 
 Output ONLY this JSON structure:
 {
-  "version": "1.0",
-  "title": "...",
-  "theme": { "accent": "..." },
-  "root": {
-    "type": "...",
-    "props": {},
-    "children": []
-  }
+ "version": "1.0",
+ "title": "...",
+ "theme": { "accent": "..." },
+ "root": {
+ "type": "...",
+ "props": {},
+ "children": []
+ }
 }`;
 
-    const userPrompt = `IntentSpec:\n${JSON.stringify(intentSpec, null, 2)}\n\nUXPlan:\n${JSON.stringify(uxPlan, null, 2)}`;
+ const userPrompt = `IntentSpec:\n${JSON.stringify(intentSpec, null, 2)}\n\nUXPlan:\n${JSON.stringify(uxPlan, null, 2)}`;
 
-    return this.provider.generateJSON({
-      systemPrompt,
-      userPrompt,
-      schema: UISpecSchema,
-      maxTokens: 8000,
-      onChunk
-    });
-  }
+ return this.provider.generateJSON({
+ systemPrompt,
+ userPrompt,
+ schema: UISpecSchema,
+ maxTokens: 8000,
+ onChunk
+ });
+ }
 }
