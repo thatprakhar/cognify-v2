@@ -8,7 +8,7 @@ interface FileUploadProps {
     maxSizeMB?: number;
 }
 
-export const FileUpload: React.FC<FileUploadProps> = ({ acceptedTypes, maxSizeMB = 5 }) => {
+export const FileUpload: React.FC<FileUploadProps> = ({ acceptedTypes = [], maxSizeMB = 5 }) => {
     const [dragActive, setDragActive] = useState(false);
     const [uploadedFile, setUploadedFile] = useState<string | null>(null);
 

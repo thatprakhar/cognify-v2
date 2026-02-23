@@ -5,7 +5,7 @@ interface TableProps {
     rows: (string | number)[][];
 }
 
-export const Table: React.FC<TableProps> = ({ headers, rows }) => {
+export const Table: React.FC<TableProps> = ({ headers = [], rows = [] }) => {
     return (
         <div className="w-full overflow-x-auto border border-zinc-200 dark:border-zinc-800 rounded-xl">
             <table className="w-full text-left border-collapse">

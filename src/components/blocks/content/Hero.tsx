@@ -6,7 +6,7 @@ interface HeroProps {
     imageUrl?: string;
 }
 
-export const Hero: React.FC<HeroProps> = ({ title, subtitle, imageUrl }) => {
+export const Hero: React.FC<HeroProps> = ({ title = '', subtitle, imageUrl }) => {
     return (
         <div className="flex flex-col items-center justify-center text-center py-12 px-4 rounded-2xl bg-gradient-to-b from-zinc-50 to-white dark:from-zinc-900 dark:to-black border border-zinc-200 dark:border-zinc-800 shadow-sm">
             {imageUrl && (

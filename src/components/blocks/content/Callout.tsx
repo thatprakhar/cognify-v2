@@ -7,7 +7,7 @@ interface CalloutProps {
     message: string;
 }
 
-export const Callout: React.FC<CalloutProps> = ({ type, title, message }) => {
+export const Callout: React.FC<CalloutProps> = ({ type = 'info', title, message }) => {
     const config = {
         info: {
             icon: Info,

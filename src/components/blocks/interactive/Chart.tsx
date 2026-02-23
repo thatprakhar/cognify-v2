@@ -15,7 +15,7 @@ interface ChartProps {
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
-export const Chart: React.FC<ChartProps> = ({ type, data, xKey, yKeys }) => {
+export const Chart: React.FC<ChartProps> = ({ type = 'bar', data = [], xKey = '', yKeys = [] }) => {
     const renderChart = () => {
         switch (type) {
             case 'bar':
