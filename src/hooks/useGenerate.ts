@@ -87,6 +87,10 @@ export function useGenerate() {
         }
     }, []);
 
+    const clearError = useCallback(() => {
+        setError(null);
+    }, []);
+
     return {
         generate,
         isGenerating,
@@ -95,6 +99,7 @@ export function useGenerate() {
         uiSpec,
         intentSpec,
         uxPlan,
-        error
+        error,
+        clearError
     };
 }
