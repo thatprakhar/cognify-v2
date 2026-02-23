@@ -16,7 +16,7 @@ export class OpenAIProvider extends LLMProvider {
         const { systemPrompt, userPrompt, schema, temperature = 0.7, maxTokens = 4000 } = options;
 
         const response = await this.client.chat.completions.create({
-            model: "gpt-4o",
+            model: "gpt-5-mini",
             messages: [
                 { role: "system", content: systemPrompt },
                 { role: "user", content: userPrompt }
