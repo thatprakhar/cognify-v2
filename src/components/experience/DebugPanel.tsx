@@ -8,13 +8,14 @@ interface DebugPanelProps {
     intentSpec: IntentSpec | null;
     uxPlan: UXPlan | null;
     uiSpec: UISpec | null;
+    uiSpecRaw: string | null;
 }
 
-export const DebugPanel: React.FC<DebugPanelProps> = ({ intentSpec, uxPlan, uiSpec }) => {
+export const DebugPanel: React.FC<DebugPanelProps> = ({ intentSpec, uxPlan, uiSpec, uiSpecRaw }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<'intent' | 'ux' | 'ui'>('intent');
 
-    if (!intentSpec && !uxPlan && !uiSpec) return null;
+    if (!intentSpec && !uxPlan && !uiSpec && !uiSpecRaw) return null;
 
     let activeData = null;
     if (activeTab === 'intent') activeData = intentSpec;
@@ -63,7 +64,11 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({ intentSpec, uxPlan, uiSp
 
                 {/* JSON Body */}
                 <div className="flex-1 overflow-auto bg-[#0d0d0d] p-4">
-                    {activeData ? (
+                    {activeTab === 'ui' && uiSpecRaw ? (
+                        <pre className="text-xs font-mono text-zinc-300 whitespace-pre-wrap">
+                            {uiSpecRaw}
+                        </pre>
+                    ) : activeData ? (
                         <pre className="text-xs font-mono text-zinc-300 whitespace-pre-wrap">
                             {JSON.stringify(activeData, null, 2)}
                         </pre>

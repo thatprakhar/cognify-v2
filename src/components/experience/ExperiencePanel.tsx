@@ -9,12 +9,13 @@ import { Layers } from 'lucide-react';
 
 interface ExperiencePanelProps {
     uiSpec: UISpec | null;
+    uiSpecRaw: string | null;
     intentSpec: IntentSpec | null;
     uxPlan: UXPlan | null;
     isGenerating: boolean;
 }
 
-export const ExperiencePanel: React.FC<ExperiencePanelProps> = ({ uiSpec, intentSpec, uxPlan, isGenerating }) => {
+export const ExperiencePanel: React.FC<ExperiencePanelProps> = ({ uiSpec, uiSpecRaw, intentSpec, uxPlan, isGenerating }) => {
     return (
         <div className="w-full h-full bg-zinc-50 dark:bg-zinc-900/40 relative overflow-hidden">
             <AnimatePresence mode="wait">
@@ -82,6 +83,7 @@ export const ExperiencePanel: React.FC<ExperiencePanelProps> = ({ uiSpec, intent
                 intentSpec={intentSpec}
                 uxPlan={uxPlan}
                 uiSpec={uiSpec}
+                uiSpecRaw={uiSpecRaw}
             />
         </div>
     );

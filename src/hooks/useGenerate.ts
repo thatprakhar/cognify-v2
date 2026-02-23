@@ -1,11 +1,13 @@
 import { useState, useCallback } from 'react';
 import { PipelineState, PipelineStage, UISpec, IntentSpec, UXPlan } from '@/lib/pipeline/types';
+import { parse as parsePartialJson } from 'partial-json';
 
 export function useGenerate() {
     const [isGenerating, setIsGenerating] = useState(false);
     const [currentStage, setCurrentStage] = useState<PipelineStage | null>(null);
     const [statusMessage, setStatusMessage] = useState<string | null>(null);
     const [uiSpec, setUiSpec] = useState<UISpec | null>(null);
+    const [uiSpecRaw, setUiSpecRaw] = useState<string | null>(null);
     const [intentSpec, setIntentSpec] = useState<IntentSpec | null>(null);
     const [uxPlan, setUxPlan] = useState<UXPlan | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -18,6 +20,7 @@ export function useGenerate() {
         // We only clear uiSpec if we want to replace the current experience immediately.
         // Actually, let's keep it until the new one is ready or skeleton finishes playing.
         setUiSpec(null);
+        setUiSpecRaw(null);
         setIntentSpec(null);
         setUxPlan(null);
 
@@ -67,6 +70,16 @@ export function useGenerate() {
                                 if (data.stage === 'intent') setIntentSpec(data.data);
                                 if (data.stage === 'ux') setUxPlan(data.data);
                                 if (data.stage === 'rendering') setUiSpec(data.data); // optional extra safeguard
+                            } else if (event === 'spec-chunk') {
+                                setUiSpecRaw(data.partial);
+                                try {
+                                    const parsedPartial = parsePartialJson(data.partial);
+                                    if (parsedPartial && typeof parsedPartial === 'object') {
+                                        setUiSpec(parsedPartial as UISpec);
+                                    }
+                                } catch (e) {
+                                    // ignore incomplete chunks that cannot be parsed
+                                }
                             } else if (event === 'complete') {
                                 setUiSpec(data.uiSpec);
                             } else if (event === 'error') {
@@ -97,6 +110,7 @@ export function useGenerate() {
         currentStage,
         statusMessage,
         uiSpec,
+        uiSpecRaw,
         intentSpec,
         uxPlan,
         error,
