@@ -78,11 +78,16 @@ export interface PipelineState {
 
 // --- SSE Events ---
 
-export type SSEEventType = 'status' | 'spec' | 'complete' | 'error'
+export type SSEEventType = 'status' | 'spec' | 'complete' | 'error' | 'debug'
 
 export interface SSEStatusEvent {
     stage: PipelineStage
     message: string
+}
+
+export interface SSEDebugEvent {
+    stage: PipelineStage
+    data: any
 }
 
 export interface SSESpecEvent {

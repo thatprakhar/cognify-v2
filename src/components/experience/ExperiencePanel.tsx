@@ -1,17 +1,20 @@
 'use client';
 
 import React from 'react';
-import { UISpec } from '@/lib/pipeline/types';
+import { UISpec, IntentSpec, UXPlan } from '@/lib/pipeline/types';
 import { BlockRenderer } from './BlockRenderer';
+import { DebugPanel } from './DebugPanel';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Layers } from 'lucide-react';
 
 interface ExperiencePanelProps {
     uiSpec: UISpec | null;
+    intentSpec: IntentSpec | null;
+    uxPlan: UXPlan | null;
     isGenerating: boolean;
 }
 
-export const ExperiencePanel: React.FC<ExperiencePanelProps> = ({ uiSpec, isGenerating }) => {
+export const ExperiencePanel: React.FC<ExperiencePanelProps> = ({ uiSpec, intentSpec, uxPlan, isGenerating }) => {
     return (
         <div className="w-full h-full bg-zinc-50 dark:bg-zinc-900/40 relative overflow-hidden">
             <AnimatePresence mode="wait">
@@ -73,6 +76,13 @@ export const ExperiencePanel: React.FC<ExperiencePanelProps> = ({ uiSpec, isGene
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* Dev Mode Debug UI */}
+            <DebugPanel
+                intentSpec={intentSpec}
+                uxPlan={uxPlan}
+                uiSpec={uiSpec}
+            />
         </div>
     );
 };

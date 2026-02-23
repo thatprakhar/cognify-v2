@@ -25,14 +25,17 @@ export class PipelineOrchestrator {
             // Stage 1: Intent
             streamer.status('intent', 'Understanding your query...');
             const intentSpec = await this.intentAgent.extract(query, history);
+            streamer.debug('intent', intentSpec);
 
             // Stage 2: UX Selection
             streamer.status('ux', 'Designing the best experience...');
             const uxPlan = await this.uxAgent.select(intentSpec);
+            streamer.debug('ux', uxPlan);
 
             // Stage 3: Rendering
             streamer.status('rendering', 'Building your interactive experience...');
             const uiSpec = await this.renderAgent.render(intentSpec, uxPlan);
+            streamer.debug('rendering', uiSpec);
 
             // Complete
             streamer.complete(uiSpec);

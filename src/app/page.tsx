@@ -8,7 +8,7 @@ import { useGenerate } from '@/hooks/useGenerate';
 
 export default function Home() {
   const { messages, addMessage } = useChat();
-  const { generate, isGenerating, currentStage, statusMessage, uiSpec, error } = useGenerate();
+  const { generate, isGenerating, currentStage, statusMessage, uiSpec, intentSpec, uxPlan, error } = useGenerate();
 
   const handleSendMessage = async (query: string) => {
     // Add user message to UI
@@ -35,6 +35,8 @@ export default function Home() {
       <div className="hidden md:flex flex-1 relative bg-zinc-50 dark:bg-zinc-900 overflow-hidden">
         <ExperiencePanel
           uiSpec={uiSpec}
+          intentSpec={intentSpec}
+          uxPlan={uxPlan}
           isGenerating={isGenerating}
         />
         {error && (

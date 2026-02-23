@@ -1,11 +1,13 @@
 import { useState, useCallback } from 'react';
-import { PipelineState, PipelineStage, UISpec } from '@/lib/pipeline/types';
+import { PipelineState, PipelineStage, UISpec, IntentSpec, UXPlan } from '@/lib/pipeline/types';
 
 export function useGenerate() {
     const [isGenerating, setIsGenerating] = useState(false);
     const [currentStage, setCurrentStage] = useState<PipelineStage | null>(null);
     const [statusMessage, setStatusMessage] = useState<string | null>(null);
     const [uiSpec, setUiSpec] = useState<UISpec | null>(null);
+    const [intentSpec, setIntentSpec] = useState<IntentSpec | null>(null);
+    const [uxPlan, setUxPlan] = useState<UXPlan | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     const generate = useCallback(async (query: string, history: any[] = []) => {
@@ -16,6 +18,8 @@ export function useGenerate() {
         // We only clear uiSpec if we want to replace the current experience immediately.
         // Actually, let's keep it until the new one is ready or skeleton finishes playing.
         setUiSpec(null);
+        setIntentSpec(null);
+        setUxPlan(null);
 
         try {
             const response = await fetch('/api/generate', {
@@ -59,6 +63,10 @@ export function useGenerate() {
                             if (event === 'status') {
                                 setCurrentStage(data.stage);
                                 setStatusMessage(data.message);
+                            } else if (event === 'debug') {
+                                if (data.stage === 'intent') setIntentSpec(data.data);
+                                if (data.stage === 'ux') setUxPlan(data.data);
+                                if (data.stage === 'rendering') setUiSpec(data.data); // optional extra safeguard
                             } else if (event === 'complete') {
                                 setUiSpec(data.uiSpec);
                             } else if (event === 'error') {
@@ -85,6 +93,8 @@ export function useGenerate() {
         currentStage,
         statusMessage,
         uiSpec,
+        intentSpec,
+        uxPlan,
         error
     };
 }
