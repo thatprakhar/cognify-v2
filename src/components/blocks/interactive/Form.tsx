@@ -15,7 +15,7 @@ interface FormProps {
     submitLabel: string;
 }
 
-export const Form: React.FC<FormProps> = ({ fields, submitLabel }) => {
+export const Form: React.FC<FormProps> = ({ fields = [], submitLabel }) => {
     const [submitted, setSubmitted] = useState(false);
 
     const handleSubmit = (e: React.FormEvent) => {
