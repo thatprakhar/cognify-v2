@@ -56,6 +56,8 @@ interface BlockRendererProps {
 }
 
 export const BlockRenderer: React.FC<BlockRendererProps> = ({ node }) => {
+    if (!node) return null; // Gracefully handle partial streaming undefined nodes
+
     const Component = ComponentMap[node.type];
 
     if (!Component) {
