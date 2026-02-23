@@ -8,7 +8,7 @@ interface TabsProps {
     children: React.ReactNode;
 }
 
-export const Tabs: React.FC<TabsProps> = ({ tabs, children }) => {
+export const Tabs: React.FC<TabsProps> = ({ tabs = [], children }) => {
     const [activeTab, setActiveTab] = useState(0);
     const childrenArray = React.Children.toArray(children);
 
@@ -20,8 +20,8 @@ export const Tabs: React.FC<TabsProps> = ({ tabs, children }) => {
                         key={idx}
                         onClick={() => setActiveTab(idx)}
                         className={`px-4 py-2 text-sm font-medium transition-colors relative whitespace-nowrap ${activeTab === idx
-                                ? 'text-black dark:text-white'
-                                : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300'
+                            ? 'text-black dark:text-white'
+                            : 'text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300'
                             }`}
                     >
                         {tab}

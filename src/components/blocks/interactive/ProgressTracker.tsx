@@ -6,7 +6,7 @@ interface ProgressTrackerProps {
     currentStep: number;
 }
 
-export const ProgressTracker: React.FC<ProgressTrackerProps> = ({ steps, currentStep }) => {
+export const ProgressTracker: React.FC<ProgressTrackerProps> = ({ steps = [], currentStep = 0 }) => {
     return (
         <div className="w-full my-6">
             <div className="flex items-center justify-between relative">
