@@ -9,7 +9,7 @@ import { X } from 'lucide-react';
 
 export default function Home() {
   const { messages, addMessage } = useChat();
-  const { generate, isGenerating, currentStage, statusMessage, uiSpec, intentSpec, uxPlan, error, clearError } = useGenerate();
+  const { generate, isGenerating, currentStage, statusMessage, uiSpec, uiSpecRaw, intentSpec, uxPlan, error, clearError } = useGenerate();
 
   const handleSendMessage = async (query: string) => {
     // Add user message to UI
@@ -36,6 +36,7 @@ export default function Home() {
       <div className="hidden md:flex flex-1 relative bg-zinc-50 dark:bg-zinc-900 overflow-hidden">
         <ExperiencePanel
           uiSpec={uiSpec}
+          uiSpecRaw={uiSpecRaw}
           intentSpec={intentSpec}
           uxPlan={uxPlan}
           isGenerating={isGenerating}
