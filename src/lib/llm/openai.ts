@@ -23,7 +23,7 @@ export class OpenAIProvider extends LLMProvider {
             ],
             response_format: { type: "json_object" },
             temperature,
-            max_tokens: maxTokens,
+            max_completion_tokens: maxTokens,
         });
 
         const content = response.choices[0]?.message?.content;
