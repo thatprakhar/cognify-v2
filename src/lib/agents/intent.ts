@@ -4,38 +4,54 @@ import { z } from 'zod';
 import { ChatMessage } from '../pipeline/types';
 
 export class IntentAgent {
- constructor(private provider: LLMProvider) { }
+    constructor(private provider: LLMProvider) { }
 
- async extract(query: string, history: ChatMessage[] = []): Promise<z.infer<typeof IntentSpecSchema>> {
- const historyText = history.map(msg => `${msg.role}: ${msg.content}`).join('\n');
+    async extract(query: string, history: ChatMessage[] = []): Promise<z.infer<typeof IntentSpecSchema>> {
+        const historyText = history.map(msg => `${msg.role}: ${msg.content}`).join('\n');
 
- const systemPrompt = `You are an intent extraction agent for Cognify. Given a user's chat message
-and conversation history, output a JSON object matching the IntentSpec schema.
+        const systemPrompt = `
+You are Cognify IntentAgent.
 
-Rules:
-- NEVER output free text. ONLY output valid JSON.
-- Identify the user's goal: understand, decide, analyze, create, compare, or learn?
-- Identify the domain and complexity level.
-- If the user needs to provide data before proceeding, list them in requiredInputs.
-- If this is a follow-up message, include relevant context from chat history.
+TASK:
+Given the user's current message and chat history, output ONE JSON object that validates against IntentSpecSchema.
 
-Output ONLY this JSON structure:
-{ 
- "query": "...", 
- "intent": "explanation" | "analysis" | "decision" | "creation" | "comparison" | "learning", 
- "domain": "...", 
- "complexity": "basic" | "intermediate" | "advanced",
- "goalType": "understand" | "decide" | "analyze" | "create" | "compare" | "learn", 
- "requiredInputs": [{ "type": "csv" | "text" | "selection", "label": "...", "description": "..." }], 
- "contextFromChat": [] 
-}`;
+HARD RULES:
+- Output JSON ONLY. No markdown, no comments, no extra text.
+- Do NOT include keys not present in the schema.
+- If you are missing required info to proceed, set mode="CLARIFY" and include 1–3 clarifyingQuestions.
+- Otherwise set mode="READY".
+- Never request secrets (passwords, API keys, tokens).
 
- const userPrompt = `History:\n${historyText}\n\nCurrent Query: <user_query>${query}</user_query>`;
+FLOW SELECTION (MUST choose exactly one):
+- career_quiz: user wants guidance on career direction, preferences, tradeoffs, path selection
+- expense_dashboard: user wants to analyze expenses, budgets, spending patterns, uploads
+- modern_wiki: user wants an explanation/learning content (concept, law, theory, how something works)
 
- return this.provider.generateJSON({
- systemPrompt,
- userPrompt,
- schema: IntentSpecSchema,
- });
- }
+OUTPUT SHAPE (must match schema):
+{
+  "query": string,
+  "flowId": "career_quiz" | "expense_dashboard" | "modern_wiki",
+  "mode": "READY" | "CLARIFY",
+  "goal": string,                       // 1 sentence
+  "intent": "explanation" | "analysis" | "decision" | "creation" | "comparison" | "learning",
+  "complexity": "basic" | "intermediate" | "advanced",
+  "requiredInputs": [{ "type": "csv" | "text" | "selection", "label": string, "description": string }],
+  "clarifyingQuestions": string[],      // only when mode="CLARIFY"
+  "contextFromChat": string[]           // short bullet facts extracted from history
+}
+
+CONTENT RULES:
+- goal must be specific and reflect the user query.
+- requiredInputs must be empty if mode="READY" and no inputs needed.
+- contextFromChat must be short and factual; do not invent facts.
+`;
+
+        const userPrompt = `History:\n${historyText}\n\nCurrent Query: <user_query>${query}</user_query>`;
+
+        return this.provider.generateJSON({
+            systemPrompt,
+            userPrompt,
+            schema: IntentSpecSchema,
+        });
+    }
 }
