@@ -44,13 +44,27 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
             </div>
 
             {/* Message Area */}
-            <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6" ref={scrollRef}>
+            <div className="flex-1 overflow-y-auto px-6 py-4" ref={scrollRef}>
                 {messages.length === 0 && !isGenerating && (
-                    <div className="flex flex-col items-center justify-center h-full text-center space-y-4 opacity-70">
-                        <div className="w-16 h-16 bg-white border border-zinc-100 shadow-sm rounded-2xl flex items-center justify-center rotate-3 hover:rotate-6 transition-transform">
-                            <span className="text-2xl">✨</span>
+                    <div className="flex flex-col items-start justify-end h-full space-y-4 opacity-80 pb-8">
+                        <div className="w-10 h-10 bg-zinc-100 rounded-lg flex items-center justify-center mb-2">
+                            <span className="text-lg font-mono text-zinc-500">{'>_'}</span>
                         </div>
-                        <p className="text-zinc-500">How can I help you today?</p>
+                        <h2 className="font-medium text-zinc-900 tracking-tight">System Ready</h2>
+                        <ul className="text-[13px] text-zinc-500 space-y-2 font-mono">
+                            <li className="flex gap-3">
+                                <span className="text-zinc-300">01</span>
+                                <span>Initialize rendering engine... OK</span>
+                            </li>
+                            <li className="flex gap-3">
+                                <span className="text-zinc-300">02</span>
+                                <span>Awaiting parameters for UX synthesis.</span>
+                            </li>
+                            <li className="flex gap-3 text-blue-500 mt-4">
+                                <span className="opacity-50">03</span>
+                                <span>Enter prompt below to begin generation.</span>
+                            </li>
+                        </ul>
                     </div>
                 )}
 
