@@ -10,6 +10,7 @@ import {
     Select, SelectTrigger, SelectContent, SelectItem, SelectValue,
 } from '@/ui/shadcn/select';
 import { UploadCloud, CheckCircle2, Check } from 'lucide-react';
+import { useExperienceContext } from '@/components/experience/ExperienceContext';
 
 // --- CognifyQuiz ---
 
@@ -110,7 +111,7 @@ export const CognifyQuiz: React.FC<CognifyQuizProps> = ({ questions = [] }) => {
 interface FormField {
     name: string;
     label: string;
-    type: 'text' | 'email' | 'number' | 'select';
+    type: 'text' | 'email' | 'number' | 'select' | 'textarea';
     options?: string[];
     required?: boolean;
 }
@@ -122,9 +123,19 @@ interface CognifyFormProps {
 
 export const CognifyForm: React.FC<CognifyFormProps> = ({ fields = [], submitLabel }) => {
     const [submitted, setSubmitted] = useState(false);
+    const { submitClarification } = useExperienceContext();
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        // Extract form data
+        const formData = new FormData(e.currentTarget);
+        const data: Record<string, string> = {};
+        formData.forEach((value, key) => {
+            data[key] = value.toString();
+        });
+
+        submitClarification(data);
         setSubmitted(true);
     };
 
@@ -149,7 +160,7 @@ export const CognifyForm: React.FC<CognifyFormProps> = ({ fields = [], submitLab
                                 {field.label} {field.required && <span className="text-destructive">*</span>}
                             </Label>
                             {field.type === 'select' ? (
-                                <Select required={field.required}>
+                                <Select required={field.required} name={field.name}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select an option" />
                                     </SelectTrigger>
@@ -159,6 +170,13 @@ export const CognifyForm: React.FC<CognifyFormProps> = ({ fields = [], submitLab
                                         ))}
                                     </SelectContent>
                                 </Select>
+                            ) : field.type === 'textarea' ? (
+                                <textarea
+                                    id={field.name}
+                                    name={field.name}
+                                    required={field.required}
+                                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                />
                             ) : (
                                 <Input
                                     type={field.type}

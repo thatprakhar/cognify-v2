@@ -58,6 +58,12 @@ export default function Home() {
                     answerSpec={answerSpec}
                     uxPlan={uxPlan}
                     isGenerating={isGenerating}
+                    onSubmitClarification={(answers) => {
+                        const formattedAnswers = Object.entries(answers)
+                            .map(([key, value]) => `${key}: ${value}`)
+                            .join('\n');
+                        handleSendMessage(`Here are the clarification answers:\n${formattedAnswers}`);
+                    }}
                 />
                 {error && (
                     <div className="absolute bottom-4 right-4 bg-red-50 text-red-600 px-6 py-4 rounded-xl shadow-lg border border-red-100 max-w-md z-50 flex items-start justify-between gap-4">
