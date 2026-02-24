@@ -4,8 +4,8 @@ import { z } from 'zod'
 // Only these component types can be rendered. The LLM cannot invent new ones.
 
 export const LAYOUT_BLOCKS = ['Stack', 'Grid', 'Tabs', 'Accordion', 'Columns'] as const
-export const CONTENT_BLOCKS = ['Hero', 'WikiSection', 'InfoCard', 'StatCard', 'Table', 'Image', 'Callout', 'Divider'] as const
-export const INTERACTIVE_BLOCKS = ['Quiz', 'Form', 'FileUpload', 'Slider', 'Chart', 'ProgressTracker'] as const
+export const CONTENT_BLOCKS = ['Hero', 'WikiSection', 'InfoCard', 'StatCard', 'Table', 'Image', 'Callout', 'Divider', 'Equation'] as const
+export const INTERACTIVE_BLOCKS = ['Quiz', 'Form', 'FileUpload', 'Slider', 'Chart', 'ProgressTracker', 'Map'] as const
 export const MODULE_BLOCKS = ['Comparison', 'Calculator', 'Dashboard', 'Diagram'] as const
 
 export const ALL_BLOCKS = [...LAYOUT_BLOCKS, ...CONTENT_BLOCKS, ...INTERACTIVE_BLOCKS, ...MODULE_BLOCKS] as const

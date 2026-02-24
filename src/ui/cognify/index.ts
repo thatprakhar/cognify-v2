@@ -13,7 +13,9 @@ export { CognifyCallout, CognifyDivider, CognifyTable, ErrorCallout } from './co
 
 // Interactive
 export { CognifyQuiz, CognifyForm, CognifyFileUpload, CognifySlider, CognifyProgressTracker } from './interactive';
+export { CognifyMap } from './interactive-map';
 export { CognifyChart } from './chart';
+export { CognifyEquation } from './content-math';
 
 // --- Component Type Map ---
 // Maps UISpec node.type strings to Cognify wrapper components.
@@ -28,7 +30,9 @@ import { CognifyHero, CognifyInfoCard, CognifyStatCard, CognifyImage } from './c
 import { CognifyWikiSection } from './content-wiki';
 import { CognifyCallout, CognifyDivider, CognifyTable } from './content-blocks';
 import { CognifyQuiz, CognifyForm, CognifyFileUpload, CognifySlider, CognifyProgressTracker } from './interactive';
+import { CognifyMap } from './interactive-map';
 import { CognifyChart } from './chart';
+import { CognifyEquation } from './content-math';
 import { ComparisonModule } from '@/modules/ComparisonModule';
 import { CalculatorModule } from '@/modules/CalculatorModule';
 import { DashboardModule } from '@/modules/DashboardModule';
@@ -51,6 +55,7 @@ export const COGNIFY_COMPONENT_MAP: Record<BlockType, React.FC<any>> = {
     Image: CognifyImage,
     Callout: CognifyCallout,
     Divider: CognifyDivider,
+    Equation: CognifyEquation,
     // Interactive
     Quiz: CognifyQuiz,
     Form: CognifyForm,
@@ -58,6 +63,7 @@ export const COGNIFY_COMPONENT_MAP: Record<BlockType, React.FC<any>> = {
     Slider: CognifySlider,
     Chart: CognifyChart,
     ProgressTracker: CognifyProgressTracker,
+    Map: CognifyMap,
     // Capability Modules (self-contained interactive templates)
     Comparison: ComparisonModule,
     Calculator: CalculatorModule,
