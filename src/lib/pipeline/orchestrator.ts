@@ -1,20 +1,26 @@
 import { LLMProvider } from '../llm/provider';
 import { AnswerAgent } from '../agents/answer';
-import { UXSelectorAgent } from '../agents/ux-selector';
-import { RendererAgent } from '../agents/renderer';
+import { IntentClassifierAgent } from '../agents/intent-classifier';
+import { ExplainerAgent } from '../agents/explainer-agent';
+import { ComparisonAgent } from '../agents/comparison-agent';
+import { CalculatorAgent } from '../agents/calculator-agent';
 import { SSEStreamer } from './stream';
 import { ChatMessage } from './types';
 import { enforceExperienceContract } from './contracts';
 
 export class PipelineOrchestrator {
     private answerAgent: AnswerAgent;
-    private uxAgent: UXSelectorAgent;
-    private renderAgent: RendererAgent;
+    private intentAgent: IntentClassifierAgent;
+    private explainerAgent: ExplainerAgent;
+    private comparisonAgent: ComparisonAgent;
+    private calculatorAgent: CalculatorAgent;
 
     constructor(provider: LLMProvider) {
         this.answerAgent = new AnswerAgent(provider);
-        this.uxAgent = new UXSelectorAgent(provider);
-        this.renderAgent = new RendererAgent(provider);
+        this.intentAgent = new IntentClassifierAgent(provider);
+        this.explainerAgent = new ExplainerAgent(provider);
+        this.comparisonAgent = new ComparisonAgent(provider);
+        this.calculatorAgent = new CalculatorAgent(provider);
     }
 
     /**
@@ -28,19 +34,76 @@ export class PipelineOrchestrator {
             const answerSpec = await this.answerAgent.answer(query, history);
             streamer.debug('answer', answerSpec);
 
-            // Stage 2: UX Selection
-            streamer.status('ux', 'Mapping core relationships');
-            const uxPlan = await this.uxAgent.select(answerSpec);
-            streamer.debug('ux', uxPlan);
+            // Stage 2: Intent Classification
+            streamer.status('ux', 'Categorizing intent');
+            const intentResult = await this.intentAgent.classify(query, answerSpec);
+            streamer.debug('intent', intentResult);
 
-            // Stage 3: Rendering
-            streamer.status('rendering', 'Rendering interactive layout');
-            let uiSpec = await this.renderAgent.render(answerSpec, uxPlan, (chunk) => {
-                streamer.specChunk(chunk);
-            });
+            // Stage 3: Specialized Rendering
+            streamer.status('rendering', `Generating ${intentResult.intent} module`);
 
-            // Post-Generation: Enforce Contract Minimums
-            uiSpec = enforceExperienceContract(uiSpec, uxPlan.experienceType);
+            let uiSpec;
+
+            if (intentResult.intent === 'comparison') {
+                const config = await this.comparisonAgent.generateConfig(answerSpec, (chunk) => streamer.specChunk(chunk));
+                uiSpec = {
+                    version: "1.0",
+                    title: config.title,
+                    theme: { accent: "blue" },
+                    root: {
+                        type: "Stack",
+                        props: { gap: "6" },
+                        children: [{ type: "Comparison", props: config }]
+                    }
+                };
+            } else if (intentResult.intent === 'calculation') {
+                const config = await this.calculatorAgent.generateConfig(answerSpec, (chunk) => streamer.specChunk(chunk));
+
+                streamer.status('rendering', 'Running Server-Side Computations...');
+                // Server-side computation of default values as proof of concept
+                try {
+                    const { computeCompoundGrowth, computeSavingsProjection } = await import('@/lib/computation/finance');
+                    const defaultValues: Record<string, number> = {};
+                    for (const inp of config.inputs) {
+                        defaultValues[inp.name] = inp.defaultValue;
+                    }
+                    let precomputedData: any[] = [];
+                    if (config.formula === 'compound_growth') {
+                        precomputedData = computeCompoundGrowth(
+                            defaultValues.principal ?? defaultValues.initialAmount ?? 0,
+                            defaultValues.monthlyContribution ?? defaultValues.monthlySavings ?? 0,
+                            (defaultValues.annualRate ?? defaultValues.returnRate ?? 8) / 100,
+                            defaultValues.years ?? 5
+                        );
+                    } else if (config.formula === 'savings_projection') {
+                        precomputedData = computeSavingsProjection(
+                            defaultValues.monthlySavings ?? defaultValues.monthlyContribution ?? 0,
+                            (defaultValues.annualRate ?? defaultValues.returnRate ?? 5) / 100,
+                            defaultValues.years ?? 5
+                        );
+                    }
+                    streamer.debug('computation', { type: 'server-computed-data', length: precomputedData.length });
+                } catch (err) {
+                    console.error("Server compute failure:", err);
+                }
+
+                uiSpec = {
+                    version: "1.0",
+                    title: config.title,
+                    theme: { accent: "green" },
+                    root: {
+                        type: "Stack",
+                        props: { gap: "6" },
+                        children: [{ type: "Calculator", props: config }]
+                    }
+                };
+            } else {
+                // Fallback to generic Explainer for 'explanation', 'generic', or anything else
+                uiSpec = await this.explainerAgent.generateConfig(answerSpec, (chunk) => streamer.specChunk(chunk));
+
+                // Only enforce generic contracts on Explainer outputs
+                uiSpec = enforceExperienceContract(uiSpec, 'wiki');
+            }
 
             streamer.debug('rendering', uiSpec);
 

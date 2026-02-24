@@ -5,10 +5,12 @@
  */
 
 export { ComparisonModule } from './ComparisonModule';
-export type { ComparisonModuleConfig } from './ComparisonModule';
-
 export { CalculatorModule } from './CalculatorModule';
-export type { CalculatorModuleConfig } from './CalculatorModule';
+
+export type {
+    ComparisonModuleConfig,
+    CalculatorModuleConfig
+} from './types';
 
 /**
  * MODULE_COMPONENT_MAP — maps module type strings to their React components.

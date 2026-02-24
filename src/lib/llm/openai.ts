@@ -13,10 +13,12 @@ export class OpenAIProvider extends LLMProvider {
     }
 
     async generateJSON<T extends z.ZodType>(options: GenerateOptions<T>): Promise<z.infer<T>> {
-        const { systemPrompt, userPrompt, schema, temperature = 0.7, maxTokens = 4000, onChunk } = options;
+        const { systemPrompt, userPrompt, schema, temperature = 0.7, maxTokens = 4000, onChunk, modelClass } = options;
+
+        const modelToUse = modelClass === 'fast' ? "gpt-4o-mini" : "gpt-5.2";
 
         const response = await this.client.chat.completions.create({
-            model: "gpt-5.2",
+            model: modelToUse,
             messages: [
                 { role: "system", content: systemPrompt },
                 { role: "user", content: userPrompt }

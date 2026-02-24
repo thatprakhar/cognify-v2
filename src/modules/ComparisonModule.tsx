@@ -13,27 +13,7 @@ import { Check, X, ArrowRight, Scale } from 'lucide-react';
  * No layout decisions needed from the LLM.
  */
 
-export interface ComparisonModuleConfig {
-    title: string;
-    subtitle?: string;
-    optionA: {
-        name: string;
-        description?: string;
-        pros: string[];
-        cons: string[];
-        stats: Record<string, string>;
-    };
-    optionB: {
-        name: string;
-        description?: string;
-        pros: string[];
-        cons: string[];
-        stats: Record<string, string>;
-    };
-    criteria: { name: string; optionAScore: number; optionBScore: number }[];
-    recommendation?: string;
-    isMockData?: boolean;
-}
+import { type ComparisonModuleConfig } from './types';
 
 export const ComparisonModule: React.FC<ComparisonModuleConfig> = ({
     title = '',
