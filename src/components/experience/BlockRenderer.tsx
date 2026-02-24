@@ -27,52 +27,53 @@ import { Chart } from '../blocks/interactive/Chart';
 import { ProgressTracker } from '../blocks/interactive/ProgressTracker';
 
 const ComponentMap: Record<string, React.FC<any>> = {
- // Layout
- Stack,
- Grid,
- Tabs,
- Accordion,
- Columns,
- // Content
- Hero,
- WikiSection,
- InfoCard,
- StatCard,
- Table,
- Image,
- Callout,
- Divider,
- // Interactive
- Quiz,
- Form,
- FileUpload,
- Slider,
- Chart,
- ProgressTracker
+    // Layout
+    Stack,
+    Grid,
+    Tabs,
+    Accordion,
+    Columns,
+    // Content
+    Hero,
+    WikiSection,
+    InfoCard,
+    StatCard,
+    Table,
+    Image,
+    Callout,
+    Divider,
+    // Interactive
+    Quiz,
+    Form,
+    FileUpload,
+    Slider,
+    Chart,
+    ProgressTracker
 };
 
 interface BlockRendererProps {
- node: UINodeSchema;
+    node: UINodeSchema;
+    viewMode?: 'simple' | 'advanced';
 }
 
-export const BlockRenderer: React.FC<BlockRendererProps> = ({ node }) => {
- if (!node) return null; // Gracefully handle partial streaming undefined nodes
+export const BlockRenderer: React.FC<BlockRendererProps> = ({ node, viewMode = 'simple' }) => {
+    if (!node) return null; // Gracefully handle partial streaming undefined nodes
 
- const Component = ComponentMap[node.type];
+    const Component = ComponentMap[node.type];
 
- if (!Component) {
- console.warn(`Unknown component type: ${node.type}`);
- return null;
- }
+    if (!Component) {
+        console.warn(`Unknown component type: ${node.type}`);
+        return null;
+    }
 
- // Recursively render children if it's a layout block
- const children = node.children?.map((child, idx) => (
- <BlockRenderer key={`${child.type}-${idx}`} node={child} />
- ));
+    // Recursively render children if it's a layout block
+    const children = node.children?.map((child, idx) => (
+        <BlockRenderer key={`${child.type}-${idx}`} node={child} viewMode={viewMode} />
+    ));
 
- return (
- <Component {...node.props}>
- {children}
- </Component>
- );
+    return (
+        <Component {...node.props} viewMode={viewMode}>
+            {children}
+        </Component>
+    );
 };

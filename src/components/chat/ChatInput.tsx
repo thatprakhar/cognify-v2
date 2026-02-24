@@ -1,40 +1,41 @@
 'use client';
 
 import React, { useState } from 'react';
-import { SendHorizontal } from 'lucide-react';
+import { CornerDownLeft } from 'lucide-react';
 
 interface ChatInputProps {
- onSend: (message: string) => void;
- disabled?: boolean;
+    onSend: (message: string) => void;
+    disabled?: boolean;
 }
 
 export const ChatInput: React.FC<ChatInputProps> = ({ onSend, disabled }) => {
- const [input, setInput] = useState('');
+    const [input, setInput] = useState('');
 
- const handleSubmit = (e: React.FormEvent) => {
- e.preventDefault();
- if (!input.trim() || disabled) return;
- onSend(input);
- setInput('');
- };
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!input.trim() || disabled) return;
+        onSend(input);
+        setInput('');
+    };
 
- return (
- <form onSubmit={handleSubmit} className="relative w-full">
- <input
- type="text"
- value={input}
- onChange={(e) => setInput(e.target.value)}
- disabled={disabled}
- placeholder={disabled ? "Generating experience..." : "Ask me anything..."}
- className="w-full px-6 py-4 pr-16 rounded-full bg-white border border-zinc-200 shadow-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:opacity-50 text-[15px]"
- />
- <button
- type="submit"
- disabled={!input.trim() || disabled}
- className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center rounded-full bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:hover:bg-blue-600 transition-colors"
- >
- <SendHorizontal className="w-5 h-5" />
- </button>
- </form>
- );
+    return (
+        <form onSubmit={handleSubmit} className="relative w-full flex items-center bg-white border border-zinc-200 shadow-sm rounded-xl overflow-hidden focus-within:ring-1 focus-within:ring-zinc-900 focus-within:border-zinc-900 transition-all">
+            <div className="pl-4 pr-2 text-zinc-400 font-mono">{'>'}</div>
+            <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                disabled={disabled}
+                placeholder={disabled ? "Processing command..." : "Enter configuration prompt..."}
+                className="flex-1 py-3.5 pr-12 bg-transparent outline-none disabled:opacity-50 text-[14px] text-zinc-800 placeholder:text-zinc-400"
+            />
+            <button
+                type="submit"
+                disabled={!input.trim() || disabled}
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-900 text-white hover:bg-zinc-800 disabled:opacity-50 disabled:hover:bg-zinc-900 transition-colors"
+            >
+                <CornerDownLeft className="w-4 h-4" />
+            </button>
+        </form>
+    );
 };
