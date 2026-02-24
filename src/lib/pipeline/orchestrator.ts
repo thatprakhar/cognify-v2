@@ -4,6 +4,7 @@ import { UXSelectorAgent } from '../agents/ux-selector';
 import { RendererAgent } from '../agents/renderer';
 import { SSEStreamer } from './stream';
 import { ChatMessage } from './types';
+import { enforceExperienceContract } from './contracts';
 
 export class PipelineOrchestrator {
     private answerAgent: AnswerAgent;
@@ -34,9 +35,13 @@ export class PipelineOrchestrator {
 
             // Stage 3: Rendering
             streamer.status('rendering', 'Rendering interactive layout');
-            const uiSpec = await this.renderAgent.render(answerSpec, uxPlan, (chunk) => {
+            let uiSpec = await this.renderAgent.render(answerSpec, uxPlan, (chunk) => {
                 streamer.specChunk(chunk);
             });
+
+            // Post-Generation: Enforce Contract Minimums
+            uiSpec = enforceExperienceContract(uiSpec, uxPlan.experienceType);
+
             streamer.debug('rendering', uiSpec);
 
             // Complete

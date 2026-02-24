@@ -2,6 +2,7 @@ import { UISpecSchema } from '../schema/ui-spec';
 import { UXPlanSchema } from '../schema/ux-plan';
 import { AnswerSpecSchema } from '../schema/answer';
 import { LLMProvider } from '../llm/provider';
+import { generateComponentPromptBlock } from '../schema/allowlist';
 import { z } from 'zod';
 
 export class RendererAgent {
@@ -12,6 +13,9 @@ export class RendererAgent {
     uxPlan: z.infer<typeof UXPlanSchema>,
     onChunk?: (partialJson: string) => void
   ): Promise<z.infer<typeof UISpecSchema>> {
+    // Generate the component reference from code-defined allowlist (single source of truth)
+    const componentBlock = generateComponentPromptBlock();
+
     const systemPrompt = `
 You are Cognify RendererAgent.
 
@@ -19,12 +23,14 @@ TASK:
 Given AnswerSpec and UXPlan, generate a complete UISpec JSON that validates against UISpecSchema.
 
 HARD RULES:
-- Output JSON ONLY. No prose.
-- Use ONLY the allowed component types listed below.
+- Output JSON ONLY. No prose, no wrapping, no markdown.
+- Use ONLY the allowed component types listed below — no others.
 - Root MUST be a layout block and MUST have children.
 - Leaf blocks MUST NOT have children.
 - Parent layout blocks MUST have children.
 - Do NOT include raw HTML, scripts, iframes, or executable code.
+- Do NOT include < or > characters in any text fields; use markdown formatting instead.
+- No additional keys beyond what the schema defines — strict mode.
 
 CONTENT RULES:
 - Treat AnswerSpec.answerMarkdown as the single source of truth for content.
@@ -34,40 +40,22 @@ CONTENT RULES:
 
 CHART/TABLE RULES:
 - Only render charts/tables if UXPlan requires it AND AnswerSpec includes structured data.
-- Otherwise, avoid charts or mark any synthetic data clearly (isMockData=true) if schema supports it.
+- If data is synthesized or illustrative, you MUST set isMockData=true.
 
-AVAILABLE COMPONENTS:
+EXPERIENCE TYPE CONTRACTS:
+The UXPlan specifies an experienceType (${uxPlan.experienceType}). You MUST include the following components based on the type:
+- quiz: MUST include at least one Quiz block.
+- dashboard: MUST include at least one Chart, StatCard, Calculator, or Table block.
+- form: MUST include at least one Form block.
+- wiki: MUST include at least one structured layout (Tabs, Accordion, Columns) or Callout/Comparison/Table. Do not just output text.
 
-Layout Blocks:
-- Stack (props: gap)
-- Grid (props: columns, gap)
-- Tabs (props: tabs)
-- Accordion (props: allowMultiple)
-- Columns (props: layout)
-
-Content Blocks (leaf):
-- Hero (props: title, subtitle, imageUrl)
-- WikiSection (props: heading, body)
-- InfoCard (props: title, content, icon)
-- StatCard (props: label, value, trend)
-- Table (props: headers, rows, isMockData)
-- Image (props: url, alt, caption)
-- Callout (props: type, title, message)
-- Divider (props: style)
-
-Interactive Blocks (leaf):
-- Quiz (props: questions)
-- Form (props: fields, submitLabel)
-- FileUpload (props: acceptedTypes, maxSizeMB)
-- Slider (props: label, min, max, step, defaultValue)
-- Chart (props: type, data, xKey, yKeys, isMockData)
-- ProgressTracker (props: steps, currentStep)
+${componentBlock}
 
 OUTPUT SHAPE:
 {
   "version": "1.0",
   "title": string,
-  "theme": { "accent": string },
+  "theme": { "accent": "blue"|"green"|"purple"|"orange" },
   "root": { "type": string, "props": object, "children": array }
 }
 
@@ -85,4 +73,3 @@ Return ONLY the UISpec JSON object.
     });
   }
 }
-

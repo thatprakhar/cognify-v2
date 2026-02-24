@@ -2,10 +2,12 @@
 
 import React from 'react';
 import { UISpec, AnswerSpec, UXPlan } from '@/lib/pipeline/types';
-import { BlockRenderer } from './BlockRenderer';
+import { RenderRoot } from '@/renderer/renderNode';
 import { DebugPanel } from './DebugPanel';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Layers, Download, Copy, RefreshCw } from 'lucide-react';
+import { Layers, Download, Copy } from 'lucide-react';
+import { DEFAULT_ACCENT } from '@/lib/schema/allowlist';
+import type { UINodeSchema } from '@/lib/schema/ui-spec';
 
 interface ExperiencePanelProps {
     uiSpec: UISpec | null;
@@ -38,8 +40,11 @@ export const ExperiencePanel: React.FC<ExperiencePanelProps> = ({ uiSpec, uiSpec
         URL.revokeObjectURL(url);
     };
 
+    // Resolve accent color (scoped to this panel, not :root)
+    const accent = uiSpec?.theme?.accent ?? DEFAULT_ACCENT;
+
     return (
-        <div className="w-full h-full bg-[#FAFAFA] relative overflow-hidden">
+        <div className="w-full h-full bg-[#FAFAFA] relative overflow-hidden" data-accent={accent}>
             <AnimatePresence mode="wait">
                 {!uiSpec && !isGenerating && (
                     <motion.div
@@ -52,7 +57,7 @@ export const ExperiencePanel: React.FC<ExperiencePanelProps> = ({ uiSpec, uiSpec
                         <Layers className="w-16 h-16 mb-4 opacity-20" />
                         <h2 className="text-xl font-medium mb-2 opacity-50">No Experience Generated</h2>
                         <p className="max-w-md opacity-50">
-                            Ask a question on the left, and watch Outform build an interactive answer here.
+                            Upload your expenses on the left, and watch Cognify build your interactive experience here.
                         </p>
                     </motion.div>
                 )}
@@ -122,7 +127,7 @@ export const ExperiencePanel: React.FC<ExperiencePanelProps> = ({ uiSpec, uiSpec
                             </div>
 
                             <div className="mt-8">
-                                <BlockRenderer node={uiSpec.root as any} viewMode={viewMode} />
+                                <RenderRoot root={uiSpec.root as UINodeSchema} viewMode={viewMode} />
                             </div>
                         </div>
                     </motion.div>
