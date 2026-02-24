@@ -26,7 +26,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, disabled }) => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 disabled={disabled}
-                placeholder={disabled ? "Processing command..." : "Enter configuration prompt..."}
+                placeholder={disabled ? "Processing..." : "Ask anything..."}
                 className="flex-1 py-3.5 pr-12 bg-transparent outline-none disabled:opacity-50 text-[14px] text-zinc-800 placeholder:text-zinc-400"
             />
             <button
