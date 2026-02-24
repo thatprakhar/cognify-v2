@@ -45,29 +45,6 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
 
             {/* Message Area */}
             <div className="flex-1 overflow-y-auto px-6 py-4" ref={scrollRef}>
-                {messages.length === 0 && !isGenerating && (
-                    <div className="flex flex-col items-start justify-end h-full space-y-4 opacity-80 pb-8">
-                        <div className="w-10 h-10 bg-zinc-100 rounded-lg flex items-center justify-center mb-2">
-                            <span className="text-lg font-mono text-zinc-500">{'>_'}</span>
-                        </div>
-                        <h2 className="font-medium text-zinc-900 tracking-tight">System Ready</h2>
-                        <ul className="text-[13px] text-zinc-500 space-y-2 font-mono">
-                            <li className="flex gap-3">
-                                <span className="text-zinc-300">01</span>
-                                <span>Initialize rendering engine... OK</span>
-                            </li>
-                            <li className="flex gap-3">
-                                <span className="text-zinc-300">02</span>
-                                <span>Awaiting parameters for UX synthesis.</span>
-                            </li>
-                            <li className="flex gap-3 text-blue-500 mt-4">
-                                <span className="opacity-50">03</span>
-                                <span>Enter prompt below to begin generation.</span>
-                            </li>
-                        </ul>
-                    </div>
-                )}
-
                 <AnimatePresence initial={false}>
                     {messages.map(msg => (
                         <motion.div
