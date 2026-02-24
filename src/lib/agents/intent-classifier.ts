@@ -3,7 +3,7 @@ import { LLMProvider } from '../llm/provider';
 import { AnswerSpecSchema } from '../schema/answer';
 
 export const IntentClassificationSchema = z.object({
-    intent: z.enum(['calculation', 'comparison', 'explanation', 'generic']),
+    intent: z.enum(['calculation', 'comparison', 'explanation', 'generic', 'assessment']),
     confidence: z.number().min(0).max(1),
     reasoning: z.string()
 }).strict();
@@ -25,7 +25,7 @@ Available Intents:
 - 'explanation': The user wants a structured, educational breakdown of a topic, concept, or process (e.g., how things work, history, step-by-step guides).
 - 'generic': The query does not fit into any specialized interactive module.
 
-Output strictly valid JSON matching the required schema.
+Output strictly valid JSON matching the required schema. You MUST include all three keys: "intent", "confidence" (number between 0 and 1), and "reasoning" (string).
 `;
 
         const userPrompt = `Query: ${query}\n\nAnswer Markdown:\n${answerSpec.answerMarkdown}`;

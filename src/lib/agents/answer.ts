@@ -4,12 +4,12 @@ import { z } from 'zod';
 import { ChatMessage } from '../pipeline/types';
 
 export class AnswerAgent {
-    constructor(private provider: LLMProvider) { }
+  constructor(private provider: LLMProvider) { }
 
-    async answer(query: string, history: ChatMessage[] = []): Promise<z.infer<typeof AnswerSpecSchema>> {
-        const historyText = history.map(msg => `${msg.role}: ${msg.content}`).join('\n');
+  async answer(query: string, history: ChatMessage[] = []): Promise<z.infer<typeof AnswerSpecSchema>> {
+    const historyText = history.map(msg => `${msg.role}: ${msg.content}`).join('\n');
 
-        const systemPrompt = `
+    const systemPrompt = `
 You are Cognify AnswerAgent.
 
 TASK:
@@ -21,7 +21,7 @@ HARD RULES:
 - Do NOT output UI specs or component trees.
 - Do NOT invent sources or citations. If you are uncertain, say so explicitly in the answer.
 - Do NOT request secrets (passwords, API keys, tokens).
-- If the user request is ambiguous, ask up to 3 clarifying questions and set mode="CLARIFY".
+- CRITICAL: If the user asks for a calculation (e.g., mortgage, compound interest, net worth), comparison, or assessment BUT provides ZERO numbers or specific options, you MUST set mode="CLARIFY" and ask for the missing parameters in \`followUpQuestions\`. Do not invent default numbers if the user provided none.
 - Otherwise set mode="READY" and provide the best possible answer.
 
 STYLE RULES (inside answerMarkdown):
@@ -57,12 +57,12 @@ CONTEXT USE:
 Return ONLY the JSON object.
 `;
 
-        const userPrompt = `History:\n${historyText}\n\nCurrent Query: <user_query>${query}</user_query>`;
+    const userPrompt = `History:\n${historyText}\n\nCurrent Query: <user_query>${query}</user_query>`;
 
-        return this.provider.generateJSON({
-            systemPrompt,
-            userPrompt,
-            schema: AnswerSpecSchema,
-        });
-    }
+    return this.provider.generateJSON({
+      systemPrompt,
+      userPrompt,
+      schema: AnswerSpecSchema,
+    });
+  }
 }

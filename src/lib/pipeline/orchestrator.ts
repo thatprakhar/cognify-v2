@@ -34,6 +34,45 @@ export class PipelineOrchestrator {
             const answerSpec = await this.answerAgent.answer(query, history);
             streamer.debug('answer', answerSpec);
 
+            // Check for CLARIFY mode
+            if (answerSpec.mode === 'CLARIFY') {
+                streamer.status('rendering', 'Requesting clarification');
+                const uiSpec = {
+                    version: "1.0",
+                    title: "Clarification Needed",
+                    theme: { accent: "blue" },
+                    root: {
+                        type: "Stack",
+                        props: { gap: "6" },
+                        children: [
+                            {
+                                type: "InfoCard",
+                                props: {
+                                    title: "I need a bit more detail to build this experience.",
+                                    description: answerSpec.answerMarkdown || "Please answer the questions below so I can generate the right interactive module for you."
+                                }
+                            },
+                            {
+                                type: "Form",
+                                props: {
+                                    fields: answerSpec.followUpQuestions.map((q, i) => ({
+                                        id: `q${i}`,
+                                        name: `q${i}`,
+                                        type: "textarea",
+                                        label: q,
+                                        placeholder: "Type your answer..."
+                                    })),
+                                    submitLabel: "Generate Experience"
+                                }
+                            }
+                        ]
+                    }
+                };
+                streamer.debug('rendering', uiSpec);
+                streamer.complete(uiSpec);
+                return;
+            }
+
             // Stage 2: Intent Classification
             streamer.status('ux', 'Categorizing intent');
             const intentResult = await this.intentAgent.classify(query, answerSpec);

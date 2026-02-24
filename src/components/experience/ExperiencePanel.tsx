@@ -9,15 +9,25 @@ import { Layers, Download, Copy } from 'lucide-react';
 import { DEFAULT_ACCENT } from '@/lib/schema/allowlist';
 import type { UINodeSchema } from '@/lib/schema/ui-spec';
 
+import { ExperienceProvider } from './ExperienceContext';
+
 interface ExperiencePanelProps {
     uiSpec: UISpec | null;
     uiSpecRaw: string | null;
     answerSpec: AnswerSpec | null;
     uxPlan: UXPlan | null;
     isGenerating: boolean;
+    onSubmitClarification?: (answers: Record<string, string>) => void;
 }
 
-export const ExperiencePanel: React.FC<ExperiencePanelProps> = ({ uiSpec, uiSpecRaw, answerSpec, uxPlan, isGenerating }) => {
+export const ExperiencePanel: React.FC<ExperiencePanelProps> = ({
+    uiSpec,
+    uiSpecRaw,
+    answerSpec,
+    uxPlan,
+    isGenerating,
+    onSubmitClarification
+}) => {
     const [viewMode, setViewMode] = React.useState<'simple' | 'advanced'>('simple');
 
     // Auto-reset to simple mode when a new experience starts generating
@@ -127,7 +137,9 @@ export const ExperiencePanel: React.FC<ExperiencePanelProps> = ({ uiSpec, uiSpec
                             </div>
 
                             <div className="mt-8">
-                                <RenderRoot root={uiSpec.root as UINodeSchema} viewMode={viewMode} />
+                                <ExperienceProvider submitClarification={onSubmitClarification || (() => { })}>
+                                    <RenderRoot root={uiSpec.root as UINodeSchema} viewMode={viewMode} />
+                                </ExperienceProvider>
                             </div>
                         </div>
                     </motion.div>
