@@ -1,44 +1,43 @@
 import { useState, useCallback } from 'react';
-import { PipelineState, PipelineStage, AnswerSpec, UXPlan } from '@/lib/pipeline/types';
+import { StudioSpecV1 } from '@/lib/schema/studio-spec';
 
 export function useGenerate() {
     const [isGenerating, setIsGenerating] = useState(false);
-    const [currentStage, setCurrentStage] = useState<PipelineStage | null>(null);
+    const [currentStage, setCurrentStage] = useState<string | null>(null);
     const [statusMessage, setStatusMessage] = useState<string | null>(null);
+
+    // New Architecture States
+    const [studioSpec, setStudioSpec] = useState<StudioSpecV1 | null>(null);
+    const [computedData, setComputedData] = useState<Record<string, any> | null>(null);
+    const [runMetadata, setRunMetadata] = useState<any>(null);
+    const [validationData, setValidationData] = useState<any>(null);
+
+    // Legacy support variables (to keep page.tsx compiling for now)
     const [uiSpec, setUiSpec] = useState<any | null>(null);
     const [uiSpecRaw, setUiSpecRaw] = useState<string | null>(null);
-    const [answerSpec, setAnswerSpec] = useState<AnswerSpec | null>(null);
-    const [uxPlan, setUxPlan] = useState<UXPlan | null>(null);
-    const [runMetadata, setRunMetadata] = useState<any>(null);
-    const [statusSteps, setStatusSteps] = useState<{ stage: PipelineStage; message: string }[]>([]);
-    const [validationData, setValidationData] = useState<any>(null);
+    const [answerSpec, setAnswerSpec] = useState<any | null>(null);
+    const [uxPlan, setUxPlan] = useState<any | null>(null);
+    const [statusSteps, setStatusSteps] = useState<{ stage: string; message: string }[]>([]);
+
     const [error, setError] = useState<string | null>(null);
 
     const generate = useCallback(async (query: string, history: any[] = []) => {
         setIsGenerating(true);
-        setCurrentStage(null);
-        setStatusMessage(null);
+        setCurrentStage("planning");
+        setStatusMessage("Analyzing intent and composing modules...");
         setError(null);
-        // We only clear uiSpec if we want to replace the current experience immediately.
-        // Actually, let's keep it until the new one is ready or skeleton finishes playing.
-        setUiSpec(null);
-        setUiSpecRaw(null);
-        setAnswerSpec(null);
-        setUxPlan(null);
-        setRunMetadata(null);
-        setStatusSteps([]);
-        setValidationData(null);
+
+        setStatusSteps([{ stage: "planning", message: "Analyzing query and orchestrating modules" }]);
 
         try {
-            const isLangGraphOptIn = typeof window !== 'undefined' && window.localStorage.getItem('useLangGraph') === 'true';
-
-            const response = await fetch('/api/generate', {
+            // Pointing to the new Engine route
+            const response = await fetch('/api/run', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'x-use-langgraph': isLangGraphOptIn ? 'true' : 'false'
+                    'x-use-langgraph': 'true'
                 },
-                body: JSON.stringify({ query, history }),
+                body: JSON.stringify({ query, context: { history } }),
             });
 
             if (!response.ok) {
@@ -46,67 +45,27 @@ export function useGenerate() {
                 throw new Error(text || 'Failed to generate');
             }
 
-            const reader = response.body?.getReader();
-            if (!reader) throw new Error("No reader stream");
+            const data = await response.json();
 
-            const decoder = new TextDecoder();
-            let buffer = '';
+            // Map new architecture outputs
+            setStudioSpec(data.studioSpec);
+            setComputedData(data.computed);
+            setRunMetadata(data.runMeta);
+            setValidationData(data.validation);
 
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
+            // Stub legacy properties if page.tsx still references them
+            setUiSpec(data.studioSpec);
 
-                buffer += decoder.decode(value, { stream: true });
-                const lines = buffer.split('\n\n');
+            setCurrentStage("complete");
+            setStatusMessage("Finished");
+            setStatusSteps(prev => [...prev, { stage: "complete", message: "Rendered System Studio" }]);
 
-                // Keep the last incomplete part in the buffer
-                buffer = lines.pop() || '';
-
-                for (const block of lines) {
-                    const eventMatch = block.match(/event: (.*)/);
-                    const dataMatch = block.match(/data: (.*)/);
-
-                    if (eventMatch && dataMatch) {
-                        const event = eventMatch[1].trim();
-                        const dataStr = dataMatch[1].trim();
-                        if (!dataStr) continue;
-
-                        try {
-                            const data = JSON.parse(dataStr);
-                            if (event === 'status') {
-                                setCurrentStage(data.stage);
-                                setStatusMessage(data.message);
-                                setStatusSteps(prev => {
-                                    const last = prev[prev.length - 1];
-                                    if (last && last.message === data.message) return prev;
-                                    return [...prev, { stage: data.stage, message: data.message }];
-                                });
-                            } else if (event === 'debug') {
-                                if (data.stage === 'answer') setAnswerSpec(data.data);
-                                if (data.stage === 'ux') setUxPlan(data.data);
-                                if (data.stage === 'validation') setValidationData(data.data);
-                                if (data.stage === 'rendering') setUiSpec(data.data); // optional extra safeguard
-                            } else if (event === 'spec-chunk') {
-                                setUiSpecRaw(data.partial);
-                            } else if (event === 'metadata') {
-                                setRunMetadata(data);
-                            } else if (event === 'complete') {
-                                setUiSpec(data.uiSpec);
-                            } else if (event === 'error') {
-                                setError(data.message);
-                            }
-                        } catch (err) {
-                            console.error("Error parsing SSE JSON", err, dataStr);
-                        }
-                    }
-                }
-            }
         } catch (err: any) {
             setError(err.message || 'An error occurred');
+            setCurrentStage("error");
+            setStatusMessage("Failed");
         } finally {
             setIsGenerating(false);
-            setCurrentStage(null);
-            setStatusMessage(null);
         }
     }, []);
 
@@ -119,10 +78,17 @@ export function useGenerate() {
         isGenerating,
         currentStage,
         statusMessage,
+
+        // New exports
+        studioSpec,
+        computedData,
+
+        // Legacy exports for page compatibility
         uiSpec,
         uiSpecRaw,
         answerSpec,
         uxPlan,
+
         runMetadata,
         statusSteps,
         validationData,

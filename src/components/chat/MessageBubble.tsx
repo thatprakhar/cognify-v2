@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChatMessage } from '@/lib/pipeline/types';
+import { ChatMessage } from '@/lib/chat-types';
 import { Terminal, Cpu } from 'lucide-react';
 
 interface MessageBubbleProps {
@@ -8,8 +8,6 @@ interface MessageBubbleProps {
 
 export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
     const isUser = message.role === 'user';
-
-    if (message.role === 'status') return null; // Statuses handled separately or inline
 
     return (
         <div className="flex gap-4 w-full py-4 border-b border-zinc-100/60 last:border-0 group">

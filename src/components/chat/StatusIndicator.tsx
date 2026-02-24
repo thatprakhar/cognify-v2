@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Zap, CircleDashed, CheckCircle2 } from 'lucide-react';
-import { PipelineStage } from '@/lib/pipeline/types';
+import { PipelineStage } from '@/lib/chat-types';
 
 interface StatusIndicatorProps {
     stage: PipelineStage | null;

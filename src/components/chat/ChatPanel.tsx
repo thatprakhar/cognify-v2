@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect } from 'react';
-import { ChatMessage, PipelineStage } from '@/lib/pipeline/types';
+import { ChatMessage, PipelineStage } from '@/lib/chat-types';
 import { MessageBubble } from './MessageBubble';
 import { StatusIndicator } from './StatusIndicator';
 import { ChatInput } from './ChatInput';
