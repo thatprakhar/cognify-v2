@@ -6,10 +6,12 @@
 
 export { ComparisonModule } from './ComparisonModule';
 export { CalculatorModule } from './CalculatorModule';
+export { DashboardModule } from './DashboardModule';
 
 export type {
     ComparisonModuleConfig,
-    CalculatorModuleConfig
+    CalculatorModuleConfig,
+    DashboardModuleConfig
 } from './types';
 
 /**
@@ -18,8 +20,10 @@ export type {
  */
 import { ComparisonModule } from './ComparisonModule';
 import { CalculatorModule } from './CalculatorModule';
+import { DashboardModule } from './DashboardModule';
 
 export const MODULE_COMPONENT_MAP: Record<string, React.FC<any>> = {
     Comparison: ComparisonModule,
     Calculator: CalculatorModule,
+    Dashboard: DashboardModule,
 };

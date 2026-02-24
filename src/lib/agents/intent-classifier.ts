@@ -3,7 +3,7 @@ import { LLMProvider } from '../llm/provider';
 import { AnswerSpecSchema } from '../schema/answer';
 
 export const IntentClassificationSchema = z.object({
-    intent: z.enum(['calculation', 'comparison', 'explanation', 'generic', 'assessment']),
+    intent: z.enum(['calculation', 'comparison', 'explanation', 'generic', 'assessment', 'analysis']),
     confidence: z.number().min(0).max(1),
     reasoning: z.string()
 }).strict();
@@ -22,6 +22,7 @@ Given a user's query and the generated answer content, classify the primary inte
 Available Intents:
 - 'calculation': The user is asking for financial projections, math, or interactive scenarios based on formulas (e.g., compound interest, net worth, amortization).
 - 'comparison': The user is explicitly comparing two or more options, products, career paths, or ideas side-by-side.
+- 'analysis': The user is asking to summarize, visualize, or analyze structured data (e.g., uploaded CSV/JSON files).
 - 'explanation': The user wants a structured, educational breakdown of a topic, concept, or process (e.g., how things work, history, step-by-step guides).
 - 'generic': The query does not fit into any specialized interactive module.
 

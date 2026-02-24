@@ -62,10 +62,11 @@ export const CognifyDivider: React.FC<CognifyDividerProps> = ({ style = 'solid' 
 interface CognifyTableProps {
     headers: string[];
     rows: (string | number)[][];
+    caption?: string;
     isMockData?: boolean;
 }
 
-export const CognifyTable: React.FC<CognifyTableProps> = ({ headers = [], rows = [], isMockData }) => (
+export const CognifyTable: React.FC<CognifyTableProps> = ({ headers = [], rows = [], caption, isMockData }) => (
     <div className="my-4 relative">
         {isMockData && (
             <div className="absolute -top-2 right-2 z-10 bg-amber-100 text-amber-800 text-[10px] font-semibold px-2 py-0.5 rounded-full">
@@ -74,6 +75,7 @@ export const CognifyTable: React.FC<CognifyTableProps> = ({ headers = [], rows =
         )}
         <div className="rounded-xl border border-border overflow-hidden">
             <Table>
+                {caption && <caption className="text-xs text-zinc-500 mt-2">{caption}</caption>}
                 <TableHeader>
                     <TableRow className="bg-muted/50">
                         {headers.map((header, idx) => (
