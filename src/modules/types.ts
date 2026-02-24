@@ -54,3 +54,22 @@ export const CalculatorModuleConfigSchema = z.object({
 
 export type CalculatorInput = z.infer<typeof CalculatorInputSchema>;
 export type CalculatorModuleConfig = z.infer<typeof CalculatorModuleConfigSchema>;
+
+export const DashboardModuleConfigSchema = z.object({
+    title: z.string(),
+    subtitle: z.string().optional(),
+    charts: z.array(z.object({
+        type: z.enum(['bar', 'line', 'area', 'pie']),
+        title: z.string(),
+        xAxisKey: z.string(),
+        yAxisKeys: z.array(z.string()),
+        description: z.string().optional()
+    })),
+    dataGrid: z.object({
+        columns: z.array(z.string()),
+        defaultSortBy: z.string().optional(),
+    }).optional(),
+    isMockData: z.boolean().optional()
+}).strict();
+
+export type DashboardModuleConfig = z.infer<typeof DashboardModuleConfigSchema>;

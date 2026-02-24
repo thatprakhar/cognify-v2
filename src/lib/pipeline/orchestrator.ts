@@ -4,6 +4,8 @@ import { IntentClassifierAgent } from '../agents/intent-classifier';
 import { ExplainerAgent } from '../agents/explainer-agent';
 import { ComparisonAgent } from '../agents/comparison-agent';
 import { CalculatorAgent } from '../agents/calculator-agent';
+import { DashboardAgent } from '../agents/dashboard-agent';
+import { csvStore } from '../data/store';
 import { SSEStreamer } from './stream';
 import { ChatMessage } from './types';
 import { enforceExperienceContract } from './contracts';
@@ -14,6 +16,7 @@ export class PipelineOrchestrator {
     private explainerAgent: ExplainerAgent;
     private comparisonAgent: ComparisonAgent;
     private calculatorAgent: CalculatorAgent;
+    private dashboardAgent: DashboardAgent;
 
     constructor(provider: LLMProvider) {
         this.answerAgent = new AnswerAgent(provider);
@@ -21,6 +24,7 @@ export class PipelineOrchestrator {
         this.explainerAgent = new ExplainerAgent(provider);
         this.comparisonAgent = new ComparisonAgent(provider);
         this.calculatorAgent = new CalculatorAgent(provider);
+        this.dashboardAgent = new DashboardAgent(provider);
     }
 
     /**
@@ -134,6 +138,28 @@ export class PipelineOrchestrator {
                         type: "Stack",
                         props: { gap: "6" },
                         children: [{ type: "Calculator", props: config }]
+                    }
+                };
+            } else if (intentResult.intent === 'analysis') {
+                const config = await this.dashboardAgent.generateConfig(answerSpec, (chunk) => streamer.specChunk(chunk));
+
+                let rawData: any[] = [];
+                const fileIdMatch = query.match(/<AttachedFile id="([^"]+)"/);
+                if (fileIdMatch) {
+                    const parsedData = csvStore.get(fileIdMatch[1]);
+                    if (parsedData) {
+                        rawData = parsedData.data;
+                    }
+                }
+
+                uiSpec = {
+                    version: "1.0",
+                    title: config.title,
+                    theme: { accent: "purple" },
+                    root: {
+                        type: "Stack",
+                        props: { gap: "6" },
+                        children: [{ type: "Dashboard", props: { ...config, data: rawData } }]
                     }
                 };
             } else {

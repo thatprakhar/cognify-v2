@@ -31,6 +31,7 @@ import { CognifyQuiz, CognifyForm, CognifyFileUpload, CognifySlider, CognifyProg
 import { CognifyChart } from './chart';
 import { ComparisonModule } from '@/modules/ComparisonModule';
 import { CalculatorModule } from '@/modules/CalculatorModule';
+import { DashboardModule } from '@/modules/DashboardModule';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const COGNIFY_COMPONENT_MAP: Record<BlockType, React.FC<any>> = {
@@ -59,4 +60,5 @@ export const COGNIFY_COMPONENT_MAP: Record<BlockType, React.FC<any>> = {
     // Capability Modules (self-contained interactive templates)
     Comparison: ComparisonModule,
     Calculator: CalculatorModule,
+    Dashboard: DashboardModule,
 };
