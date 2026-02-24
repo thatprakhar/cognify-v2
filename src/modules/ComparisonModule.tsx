@@ -29,9 +29,9 @@ export const ComparisonModule: React.FC<ComparisonModuleConfig> = ({
     if (!optionA || !optionB) return null;
 
     // Compute overall scores
-    const totalA = criteria.reduce((sum, c) => sum + (c.optionAScore ?? 0), 0);
-    const totalB = criteria.reduce((sum, c) => sum + (c.optionBScore ?? 0), 0);
-    const maxScore = criteria.length * 10;
+    const totalA = (criteria || []).reduce((sum, c) => sum + (c.optionAScore ?? 0), 0);
+    const totalB = (criteria || []).reduce((sum, c) => sum + (c.optionBScore ?? 0), 0);
+    const maxScore = (criteria || []).length * 10;
 
     return (
         <div className="space-y-6">
@@ -103,7 +103,7 @@ export const ComparisonModule: React.FC<ComparisonModuleConfig> = ({
                     <CardTitle className="text-base">Criteria Breakdown</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    {criteria.map((c, idx) => (
+                    {(criteria || []).map((c, idx) => (
                         <div key={idx} className="space-y-1.5">
                             <div className="flex justify-between text-sm font-medium">
                                 <span className="text-blue-600">{c.optionAScore}/10</span>
@@ -144,7 +144,7 @@ export const ComparisonModule: React.FC<ComparisonModuleConfig> = ({
                                         <div>
                                             <h4 className="text-sm font-semibold text-emerald-700 mb-2">Advantages</h4>
                                             <ul className="space-y-1.5">
-                                                {option.pros.map((pro, pi) => (
+                                                {(option.pros || []).map((pro, pi) => (
                                                     <li key={pi} className="flex items-start gap-2 text-sm text-muted-foreground">
                                                         <Check className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
                                                         {pro}
@@ -157,7 +157,7 @@ export const ComparisonModule: React.FC<ComparisonModuleConfig> = ({
                                         <div>
                                             <h4 className="text-sm font-semibold text-red-700 mb-2">Disadvantages</h4>
                                             <ul className="space-y-1.5">
-                                                {option.cons.map((con, ci) => (
+                                                {(option.cons || []).map((con, ci) => (
                                                     <li key={ci} className="flex items-start gap-2 text-sm text-muted-foreground">
                                                         <X className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
                                                         {con}
@@ -184,10 +184,10 @@ export const ComparisonModule: React.FC<ComparisonModuleConfig> = ({
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {Object.keys(optionA.stats).map((key) => (
+                                        {Object.keys(optionA.stats || {}).map((key) => (
                                             <TableRow key={key}>
                                                 <TableCell className="font-medium">{key}</TableCell>
-                                                <TableCell>{optionA.stats[key]}</TableCell>
+                                                <TableCell>{optionA.stats?.[key]}</TableCell>
                                                 <TableCell>{optionB.stats?.[key] ?? '—'}</TableCell>
                                             </TableRow>
                                         ))}

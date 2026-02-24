@@ -25,7 +25,7 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
 
             {charts && charts.length > 0 && (
                 <div className={`grid gap-6 ${charts.length > 1 ? 'md:grid-cols-2' : 'grid-cols-1'}`}>
-                    {charts.map((chartConfig, idx) => (
+                    {(charts || []).map((chartConfig, idx) => (
                         <div key={idx} className="flex flex-col gap-2">
                             <h3 className="text-sm font-semibold text-zinc-700 px-1">{chartConfig.title}</h3>
                             {chartConfig.description && (
@@ -47,9 +47,9 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
                 <div className="mt-4">
                     <h3 className="text-sm font-semibold text-zinc-700 px-1 mb-3">Data View</h3>
                     <CognifyTable
-                        headers={dataGrid.columns}
-                        rows={data.slice(0, 100).map(row =>
-                            dataGrid.columns.map(col => {
+                        headers={dataGrid.columns || []}
+                        rows={(data || []).slice(0, 100).map(row =>
+                            (dataGrid.columns || []).map(col => {
                                 const val = row[col];
                                 if (typeof val === 'number') return val.toLocaleString(undefined, { maximumFractionDigits: 2 });
                                 return String(val ?? '');

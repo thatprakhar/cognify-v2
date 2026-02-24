@@ -34,7 +34,7 @@ export const CalculatorModule: React.FC<CalculatorModuleConfig> = ({
 }) => {
     // Build state from inputs
     const defaultValues: Record<string, number> = {};
-    for (const inp of inputs) {
+    for (const inp of (inputs || [])) {
         defaultValues[inp.name] = inp.defaultValue;
     }
     const [values, setValues] = useState<Record<string, number>>(defaultValues);
@@ -104,7 +104,7 @@ export const CalculatorModule: React.FC<CalculatorModuleConfig> = ({
                     <CardTitle className="text-base">Parameters</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-5">
-                    {inputs.map((inp) => (
+                    {(inputs || []).map((inp) => (
                         <div key={inp.name}>
                             <div className="flex justify-between items-center mb-2">
                                 <Label className="text-sm">{inp.label}</Label>
@@ -134,9 +134,9 @@ export const CalculatorModule: React.FC<CalculatorModuleConfig> = ({
             </Card>
 
             {/* Scenario Buttons */}
-            {scenarios.length > 0 && (
+            {(scenarios || []).length > 0 && (
                 <div className="flex gap-2 flex-wrap">
-                    {scenarios.map((s, idx) => (
+                    {(scenarios || []).map((s, idx) => (
                         <button
                             key={idx}
                             onClick={() => setActiveScenario(activeScenario === idx ? null : idx)}
