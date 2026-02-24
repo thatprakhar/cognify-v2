@@ -6,14 +6,15 @@ import { z } from 'zod'
 export const LAYOUT_BLOCKS = ['Stack', 'Grid', 'Tabs', 'Accordion', 'Columns'] as const
 export const CONTENT_BLOCKS = ['Hero', 'WikiSection', 'InfoCard', 'StatCard', 'Table', 'Image', 'Callout', 'Divider'] as const
 export const INTERACTIVE_BLOCKS = ['Quiz', 'Form', 'FileUpload', 'Slider', 'Chart', 'ProgressTracker'] as const
+export const MODULE_BLOCKS = ['Comparison', 'Calculator'] as const
 
-export const ALL_BLOCKS = [...LAYOUT_BLOCKS, ...CONTENT_BLOCKS, ...INTERACTIVE_BLOCKS] as const
+export const ALL_BLOCKS = [...LAYOUT_BLOCKS, ...CONTENT_BLOCKS, ...INTERACTIVE_BLOCKS, ...MODULE_BLOCKS] as const
 export type BlockType = typeof ALL_BLOCKS[number]
 
 // Blocks that can contain children
 export const PARENT_BLOCKS = new Set<string>(LAYOUT_BLOCKS)
 // Blocks that are leaf-only (no children)
-export const LEAF_BLOCKS = new Set<string>([...CONTENT_BLOCKS, ...INTERACTIVE_BLOCKS])
+export const LEAF_BLOCKS = new Set<string>([...CONTENT_BLOCKS, ...INTERACTIVE_BLOCKS, ...MODULE_BLOCKS])
 
 // --- Recursive UINode Schema ---
 
@@ -31,7 +32,7 @@ const LayoutNodeSchema: z.ZodType<UINodeSchema> = z.object({
 }).strict();
 
 const LeafNodeSchema: z.ZodType<UINodeSchema> = z.object({
-    type: z.enum([...CONTENT_BLOCKS, ...INTERACTIVE_BLOCKS] as unknown as [BlockType, ...BlockType[]]),
+    type: z.enum([...CONTENT_BLOCKS, ...INTERACTIVE_BLOCKS, ...MODULE_BLOCKS] as unknown as [BlockType, ...BlockType[]]),
     props: z.record(z.string(), z.unknown()).default({}),
     // Strictly prevent children on leaf nodes
     children: z.undefined(),
@@ -50,7 +51,7 @@ export const UINodeSchema: z.ZodType<UINodeSchema> = z.union([LayoutNodeSchema, 
 // --- Agent 3: UISpec Schema ---
 
 export const UISpecThemeSchema = z.object({
-    accent: z.string().optional(),
+    accent: z.enum(['blue', 'green', 'purple', 'orange']).default('blue'),
 }).strict();
 
 export const UISpecSchema = z.object({
