@@ -10,6 +10,7 @@ import {
     validatorTortureFixture,
     comparisonFixture,
     calculatorFixture,
+    extendedCapabilitiesFixture
 } from './fixtures';
 import type { UINodeSchema } from '@/lib/schema/ui-spec';
 
@@ -21,6 +22,7 @@ const FIXTURES = [
     { name: 'Calculator', fixture: calculatorFixture, description: 'Net worth projector — sliders + computed chart' },
     { name: 'Unknown Type', fixture: unknownTypeFixture, description: 'Tests ErrorCallout for unknown component types' },
     { name: 'Validator Error', fixture: validatorTortureFixture, description: 'Tests validator rejection (nesting too deep)' },
+    { name: 'Extended', fixture: extendedCapabilitiesFixture, description: 'Math, Maps, and Advanced Wiki formatting' },
 ] as const;
 
 export default function UIFixturesPage() {

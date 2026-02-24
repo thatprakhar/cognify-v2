@@ -429,3 +429,94 @@ export const calculatorFixture = {
         ],
     },
 };
+
+// --- P3: Extended Capabilities Test ---
+export const extendedCapabilitiesFixture = {
+    version: '1.0',
+    title: 'Extended Capabilities Test',
+    theme: { accent: 'purple' as const },
+    root: {
+        type: 'Stack',
+        props: { gap: 'lg' },
+        children: [
+            {
+                type: 'Hero',
+                props: {
+                    title: 'Advanced Capabilities & Visualization',
+                    subtitle: 'Testing mathematical rendering, geographic mapping, and premium rich text formatting.',
+                },
+            },
+            {
+                type: 'Tabs',
+                props: { tabs: ['Mathematics', 'Geography', 'Code & Tables'] },
+                children: [
+                    // Tab 1: Mathematics
+                    {
+                        type: 'Stack',
+                        props: { gap: 'md' },
+                        children: [
+                            {
+                                type: 'WikiSection',
+                                props: {
+                                    heading: 'The Maxwell Equations',
+                                    body: 'James Clerk Maxwell derived four fundamental equations of electromagnetism. Note how elegant the math looks inline, like this: $\\\\nabla \\\\cdot \\\\mathbf{B} = 0$, which states there are no magnetic monopoles. Below is the block rendering:',
+                                    viewMode: 'advanced'
+                                }
+                            },
+                            {
+                                type: 'Equation',
+                                props: {
+                                    latex: '\\\\nabla \\\\times \\\\mathbf{E} = -\\\\frac{\\\\partial \\\\mathbf{B}}{\\\\partial t}',
+                                    displayMode: true
+                                }
+                            }
+                        ]
+                    },
+                    // Tab 2: Geography
+                    {
+                        type: 'Stack',
+                        props: { gap: 'md' },
+                        children: [
+                            {
+                                type: 'InfoCard',
+                                props: {
+                                    title: 'Global HQ Locations',
+                                    content: 'An interactive Leaflet map rendering our primary and secondary office coordinates.',
+                                    icon: 'MapPin'
+                                }
+                            },
+                            {
+                                type: 'Map',
+                                props: {
+                                    center: [40.7128, -74.0060], // NYC
+                                    zoom: 3,
+                                    markers: [
+                                        { lat: 40.7128, lng: -74.0060, label: 'New York (HQ)' },
+                                        { lat: 51.5072, lng: -0.1276, label: 'London (EMEA HQ)' },
+                                        { lat: 35.6762, lng: 139.6503, label: 'Tokyo (APAC HQ)' },
+                                        { lat: 37.7749, lng: -122.4194, label: 'San Francisco (Tech Hub)' }
+                                    ]
+                                }
+                            }
+                        ]
+                    },
+                    // Tab 3: Code & Tables
+                    {
+                        type: 'Stack',
+                        props: { gap: 'md' },
+                        children: [
+                            {
+                                type: 'WikiSection',
+                                props: {
+                                    heading: 'Advanced Markdown Showcase',
+                                    viewMode: 'advanced',
+                                    body: 'This section demonstrates **GitHub Flavored Markdown** features like tables and syntax highlighting.\n\n### Python Implementation\n\n```python\ndef fibonacci(n):\n    if n <= 0:\n        return 0\n    elif n == 1:\n        return 1\n    return fibonacci(n-1) + fibonacci(n-2)\n```\n\n### Feature Matrix\n\n| Feature | Status | Notes |\n|---------|--------|-------|\n| Maps | ✅ Done | Leaflet integration |\n| Math | ✅ Done | KaTeX integration |\n| Code | ✅ Done | React Syntax Highlighter |'
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+};
