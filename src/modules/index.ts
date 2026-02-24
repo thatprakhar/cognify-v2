@@ -7,11 +7,13 @@
 export { ComparisonModule } from './ComparisonModule';
 export { CalculatorModule } from './CalculatorModule';
 export { DashboardModule } from './DashboardModule';
+export { DiagramModule } from './DiagramModule';
 
 export type {
     ComparisonModuleConfig,
     CalculatorModuleConfig,
-    DashboardModuleConfig
+    DashboardModuleConfig,
+    DiagramModuleConfig
 } from './types';
 
 /**
@@ -21,9 +23,11 @@ export type {
 import { ComparisonModule } from './ComparisonModule';
 import { CalculatorModule } from './CalculatorModule';
 import { DashboardModule } from './DashboardModule';
+import { DiagramModule } from './DiagramModule';
 
 export const MODULE_COMPONENT_MAP: Record<string, React.FC<any>> = {
     Comparison: ComparisonModule,
     Calculator: CalculatorModule,
     Dashboard: DashboardModule,
+    Diagram: DiagramModule,
 };

@@ -72,6 +72,7 @@ export const COMPONENT_DOCS: ComponentDoc[] = [
     { name: 'Comparison', category: 'module' as any, props: 'title, subtitle?, optionA: {name, description?, pros[], cons[], stats{}}, optionB: {same}, criteria: {name, optionAScore: 0-10, optionBScore: 0-10}[], recommendation?, isMockData?', isLeaf: true },
     { name: 'Calculator', category: 'module' as any, props: 'title, subtitle?, inputs: {name, label, type: slider|number, min, max, step, defaultValue, unit?}[], formula: compound_growth|savings_projection, outputLabel?, scenarios?: {name, overrides: {}}[], isMockData?', isLeaf: true },
     { name: 'Dashboard', category: 'module' as any, props: 'title, subtitle?, charts: {type: bar|line|area|pie, title, xAxisKey, yAxisKeys[], description?}[], dataGrid?: {columns[], defaultSortBy?}, isMockData?', isLeaf: true },
+    { name: 'Diagram', category: 'module' as any, props: 'title, subtitle?, mermaidCode', isLeaf: true },
 ];
 
 /**

@@ -5,6 +5,7 @@ import { ExplainerAgent } from '../agents/explainer-agent';
 import { ComparisonAgent } from '../agents/comparison-agent';
 import { CalculatorAgent } from '../agents/calculator-agent';
 import { DashboardAgent } from '../agents/dashboard-agent';
+import { DiagramAgent } from '../agents/diagram-agent';
 import { csvStore } from '../data/store';
 import { SSEStreamer } from './stream';
 import { ChatMessage } from './types';
@@ -17,6 +18,7 @@ export class PipelineOrchestrator {
     private comparisonAgent: ComparisonAgent;
     private calculatorAgent: CalculatorAgent;
     private dashboardAgent: DashboardAgent;
+    private diagramAgent: DiagramAgent;
 
     constructor(provider: LLMProvider) {
         this.answerAgent = new AnswerAgent(provider);
@@ -25,6 +27,7 @@ export class PipelineOrchestrator {
         this.comparisonAgent = new ComparisonAgent(provider);
         this.calculatorAgent = new CalculatorAgent(provider);
         this.dashboardAgent = new DashboardAgent(provider);
+        this.diagramAgent = new DiagramAgent(provider);
     }
 
     /**
@@ -160,6 +163,18 @@ export class PipelineOrchestrator {
                         type: "Stack",
                         props: { gap: "6" },
                         children: [{ type: "Dashboard", props: { ...config, data: rawData } }]
+                    }
+                };
+            } else if (intentResult.intent === 'diagram') {
+                const config = await this.diagramAgent.generateConfig(answerSpec, (chunk) => streamer.specChunk(chunk));
+                uiSpec = {
+                    version: "1.0",
+                    title: config.title,
+                    theme: { accent: "blue" },
+                    root: {
+                        type: "Stack",
+                        props: { gap: "6" },
+                        children: [{ type: "Diagram", props: config }]
                     }
                 };
             } else {
