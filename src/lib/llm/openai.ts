@@ -52,7 +52,7 @@ export class OpenAIProvider extends LLMProvider {
             console.error("OpenAI Output Parsing or Validation Error:", error);
             console.error("Raw content:", fullContent);
             if (error instanceof z.ZodError) {
-                const details = (error as any).errors.map((e: any) => `${e.path.join('.')}: ${e.message}`).join(', ');
+                const details = ((error as any).errors || (error as any).issues || []).map((e: any) => `${e.path.join('.')}: ${e.message}`).join(', ');
                 throw new Error(`Failed to parse or validate LLM response: ${details}`);
             }
             throw new Error(`Failed to parse or validate LLM response: ${(error as Error).message}`);
