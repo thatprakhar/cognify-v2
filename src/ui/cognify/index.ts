@@ -32,6 +32,7 @@ import { CognifyChart } from './chart';
 import { ComparisonModule } from '@/modules/ComparisonModule';
 import { CalculatorModule } from '@/modules/CalculatorModule';
 import { DashboardModule } from '@/modules/DashboardModule';
+import { DiagramModule } from '@/modules/DiagramModule';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const COGNIFY_COMPONENT_MAP: Record<BlockType, React.FC<any>> = {
@@ -61,4 +62,5 @@ export const COGNIFY_COMPONENT_MAP: Record<BlockType, React.FC<any>> = {
     Comparison: ComparisonModule,
     Calculator: CalculatorModule,
     Dashboard: DashboardModule,
+    Diagram: DiagramModule,
 };

@@ -73,3 +73,11 @@ export const DashboardModuleConfigSchema = z.object({
 }).strict();
 
 export type DashboardModuleConfig = z.infer<typeof DashboardModuleConfigSchema>;
+
+export const DiagramModuleConfigSchema = z.object({
+    title: z.string(),
+    subtitle: z.string().optional(),
+    mermaidCode: z.string()
+}).strict();
+
+export type DiagramModuleConfig = z.infer<typeof DiagramModuleConfigSchema>;
