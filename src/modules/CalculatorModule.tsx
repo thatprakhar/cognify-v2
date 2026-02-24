@@ -17,74 +17,11 @@ import { TrendingUp, Calculator as CalcIcon } from 'lucide-react';
  * LLM provides the config (rates, amounts, labels). All computation is client-side deterministic.
  */
 
-export interface CalculatorModuleConfig {
-    title: string;
-    subtitle?: string;
-    inputs: CalculatorInput[];
-    formula: 'compound_growth' | 'loan_amortization' | 'savings_projection' | 'custom_table';
-    outputLabel?: string;
-    scenarios?: { name: string; overrides: Record<string, number> }[];
-    isMockData?: boolean;
-}
+import { type CalculatorModuleConfig, type CalculatorInput } from './types';
 
-interface CalculatorInput {
-    name: string;
-    label: string;
-    type: 'slider' | 'number';
-    min: number;
-    max: number;
-    step: number;
-    defaultValue: number;
-    unit?: string;
-}
+import { computeCompoundGrowth, computeSavingsProjection } from '@/lib/computation/finance';
 
-// --- Computation Engine (deterministic, no LLM) ---
-
-function computeCompoundGrowth(
-    principal: number,
-    monthlyContribution: number,
-    annualRate: number,
-    years: number,
-): { year: number; contributions: number; interest: number; total: number }[] {
-    const data = [];
-    let total = principal;
-    let totalContributions = principal;
-
-    for (let y = 1; y <= years; y++) {
-        for (let m = 0; m < 12; m++) {
-            total = total * (1 + annualRate / 12) + monthlyContribution;
-            totalContributions += monthlyContribution;
-        }
-        data.push({
-            year: y,
-            contributions: Math.round(totalContributions),
-            interest: Math.round(total - totalContributions),
-            total: Math.round(total),
-        });
-    }
-    return data;
-}
-
-function computeSavingsProjection(
-    monthlySavings: number,
-    annualRate: number,
-    years: number,
-): { year: number; saved: number; withInterest: number }[] {
-    const data = [];
-    let withInterest = 0;
-
-    for (let y = 1; y <= years; y++) {
-        for (let m = 0; m < 12; m++) {
-            withInterest = (withInterest + monthlySavings) * (1 + annualRate / 12);
-        }
-        data.push({
-            year: y,
-            saved: monthlySavings * 12 * y,
-            withInterest: Math.round(withInterest),
-        });
-    }
-    return data;
-}
+// --- Computation Engine (deterministic) ---
 
 export const CalculatorModule: React.FC<CalculatorModuleConfig> = ({
     title = '',
