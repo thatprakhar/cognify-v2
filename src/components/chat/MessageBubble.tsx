@@ -1,30 +1,29 @@
-'use client';
-
 import React from 'react';
 import { ChatMessage } from '@/lib/pipeline/types';
-import { Bot, User } from 'lucide-react';
+import { Terminal, Cpu } from 'lucide-react';
 
 interface MessageBubbleProps {
- message: ChatMessage;
+    message: ChatMessage;
 }
 
 export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
- const isUser = message.role === 'user';
+    const isUser = message.role === 'user';
 
- if (message.role === 'status') return null; // Statuses handled separately or inline
+    if (message.role === 'status') return null; // Statuses handled separately or inline
 
- return (
- <div className={`flex gap-3 max-w-[85%] ${isUser ? 'ml-auto flex-row-reverse' : ''}`}>
- <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${isUser ? 'bg-zinc-200 ' : 'bg-blue-600'}`}>
- {isUser ? <User className="w-5 h-5 text-zinc-600 " /> : <Bot className="w-5 h-5 text-white" />}
- </div>
+    return (
+        <div className="flex gap-4 w-full py-4 border-b border-zinc-100/60 last:border-0 group">
+            <div className="flex-shrink-0 mt-0.5">
+                {isUser ? (
+                    <Terminal className="w-4 h-4 text-zinc-300 group-hover:text-zinc-500 transition-colors" />
+                ) : (
+                    <Cpu className="w-4 h-4 text-blue-400 group-hover:text-blue-500 transition-colors" />
+                )}
+            </div>
 
- <div className={`p-4 rounded-2xl text-[15px] leading-relaxed ${isUser
- ? 'bg-zinc-100 text-zinc-900 '
- : 'bg-white border border-zinc-200 shadow-sm text-zinc-800 '
- }`}>
- {message.content}
- </div>
- </div>
- );
+            <div className={`flex-1 text-[14px] leading-relaxed ${isUser ? 'text-zinc-800 font-medium' : 'text-zinc-600'}`}>
+                {message.content}
+            </div>
+        </div>
+    );
 };

@@ -5,7 +5,7 @@ import { UISpec, IntentSpec, UXPlan } from '@/lib/pipeline/types';
 import { BlockRenderer } from './BlockRenderer';
 import { DebugPanel } from './DebugPanel';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Layers } from 'lucide-react';
+import { Layers, Download, Copy, RefreshCw } from 'lucide-react';
 
 interface ExperiencePanelProps {
     uiSpec: UISpec | null;
@@ -16,6 +16,28 @@ interface ExperiencePanelProps {
 }
 
 export const ExperiencePanel: React.FC<ExperiencePanelProps> = ({ uiSpec, uiSpecRaw, intentSpec, uxPlan, isGenerating }) => {
+    const [viewMode, setViewMode] = React.useState<'simple' | 'advanced'>('simple');
+
+    // Auto-reset to simple mode when a new experience starts generating
+    React.useEffect(() => {
+        if (isGenerating) setViewMode('simple');
+    }, [isGenerating]);
+
+    const handleCopy = () => {
+        if (uiSpecRaw) navigator.clipboard.writeText(uiSpecRaw);
+    };
+
+    const handleDownload = () => {
+        if (!uiSpecRaw) return;
+        const blob = new Blob([uiSpecRaw], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `experience-${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <div className="w-full h-full bg-[#FAFAFA] relative overflow-hidden">
             <AnimatePresence mode="wait">
@@ -71,8 +93,37 @@ export const ExperiencePanel: React.FC<ExperiencePanelProps> = ({ uiSpec, uiSpec
                         transition={{ duration: 0.5, ease: "easeOut" }}
                         className="absolute inset-0 overflow-y-auto p-8 lg:p-12 scroll-smooth"
                     >
-                        <div className="max-w-4xl mx-auto">
-                            <BlockRenderer node={uiSpec.root as any} />
+                        <div className="max-w-4xl mx-auto relative pt-4">
+                            {/* Global Toolbar */}
+                            <div className="absolute -top-4 right-0 z-20 flex justify-end">
+                                <div className="flex items-center gap-1 bg-white/80 backdrop-blur-xl border border-zinc-200/80 p-1.5 rounded-full shadow-sm">
+                                    <div className="flex items-center bg-zinc-100/50 rounded-full p-0.5">
+                                        <button
+                                            onClick={() => setViewMode('simple')}
+                                            className={`px-4 py-1.5 text-[12px] font-semibold rounded-full transition-all ${viewMode === 'simple' ? 'bg-white text-zinc-900 shadow-sm border border-zinc-200/50' : 'text-zinc-500 hover:text-zinc-700'}`}
+                                        >
+                                            Simple
+                                        </button>
+                                        <button
+                                            onClick={() => setViewMode('advanced')}
+                                            className={`px-4 py-1.5 text-[12px] font-semibold rounded-full transition-all ${viewMode === 'advanced' ? 'bg-white text-zinc-900 shadow-sm border border-zinc-200/50' : 'text-zinc-500 hover:text-zinc-700'}`}
+                                        >
+                                            Deep Dive
+                                        </button>
+                                    </div>
+                                    <div className="w-px h-4 bg-zinc-200 mx-2" />
+                                    <button onClick={handleCopy} className="w-7 h-7 flex items-center justify-center text-zinc-400 hover:text-zinc-700 rounded-full hover:bg-zinc-100 transition-colors" title="Copy JSON">
+                                        <Copy className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button onClick={handleDownload} className="w-7 h-7 flex items-center justify-center text-zinc-400 hover:text-zinc-700 mr-1 rounded-full hover:bg-zinc-100 transition-colors" title="Download">
+                                        <Download className="w-3.5 h-3.5" />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="mt-8">
+                                <BlockRenderer node={uiSpec.root as any} viewMode={viewMode} />
+                            </div>
                         </div>
                     </motion.div>
                 )}
