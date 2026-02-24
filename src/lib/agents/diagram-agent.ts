@@ -22,7 +22,7 @@ RULES FOR MERMAID CODE:
 - Do NOT wrap the mermaid code in markdown code blocks like \`\`\`mermaid. Provide the raw string exactly as it should be parsed.
 - Default to graph TD or flowchart LR unless a sequence/state diagram makes more sense.
 - Try to keep node labels concise.
-- Escape strings inside labels if they contain special characters.
+- CRITICAL: You MUST wrap all node labels in double quotes inside the brackets. Example: \`NodeID["Label with & and /"]\` rather than \`NodeID[Label with & and /]\`. This prevents syntax errors from special characters.
 
 OUTPUT FORMAT:
 Return strictly a valid JSON object matching the \`DiagramModuleConfigSchema\`.
