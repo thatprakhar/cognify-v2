@@ -1,205 +1,281 @@
 "use client"
 
-import { motion } from "framer-motion"
-import { ArrowRight, MessageSquare, Layers, Sparkles, BarChart3, BookOpen, ListChecks } from "lucide-react"
+import { Activity, ArrowRight, BarChart3, Database, Layers, CheckCircle2, CheckSquare, GitBranch, ShieldCheck, Box } from "lucide-react"
 
 export function LandingPage({ onTryDemo }: { onTryDemo: () => void }) {
     return (
-        <div className="min-h-screen w-full bg-white flex flex-col">
+        <div className="min-h-screen w-full bg-[#FAFAFA] font-sans text-zinc-900 selection:bg-zinc-200">
             {/* ── NAV ── */}
-            <nav className="w-full flex items-center justify-between px-8 py-5 max-w-6xl mx-auto">
-                <span className="text-xl font-bold tracking-tight text-zinc-900">Outform</span>
-                <button
-                    onClick={onTryDemo}
-                    className="text-sm font-semibold text-zinc-600 hover:text-zinc-900 transition-colors"
-                >
-                    Sign in
-                </button>
+            <nav className="w-full border-b border-zinc-200/60 bg-white/80 backdrop-blur-md sticky top-0 z-50">
+                <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <Box className="w-5 h-5 text-zinc-900" />
+                        <span className="text-lg font-bold tracking-tight">Outform</span>
+                    </div>
+                    <div className="flex items-center gap-6">
+                        <button onClick={onTryDemo} className="text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors">Documentation</button>
+                        <button onClick={onTryDemo} className="text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors">Sign in</button>
+                    </div>
+                </div>
             </nav>
 
             {/* ── HERO ── */}
-            <section className="flex-1 flex flex-col items-center justify-center px-6 pt-12 pb-20 max-w-4xl mx-auto text-center">
-                <motion.div
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, ease: "easeOut" }}
-                >
-                    <h1 className="text-5xl md:text-[3.5rem] lg:text-[4rem] font-bold tracking-tight text-zinc-900 leading-[1.1] mb-6">
-                        Ask anything.<br />
-                        <span className="text-blue-600">Get interactive answers.</span>
-                    </h1>
+            <section className="relative w-full pt-32 pb-24 px-6 overflow-hidden">
+                {/* Architectural Grid Background */}
+                <div className="absolute inset-0 bg-[#FAFAFA] bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none -z-10" />
 
-                    <p className="text-lg md:text-xl text-zinc-500 max-w-2xl mx-auto mb-10 leading-relaxed">
-                        Outform doesn't reply with text. It builds rich, interactive experiences — dashboards, wikis, quizzes — tailored to your question.
-                    </p>
-
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4">
-                        <button
-                            onClick={onTryDemo}
-                            className="group flex items-center justify-center gap-3 px-8 py-4 bg-zinc-900 text-white font-bold rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-xl shadow-zinc-500/20"
-                        >
-                            <MessageSquare size={18} />
-                            Try It Now
-                            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                        </button>
-
-                        <button
-                            onClick={onTryDemo}
-                            className="flex items-center justify-center gap-3 px-8 py-4 bg-white text-zinc-900 font-bold rounded-2xl border border-zinc-200 hover:bg-zinc-50 transition-all duration-200"
-                        >
-                            See Live Demo
-                        </button>
+                <div className="max-w-4xl mx-auto text-center flex flex-col items-center">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 mb-8 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-semibold tracking-wide text-zinc-600">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500" /> v2.0 Engine Live
                     </div>
 
-                    <p className="text-sm text-zinc-400">No account required.</p>
-                </motion.div>
+                    <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-zinc-900 leading-[1.1] mb-6">
+                        Turn complex questions into <br /> interactive systems.
+                    </h1>
+
+                    <p className="text-lg text-zinc-500 max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
+                        Generate structured, validated dashboards, diagrams, and learning modules from natural language. Secure, deterministic, and enterprise-ready.
+                    </p>
+
+                    <div className="flex items-center justify-center gap-4">
+                        <button
+                            onClick={onTryDemo}
+                            className="flex items-center gap-2 px-6 py-3 bg-zinc-900 hover:bg-zinc-800 text-white text-sm font-semibold rounded-lg shadow-[0_1px_2px_rgba(0,0,0,0.1)] transition-colors"
+                        >
+                            See Examples
+                        </button>
+                        <button
+                            onClick={onTryDemo}
+                            className="flex items-center gap-2 px-6 py-3 bg-white hover:bg-zinc-50 text-zinc-900 text-sm font-semibold rounded-lg border border-zinc-200 shadow-sm transition-colors"
+                        >
+                            Request Demo
+                        </button>
+                    </div>
+                </div>
             </section>
 
-            {/* ── TRANSFORMATION SECTION ── */}
-            <section className="w-full bg-zinc-50/80 border-y border-zinc-100 py-20 px-6">
-                <div className="max-w-5xl mx-auto">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, margin: "-50px" }}
-                        transition={{ duration: 0.6 }}
-                    >
-                        <h2 className="text-center text-3xl font-bold text-zinc-900 mb-16 tracking-tight">
-                            From a question to a full experience
-                        </h2>
-
-                        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
-                            {/* Left: Question */}
-                            <div className="flex-1 w-full">
-                                <div className="text-xs font-semibold uppercase tracking-widest text-zinc-400 mb-3">You ask</div>
-                                <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm">
-                                    <div className="flex items-start gap-3">
-                                        <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                            <MessageSquare size={16} className="text-zinc-500" />
-                                        </div>
-                                        <div>
-                                            <p className="text-[15px] font-medium text-zinc-800 leading-relaxed">
-                                                "How does photosynthesis work?"
-                                            </p>
-                                            <p className="text-sm text-zinc-400 mt-2">or any question — technical, creative, analytical</p>
-                                        </div>
-                                    </div>
+            {/* ── IMMEDIATE PROOF (3-COLUMN STRIP) ── */}
+            <section className="w-full px-6 pb-32">
+                <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Mock 1: Interactive Science */}
+                    <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-sm flex flex-col h-[320px]">
+                        <div className="p-4 border-b border-zinc-100 flex items-center gap-3 bg-zinc-50/50">
+                            <Layers className="w-4 h-4 text-zinc-400" />
+                            <span className="text-xs font-semibold text-zinc-600 uppercase tracking-wider">Physics Module</span>
+                        </div>
+                        <div className="flex-1 p-6 flex flex-col items-center justify-center bg-[#FAFAFA] relative overflow-hidden group">
+                            {/* Static Mock UI */}
+                            <div className="w-full max-w-[200px] bg-white border border-zinc-200 rounded-lg p-3 shadow-sm transform transition-transform group-hover:-translate-y-1">
+                                <div className="h-2 w-1/3 bg-zinc-200 rounded-full mb-3" />
+                                <div className="w-full h-24 border border-zinc-100 rounded bg-zinc-50 flex items-center justify-center mb-3 relative">
+                                    {/* Optics Diagram Mock */}
+                                    <div className="absolute inset-x-0 h-0.5 bg-zinc-200/50 top-1/2" />
+                                    <div className="w-2 h-16 bg-blue-500 rounded-full" />
+                                    <div className="w-16 h-px bg-blue-300 absolute left-4 top-1/4 -rotate-12" />
+                                    <div className="w-16 h-px bg-blue-300 absolute right-4 top-3/4 -rotate-12" />
                                 </div>
-                            </div>
-
-                            {/* Arrow */}
-                            <div className="flex-shrink-0 flex flex-col items-center gap-2">
-                                <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/30">
-                                    <ArrowRight size={20} className="text-white" />
-                                </div>
-                                <span className="text-[11px] font-semibold uppercase tracking-widest text-blue-600">Becomes</span>
-                            </div>
-
-                            {/* Right: Interactive Experience */}
-                            <div className="flex-1 w-full">
-                                <div className="text-xs font-semibold uppercase tracking-widest text-zinc-400 mb-3">You get</div>
-                                <div className="bg-white border border-zinc-200 rounded-2xl overflow-hidden shadow-sm">
-                                    <img
-                                        src="/answer-engine-mock.png"
-                                        alt="Interactive visual answer with diagrams, sections, and key facts"
-                                        className="w-full h-auto"
-                                    />
+                                <div className="flex gap-2">
+                                    <div className="w-4 h-4 rounded-sm border border-zinc-200 bg-zinc-100" />
+                                    <div className="h-4 w-3/4 bg-zinc-100 rounded-sm" />
                                 </div>
                             </div>
                         </div>
-                    </motion.div>
+                        <div className="p-4 bg-white border-t border-zinc-100">
+                            <p className="text-sm font-medium text-zinc-900">Interactive ray diagrams + structured quizzes.</p>
+                        </div>
+                    </div>
+
+                    {/* Mock 2: Architecture */}
+                    <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-sm flex flex-col h-[320px]">
+                        <div className="p-4 border-b border-zinc-100 flex items-center gap-3 bg-zinc-50/50">
+                            <GitBranch className="w-4 h-4 text-zinc-400" />
+                            <span className="text-xs font-semibold text-zinc-600 uppercase tracking-wider">Systems Architecture</span>
+                        </div>
+                        <div className="flex-1 p-6 flex items-center justify-center bg-[#FAFAFA] group">
+                            {/* Flowchart Mock */}
+                            <div className="flex flex-col items-center gap-3 transform transition-transform group-hover:scale-105">
+                                <div className="px-4 py-2 bg-white border border-zinc-300 rounded text-[10px] font-mono font-medium shadow-sm">Client Request</div>
+                                <div className="w-px h-6 bg-zinc-300 relative">
+                                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 border-r-2 border-b-2 border-zinc-300 rotate-45" />
+                                </div>
+                                <div className="flex gap-4">
+                                    <div className="px-4 py-2 bg-zinc-100 border border-zinc-200 rounded text-[10px] font-mono text-zinc-500">Cache</div>
+                                    <div className="px-4 py-2 bg-blue-50 border border-blue-200 rounded text-[10px] font-mono text-blue-700 font-semibold shadow-sm">Load Balancer</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="p-4 bg-white border-t border-zinc-100">
+                            <p className="text-sm font-medium text-zinc-900">Deterministic Mermaid-style flowcharts & nodes.</p>
+                        </div>
+                    </div>
+
+                    {/* Mock 3: Data Dashboard */}
+                    <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-sm flex flex-col h-[320px]">
+                        <div className="p-4 border-b border-zinc-100 flex items-center gap-3 bg-zinc-50/50">
+                            <BarChart3 className="w-4 h-4 text-zinc-400" />
+                            <span className="text-xs font-semibold text-zinc-600 uppercase tracking-wider">Data Dashboard</span>
+                        </div>
+                        <div className="flex-1 p-6 flex flex-col items-center justify-center bg-[#FAFAFA] group">
+                            {/* Dashboard Mock */}
+                            <div className="w-full max-w-[200px] grid grid-cols-2 gap-2 transform transition-transform group-hover:-translate-y-1">
+                                <div className="bg-white border border-zinc-200 p-2 rounded-lg shadow-sm">
+                                    <div className="text-[10px] text-zinc-400 mb-1">MRR</div>
+                                    <div className="text-sm font-bold">$124k</div>
+                                </div>
+                                <div className="bg-white border border-zinc-200 p-2 rounded-lg shadow-sm">
+                                    <div className="text-[10px] text-zinc-400 mb-1">Active</div>
+                                    <div className="text-sm font-bold">14.2k</div>
+                                </div>
+                                <div className="col-span-2 bg-white border border-zinc-200 p-3 rounded-lg shadow-sm h-20 flex items-end gap-1 justify-between">
+                                    {[30, 45, 25, 60, 50, 80, 65].map((h, i) => (
+                                        <div key={i} className="w-full bg-blue-100 rounded-t-sm relative" style={{ height: `${h}%` }}>
+                                            <div className="absolute bottom-0 w-full bg-blue-500 rounded-t-sm" style={{ height: `${Math.max(20, h - 20)}%` }} />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="p-4 bg-white border-t border-zinc-100">
+                            <p className="text-sm font-medium text-zinc-900">Recharts integration with dynamic insights.</p>
+                        </div>
+                    </div>
                 </div>
             </section>
 
             {/* ── HOW IT WORKS ── */}
-            <section className="w-full py-20 px-6">
-                <div className="max-w-4xl mx-auto">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, margin: "-50px" }}
-                        transition={{ duration: 0.6 }}
-                    >
-                        <h2 className="text-center text-3xl font-bold text-zinc-900 mb-14 tracking-tight">
-                            Three steps. That's it.
-                        </h2>
+            <section className="w-full py-24 bg-white border-y border-zinc-200">
+                <div className="max-w-4xl mx-auto px-6">
+                    <div className="mb-16">
+                        <h2 className="text-2xl font-bold tracking-tight text-zinc-900 mb-2">How it works</h2>
+                        <p className="text-zinc-500">A deterministic pipeline entirely separated from raw LLM output.</p>
+                    </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-                            {[
-                                { step: "01", icon: MessageSquare, label: "Ask your question", color: "bg-blue-50 text-blue-600" },
-                                { step: "02", icon: Sparkles, label: "We analyze and structure", color: "bg-amber-50 text-amber-600" },
-                                { step: "03", icon: Layers, label: "Get an interactive experience", color: "bg-emerald-50 text-emerald-600" },
-                            ].map(({ step, icon: Icon, label, color }) => (
-                                <div key={step} className="flex flex-col items-center text-center">
-                                    <div className="text-[11px] font-bold uppercase tracking-widest text-zinc-300 mb-4">{step}</div>
-                                    <div className={`w-14 h-14 rounded-2xl ${color} flex items-center justify-center mb-5`}>
-                                        <Icon size={24} />
-                                    </div>
-                                    <p className="text-[15px] font-semibold text-zinc-800">{label}</p>
-                                </div>
-                            ))}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div className="flex flex-col gap-4 relative">
+                            <div className="w-8 h-8 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center text-xs font-bold font-mono">1</div>
+                            <h3 className="font-semibold text-zinc-900">Ask a question</h3>
+                            <p className="text-sm text-zinc-500 leading-relaxed">Natural language inputs are ingested as standard raw queries via secure API bindings.</p>
+                            <ArrowRight className="absolute top-2 -right-4 text-zinc-300 hidden md:block" />
                         </div>
-                    </motion.div>
+                        <div className="flex flex-col gap-4 relative">
+                            <div className="w-8 h-8 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center text-xs font-bold font-mono">2</div>
+                            <h3 className="font-semibold text-zinc-900">Intent is classified</h3>
+                            <p className="text-sm text-zinc-500 leading-relaxed">An upstream router maps the query to explicit schema targets (e.g. `intent: "diagram"`).</p>
+                            <ArrowRight className="absolute top-2 -right-4 text-zinc-300 hidden md:block" />
+                        </div>
+                        <div className="flex flex-col gap-4 relative">
+                            <div className="w-8 h-8 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-xs font-bold font-mono text-blue-600">3</div>
+                            <h3 className="font-semibold text-zinc-900">Spec is rendered</h3>
+                            <p className="text-sm text-zinc-500 leading-relaxed">A validated JSON UI specification is streamed to the deterministic frontend React tree.</p>
+                        </div>
+                    </div>
                 </div>
             </section>
 
-            {/* ── WHAT YOU GET ── */}
-            <section className="w-full bg-zinc-50/80 border-y border-zinc-100 py-20 px-6">
-                <div className="max-w-4xl mx-auto">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, margin: "-50px" }}
-                        transition={{ duration: 0.6 }}
-                    >
-                        <h2 className="text-center text-3xl font-bold text-zinc-900 mb-14 tracking-tight">
-                            Not just text. Real experiences.
-                        </h2>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {/* ── DIFFERENTIATOR ── */}
+            <section className="w-full py-24 bg-[#FAFAFA]">
+                <div className="max-w-4xl mx-auto px-6 flex flex-col md:flex-row gap-16 items-center">
+                    <div className="flex-1">
+                        <h2 className="text-3xl font-bold tracking-tight text-zinc-900 mb-6">Not another AI wrapper.</h2>
+                        <ul className="space-y-4">
                             {[
-                                { icon: BookOpen, title: "Visual Wikis", desc: "Structured, explorable knowledge", color: "text-blue-600 bg-blue-50" },
-                                { icon: BarChart3, title: "Live Dashboards", desc: "Charts and data at a glance", color: "text-emerald-600 bg-emerald-50" },
-                                { icon: ListChecks, title: "Interactive Quizzes", desc: "Test understanding, not memory", color: "text-amber-600 bg-amber-50" },
-                                { icon: Layers, title: "Smart Layouts", desc: "Tailored to your question", color: "text-violet-600 bg-violet-50" },
-                            ].map(({ icon: Icon, title, desc, color }) => (
-                                <div key={title} className="bg-white border border-zinc-200/80 rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-shadow">
-                                    <div className={`w-11 h-11 rounded-xl ${color} flex items-center justify-center mx-auto mb-4`}>
-                                        <Icon size={20} />
-                                    </div>
-                                    <h3 className="font-bold text-[15px] text-zinc-900 mb-1">{title}</h3>
-                                    <p className="text-sm text-zinc-500">{desc}</p>
-                                </div>
+                                "No raw HTML execution",
+                                "Strict JSON contracts & Zod validation",
+                                "Allowlisted UI components only",
+                                "Deterministic React rendering pipeline",
+                                "Versioned output specs (v1.0)"
+                            ].map((text, i) => (
+                                <li key={i} className="flex items-center gap-3 text-zinc-600">
+                                    <CheckCircle2 className="w-5 h-5 text-zinc-900 shrink-0" />
+                                    <span className="font-medium text-sm">{text}</span>
+                                </li>
                             ))}
-                        </div>
-                    </motion.div>
+                        </ul>
+                    </div>
+                    <div className="flex-1 w-full bg-zinc-900 rounded-xl p-6 shadow-2xl overflow-hidden border border-zinc-800">
+                        {/* Fake Code Block */}
+                        <pre className="text-[11px] font-mono text-zinc-300 leading-relaxed overflow-x-auto">
+                            <code className="block text-zinc-500 mb-2">// Generated Payload</code>
+                            <span className="text-blue-400">{"{"}</span>{"\n"}
+                            {"  "}<span className="text-blue-300">"version"</span>: <span className="text-emerald-300">"1.0"</span>,{"\n"}
+                            {"  "}<span className="text-blue-300">"root"</span>: {"{"}{"\n"}
+                            {"    "}<span className="text-blue-300">"type"</span>: <span className="text-emerald-300">"Dashboard"</span>,{"\n"}
+                            {"    "}<span className="text-blue-300">"props"</span>: {"{"}{"\n"}
+                            {"      "}<span className="text-blue-300">"metrics"</span>: [...],{"\n"}
+                            {"      "}<span className="text-blue-300">"series"</span>: [...]{"\n"}
+                            {"    "}{"}"}{"\n"}
+                            {"  "}{"}"}{"\n"}
+                            <span className="text-blue-400">{"}"}</span>
+                        </pre>
+                    </div>
                 </div>
             </section>
 
-            {/* ── SOCIAL PROOF ── */}
-            <section className="w-full py-16 px-6 text-center">
-                <p className="text-xl md:text-2xl font-semibold text-zinc-800 max-w-xl mx-auto leading-relaxed tracking-tight">
-                    Built for people who want answers,<br />not more reading.
-                </p>
+            {/* ── PILLARS ── */}
+            <section className="w-full py-24 bg-white border-y border-zinc-200">
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="p-8 border border-zinc-200 rounded-xl bg-zinc-50 hover:bg-white transition-colors cursor-pointer group">
+                            <Layers className="w-6 h-6 text-zinc-900 mb-4" />
+                            <h3 className="text-lg font-bold text-zinc-900 mb-2">Interactive Science</h3>
+                            <p className="text-sm text-zinc-500 mb-6 leading-relaxed">Complex physical, chemical, or biological relationships generated automatically as interactive ray-diagrams, molecular explorers, and structured accordions.</p>
+                            <span className="text-sm font-semibold text-zinc-900 group-hover:underline">View Example →</span>
+                        </div>
+                        <div className="p-8 border border-zinc-200 rounded-xl bg-zinc-50 hover:bg-white transition-colors cursor-pointer group">
+                            <GitBranch className="w-6 h-6 text-zinc-900 mb-4" />
+                            <h3 className="text-lg font-bold text-zinc-900 mb-2">Systems Architecture</h3>
+                            <p className="text-sm text-zinc-500 mb-6 leading-relaxed">Turn ambiguous structural dependencies into strict, zoomable web architectures, sequence diagrams, and class entity modules.</p>
+                            <span className="text-sm font-semibold text-zinc-900 group-hover:underline">View Example →</span>
+                        </div>
+                        <div className="p-8 border border-zinc-200 rounded-xl bg-zinc-50 hover:bg-white transition-colors cursor-pointer group">
+                            <BarChart3 className="w-6 h-6 text-zinc-900 mb-4" />
+                            <h3 className="text-lg font-bold text-zinc-900 mb-2">Data Analysis</h3>
+                            <p className="text-sm text-zinc-500 mb-6 leading-relaxed">Parse high-volume CSV or JSON feeds directly into unified management dashboards, complete with top-level MRR/anomaly metrics.</p>
+                            <span className="text-sm font-semibold text-zinc-900 group-hover:underline">View Example →</span>
+                        </div>
+                    </div>
+                </div>
             </section>
 
-            {/* ── BOTTOM CTA ── */}
-            <section className="w-full pb-20 px-6 text-center">
-                <button
-                    onClick={onTryDemo}
-                    className="group inline-flex items-center justify-center gap-3 px-10 py-4 bg-zinc-900 text-white font-bold rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-xl shadow-zinc-500/20"
-                >
-                    <MessageSquare size={18} />
-                    Try It Now
-                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                </button>
-                <p className="text-sm text-zinc-400 mt-4">No account required.</p>
+            {/* ── ENTERPRISE READINESS ── */}
+            <section className="w-full py-24 bg-[#FAFAFA]">
+                <div className="max-w-3xl mx-auto px-6 text-center">
+                    <ShieldCheck className="w-10 h-10 text-zinc-900 mx-auto mb-6" />
+                    <h2 className="text-3xl font-bold tracking-tight text-zinc-900 mb-4">Built for teams that need control.</h2>
+                    <p className="text-zinc-500 mb-10 max-w-xl mx-auto leading-relaxed">
+                        Outform runs on a custom multi-agent routing topography (LangGraph) enforcing absolute contract adherence before rendering a single pixel.
+                    </p>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
+                        <div className="bg-white p-4 border border-zinc-200 rounded-lg">
+                            <CheckSquare className="w-4 h-4 text-zinc-400 mb-2" />
+                            <div className="font-semibold text-sm text-zinc-900">Schema Validation</div>
+                        </div>
+                        <div className="bg-white p-4 border border-zinc-200 rounded-lg">
+                            <Activity className="w-4 h-4 text-zinc-400 mb-2" />
+                            <div className="font-semibold text-sm text-zinc-900">Observability Hooks</div>
+                        </div>
+                        <div className="bg-white p-4 border border-zinc-200 rounded-lg">
+                            <Database className="w-4 h-4 text-zinc-400 mb-2" />
+                            <div className="font-semibold text-sm text-zinc-900">Versioned Output</div>
+                        </div>
+                        <div className="bg-white p-4 border border-zinc-200 rounded-lg">
+                            <Layers className="w-4 h-4 text-zinc-400 mb-2" />
+                            <div className="font-semibold text-sm text-zinc-900">Safe Rendering</div>
+                        </div>
+                    </div>
+                </div>
             </section>
 
             {/* ── FOOTER ── */}
-            <footer className="w-full border-t border-zinc-100 py-8 px-8 flex items-center justify-between max-w-6xl mx-auto">
-                <span className="text-zinc-400 text-xs font-medium">© 2026 Outform. All rights reserved.</span>
-                <span className="text-zinc-300 text-xs">Ask → Experience → Understand.</span>
+            <footer className="w-full bg-white border-t border-zinc-200 py-8 px-6">
+                <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-2">
+                        <Box className="w-4 h-4 text-zinc-400" />
+                        <span className="text-zinc-500 text-xs font-semibold">Outform Engine</span>
+                    </div>
+                    <span className="text-zinc-400 text-xs text-center">Deterministic Structural Generation.</span>
+                </div>
             </footer>
         </div>
     )
