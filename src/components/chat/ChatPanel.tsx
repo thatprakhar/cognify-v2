@@ -37,8 +37,8 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
             {/* Header */}
             <div className="flex-shrink-0 px-6 py-6 border-b border-zinc-100/80 bg-white/80 backdrop-blur-xl sticky top-0 z-20 flex items-center justify-between">
                 <div>
-                    <h1 className="text-xl font-bold tracking-tight text-zinc-900 ">Cognify</h1>
-                    <p className="text-sm text-zinc-500 mt-1">Chat-in, UX-out.</p>
+                    <h1 className="text-xl font-bold tracking-tight text-zinc-900 ">Outform</h1>
+                    <p className="text-sm text-zinc-500 mt-1">Ask → Experience → Understand.</p>
                 </div>
                 <UserNav />
             </div>
@@ -76,7 +76,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                 <ChatInput onSend={onSendMessage} disabled={isGenerating} />
                 <div className="text-center mt-3">
                     <span className="text-xs text-zinc-400 ">
-                        Cognify dynamically builds entire interfaces based on your query.
+                        Outform turns your questions into interactive visual experiences.
                     </span>
                 </div>
             </div>

@@ -52,7 +52,7 @@ export const ExperiencePanel: React.FC<ExperiencePanelProps> = ({ uiSpec, uiSpec
                         <Layers className="w-16 h-16 mb-4 opacity-20" />
                         <h2 className="text-xl font-medium mb-2 opacity-50">No Experience Generated</h2>
                         <p className="max-w-md opacity-50">
-                            Ask a question on the left, and watch Cognify build a custom interactive interface here.
+                            Ask a question on the left, and watch Outform build an interactive answer here.
                         </p>
                     </motion.div>
                 )}
