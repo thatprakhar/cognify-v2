@@ -1,12 +1,11 @@
 import { useState, useCallback } from 'react';
-import { PipelineState, PipelineStage, UISpec, AnswerSpec, UXPlan } from '@/lib/pipeline/types';
-import { parse as parsePartialJson } from 'partial-json';
+import { PipelineState, PipelineStage, AnswerSpec, UXPlan } from '@/lib/pipeline/types';
 
 export function useGenerate() {
     const [isGenerating, setIsGenerating] = useState(false);
     const [currentStage, setCurrentStage] = useState<PipelineStage | null>(null);
     const [statusMessage, setStatusMessage] = useState<string | null>(null);
-    const [uiSpec, setUiSpec] = useState<UISpec | null>(null);
+    const [uiSpec, setUiSpec] = useState<any | null>(null);
     const [uiSpecRaw, setUiSpecRaw] = useState<string | null>(null);
     const [answerSpec, setAnswerSpec] = useState<AnswerSpec | null>(null);
     const [uxPlan, setUxPlan] = useState<UXPlan | null>(null);
@@ -89,14 +88,6 @@ export function useGenerate() {
                                 if (data.stage === 'rendering') setUiSpec(data.data); // optional extra safeguard
                             } else if (event === 'spec-chunk') {
                                 setUiSpecRaw(data.partial);
-                                try {
-                                    const parsedPartial = parsePartialJson(data.partial);
-                                    if (parsedPartial && typeof parsedPartial === 'object' && 'root' in parsedPartial) {
-                                        setUiSpec(parsedPartial as UISpec);
-                                    }
-                                } catch (e) {
-                                    // ignore incomplete chunks that cannot be parsed
-                                }
                             } else if (event === 'metadata') {
                                 setRunMetadata(data);
                             } else if (event === 'complete') {
