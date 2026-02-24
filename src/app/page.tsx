@@ -15,7 +15,7 @@ export default function Home() {
     const [showDemo, setShowDemo] = React.useState(false);
 
     const { messages, addMessage } = useChat();
-    const { generate, isGenerating, currentStage, statusMessage, uiSpec, uiSpecRaw, intentSpec, uxPlan, error, clearError } = useGenerate();
+    const { generate, isGenerating, currentStage, statusMessage, uiSpec, uiSpecRaw, answerSpec, uxPlan, error, clearError } = useGenerate();
 
     const handleSendMessage = async (query: string) => {
         // Add user message to UI
@@ -55,7 +55,7 @@ export default function Home() {
                 <ExperiencePanel
                     uiSpec={uiSpec}
                     uiSpecRaw={uiSpecRaw}
-                    intentSpec={intentSpec}
+                    answerSpec={answerSpec}
                     uxPlan={uxPlan}
                     isGenerating={isGenerating}
                 />

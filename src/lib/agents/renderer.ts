@@ -1,39 +1,40 @@
 import { UISpecSchema } from '../schema/ui-spec';
 import { UXPlanSchema } from '../schema/ux-plan';
-import { IntentSpecSchema } from '../schema/intent';
+import { AnswerSpecSchema } from '../schema/answer';
 import { LLMProvider } from '../llm/provider';
 import { z } from 'zod';
 
 export class RendererAgent {
-    constructor(private provider: LLMProvider) { }
+  constructor(private provider: LLMProvider) { }
 
-    async render(
-        intentSpec: z.infer<typeof IntentSpecSchema>,
-        uxPlan: z.infer<typeof UXPlanSchema>,
-        onChunk?: (partialJson: string) => void
-    ): Promise<z.infer<typeof UISpecSchema>> {
-        const systemPrompt = `
+  async render(
+    answerSpec: z.infer<typeof AnswerSpecSchema>,
+    uxPlan: z.infer<typeof UXPlanSchema>,
+    onChunk?: (partialJson: string) => void
+  ): Promise<z.infer<typeof UISpecSchema>> {
+    const systemPrompt = `
 You are Cognify RendererAgent.
 
 TASK:
-Given IntentSpec and UXPlan, output ONE UISpec JSON object that validates against UISpecSchema.
+Given AnswerSpec and UXPlan, generate a complete UISpec JSON that validates against UISpecSchema.
 
 HARD RULES:
-- Output JSON ONLY.
+- Output JSON ONLY. No prose.
 - Use ONLY the allowed component types listed below.
 - Root MUST be a layout block and MUST have children.
 - Leaf blocks MUST NOT have children.
 - Parent layout blocks MUST have children.
-- Do NOT include any HTML, scripts, iframes, or executable code.
-- Do NOT include external URLs unless they are safe placeholders like "https://example.com/..." and the schema allows it.
-- Do NOT claim real-world facts. If you need content, use:
-  (a) user-provided text from intentSpec.query / intentSpec.contextFromChat
-  (b) neutral templates
-  (c) explicitly-labeled placeholders ("Example", "Mock", "Sample")
+- Do NOT include raw HTML, scripts, iframes, or executable code.
 
-CHART DATA RULES:
-- You MAY include mock data for charts/tables only if clearly labeled in props with "isMockData": true.
-- Mock data must be simple and realistic but MUST NOT imply it is the user's real data.
+CONTENT RULES:
+- Treat AnswerSpec.answerMarkdown as the single source of truth for content.
+- Do NOT introduce new factual claims beyond AnswerSpec.
+- You may split/structure the content for readability (headings, sections), but do not change meaning.
+- If AnswerSpec.mode="CLARIFY": render a Form that asks AnswerSpec.followUpQuestions.
+
+CHART/TABLE RULES:
+- Only render charts/tables if UXPlan requires it AND AnswerSpec includes structured data.
+- Otherwise, avoid charts or mark any synthetic data clearly (isMockData=true) if schema supports it.
 
 AVAILABLE COMPONENTS:
 
@@ -62,12 +63,6 @@ Interactive Blocks (leaf):
 - Chart (props: type, data, xKey, yKeys, isMockData)
 - ProgressTracker (props: steps, currentStep)
 
-ADAPTATION RULES:
-- If intentSpec.mode="CLARIFY": render a Form to collect requiredInputs and show the clarifyingQuestions as Callouts.
-- For career_quiz: include Quiz + ProgressTracker + results placeholder section.
-- For expense_dashboard: include FileUpload + Chart/Table with isMockData=true until user uploads.
-- For modern_wiki: include Hero + multiple WikiSection blocks.
-
 OUTPUT SHAPE:
 {
   "version": "1.0",
@@ -75,16 +70,19 @@ OUTPUT SHAPE:
   "theme": { "accent": string },
   "root": { "type": string, "props": object, "children": array }
 }
+
+Return ONLY the UISpec JSON object.
 `;
 
-        const userPrompt = `IntentSpec:\n${JSON.stringify(intentSpec, null, 2)}\n\nUXPlan:\n${JSON.stringify(uxPlan, null, 2)}`;
+    const userPrompt = `AnswerSpec:\n${JSON.stringify(answerSpec, null, 2)}\n\nUXPlan:\n${JSON.stringify(uxPlan, null, 2)}`;
 
-        return this.provider.generateJSON({
-            systemPrompt,
-            userPrompt,
-            schema: UISpecSchema,
-            maxTokens: 8000,
-            onChunk
-        });
-    }
+    return this.provider.generateJSON({
+      systemPrompt,
+      userPrompt,
+      schema: UISpecSchema,
+      maxTokens: 8000,
+      onChunk
+    });
+  }
 }
+

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { UISpec, IntentSpec, UXPlan } from '@/lib/pipeline/types';
+import { UISpec, AnswerSpec, UXPlan } from '@/lib/pipeline/types';
 import { BlockRenderer } from './BlockRenderer';
 import { DebugPanel } from './DebugPanel';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -10,12 +10,12 @@ import { Layers, Download, Copy, RefreshCw } from 'lucide-react';
 interface ExperiencePanelProps {
     uiSpec: UISpec | null;
     uiSpecRaw: string | null;
-    intentSpec: IntentSpec | null;
+    answerSpec: AnswerSpec | null;
     uxPlan: UXPlan | null;
     isGenerating: boolean;
 }
 
-export const ExperiencePanel: React.FC<ExperiencePanelProps> = ({ uiSpec, uiSpecRaw, intentSpec, uxPlan, isGenerating }) => {
+export const ExperiencePanel: React.FC<ExperiencePanelProps> = ({ uiSpec, uiSpecRaw, answerSpec, uxPlan, isGenerating }) => {
     const [viewMode, setViewMode] = React.useState<'simple' | 'advanced'>('simple');
 
     // Auto-reset to simple mode when a new experience starts generating
@@ -131,7 +131,7 @@ export const ExperiencePanel: React.FC<ExperiencePanelProps> = ({ uiSpec, uiSpec
 
             {/* Dev Mode Debug UI */}
             <DebugPanel
-                intentSpec={intentSpec}
+                answerSpec={answerSpec}
                 uxPlan={uxPlan}
                 uiSpec={uiSpec}
                 uiSpecRaw={uiSpecRaw}
