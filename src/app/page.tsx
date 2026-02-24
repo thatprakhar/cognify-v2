@@ -5,7 +5,7 @@ import { ChatPanel } from '@/components/chat/ChatPanel';
 import { ExperiencePanel } from '@/components/experience/ExperiencePanel';
 import { useChat } from '@/hooks/useChat';
 import { useGenerate } from '@/hooks/useGenerate';
-import { X } from 'lucide-react';
+import { X, Activity, Clock, RefreshCw } from 'lucide-react';
 
 import { useSession } from 'next-auth/react';
 import { LandingPage } from '@/components/auth/LandingPage';
@@ -15,7 +15,7 @@ export default function Home() {
     const [showDemo, setShowDemo] = React.useState(false);
 
     const { messages, addMessage } = useChat();
-    const { generate, isGenerating, currentStage, statusMessage, uiSpec, uiSpecRaw, answerSpec, uxPlan, error, clearError } = useGenerate();
+    const { generate, isGenerating, currentStage, statusMessage, uiSpec, uiSpecRaw, answerSpec, uxPlan, runMetadata, statusSteps, validationData, error, clearError } = useGenerate();
 
     const handleSendMessage = async (query: string) => {
         // Add user message to UI
@@ -46,18 +46,65 @@ export default function Home() {
                     onSendMessage={handleSendMessage}
                     currentStage={currentStage}
                     statusMessage={statusMessage}
+                    statusSteps={statusSteps}
                     isGenerating={isGenerating}
                 />
+                {/* Dev Mode Toggle */}
+                <div className="absolute top-4 left-4 z-50 flex items-center gap-2 bg-white/90 backdrop-blur-md px-3 py-2 rounded-lg border border-zinc-200 shadow-sm text-xs font-mono select-none">
+                    <input
+                        type="checkbox"
+                        id="langgraph-toggle"
+                        className="cursor-pointer"
+                        onChange={(e) => {
+                            window.localStorage.setItem('useLangGraph', e.target.checked.toString());
+                        }}
+                        defaultChecked={typeof window !== 'undefined' ? window.localStorage.getItem('useLangGraph') === 'true' : false}
+                    />
+                    <label htmlFor="langgraph-toggle" className="text-zinc-600 cursor-pointer font-semibold">USE LANGGRAPH ENGINE</label>
+                </div>
             </div>
 
             {/* Right Panel: Interactive Experience */}
             <div className="hidden md:flex flex-1 relative bg-[#FAFAFA] overflow-hidden">
+                {runMetadata && (
+                    <div className="absolute top-4 right-4 z-50 bg-black/80 backdrop-blur-md text-white text-xs p-4 rounded-xl shadow-2xl space-y-3 font-mono border border-white/10 w-72">
+                        <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                            <span className="font-bold text-blue-400 flex items-center gap-2"><Activity size={14} /> ENGINE TELEMETRY</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="text-zinc-400">Router</span>
+                            <span className={runMetadata.engine === 'langgraph' ? 'text-green-400 font-bold' : 'text-orange-400'}>{runMetadata.engine.toUpperCase()}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="text-zinc-400">Model Priority</span>
+                            <span>{runMetadata.modelClass}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <span className="text-zinc-400 flex items-center gap-1.5"><Clock size={12} /> Latency (TTFB)</span>
+                            <span>{runMetadata.latencyMs}ms</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                            <span className="text-zinc-400 flex items-center gap-1.5"><RefreshCw size={12} /> Retry Loops</span>
+                            <span className={runMetadata.retryCount > 0 ? "text-yellow-400" : ""}>{runMetadata.retryCount}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="text-zinc-400">Semantic Drift</span>
+                            <span className={runMetadata.semanticDriftDetected ? "text-red-400 font-bold" : "text-zinc-500"}>{runMetadata.semanticDriftDetected ? "DETECTED" : "Safe"}</span>
+                        </div>
+                        <div className="pt-2 border-t border-white/10 flex flex-col gap-1">
+                            <span className="text-zinc-500 text-[10px]">FINGERPRINT</span>
+                            <span className="text-[10px] text-zinc-400 break-all">{runMetadata.engineFingerprint}</span>
+                        </div>
+                    </div>
+                )}
                 <ExperiencePanel
                     uiSpec={uiSpec}
                     uiSpecRaw={uiSpecRaw}
                     answerSpec={answerSpec}
                     uxPlan={uxPlan}
                     isGenerating={isGenerating}
+                    runMetadata={runMetadata}
+                    validationData={validationData}
                     onSubmitClarification={(answers) => {
                         const formattedAnswers = Object.entries(answers)
                             .map(([key, value]) => `${key}: ${value}`)

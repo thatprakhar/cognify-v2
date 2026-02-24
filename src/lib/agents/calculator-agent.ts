@@ -8,7 +8,8 @@ export class CalculatorAgent {
 
     async generateConfig(
         answerSpec: z.infer<typeof AnswerSpecSchema>,
-        onChunk?: (partialJson: string) => void
+        onChunk?: (partialJson: string) => void,
+        overrides?: { temperature?: number; seed?: number }
     ): Promise<z.infer<typeof CalculatorModuleConfigSchema>> {
         const systemPrompt = `
 You are the Cognify Calculator Agent.
@@ -33,13 +34,14 @@ RULES FOR OUTPUT SHAPE:
 
         const userPrompt = `Query: ${answerSpec.query}\n\nAnswer Content:\n${answerSpec.answerMarkdown}`;
 
-        return this.provider.generateJSON({
+        return this.provider.generateJSON<typeof CalculatorModuleConfigSchema>({
             systemPrompt,
             userPrompt,
             schema: CalculatorModuleConfigSchema,
             maxTokens: 4000,
             onChunk,
-            modelClass: 'fast'
+            modelClass: 'fast',
+            ...overrides
         });
     }
 }

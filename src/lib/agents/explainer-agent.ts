@@ -9,7 +9,8 @@ export class ExplainerAgent {
 
     async generateConfig(
         answerSpec: z.infer<typeof AnswerSpecSchema>,
-        onChunk?: (partialJson: string) => void
+        onChunk?: (partialJson: string) => void,
+        overrides?: { temperature?: number; seed?: number }
     ): Promise<z.infer<typeof UISpecSchema>> {
         const componentBlock = generateComponentPromptBlock();
 
@@ -42,13 +43,14 @@ OUTPUT SHAPE:
 
         const userPrompt = `Query: ${answerSpec.query}\n\nAnswer Content:\n${answerSpec.answerMarkdown}`;
 
-        return this.provider.generateJSON({
+        return this.provider.generateJSON<typeof UISpecSchema>({
             systemPrompt,
             userPrompt,
             schema: UISpecSchema,
             maxTokens: 8000,
             onChunk,
-            modelClass: 'fast'
+            modelClass: 'fast',
+            ...overrides
         });
     }
 }

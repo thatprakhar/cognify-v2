@@ -41,12 +41,16 @@ export class ClaudeProvider extends LLMProvider {
         }
 
         try {
-            const parsed = JSON.parse(jsonStr);
+            const parsed = JSON.parse(jsonStr); // Assuming 'jsonStr' is the intended variable for parsing, as 'fullContent' is not defined.
             return schema.parse(parsed);
         } catch (error) {
             console.error("Claude Output Parsing or Validation Error:", error);
-            console.error("Raw content:", content);
-            throw new Error("Failed to parse or validate LLM response");
+            console.error("Raw content:", content); // Using 'content' as 'fullContent' is not defined.
+            if (error instanceof z.ZodError) {
+                const details = (error as any).errors.map((e: any) => `${e.path.join('.')}: ${e.message}`).join(', ');
+                throw new Error(`Failed to parse or validate LLM response: ${details}`);
+            }
+            throw new Error(`Failed to parse or validate LLM response: ${(error as Error).message}`);
         }
     }
 }

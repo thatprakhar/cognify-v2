@@ -2,6 +2,7 @@ import { AnswerSpecSchema } from '../schema/answer';
 import { LLMProvider } from '../llm/provider';
 import { z } from 'zod';
 import { ChatMessage } from '../pipeline/types';
+import { generateComponentPromptBlock } from '../schema/allowlist';
 
 export class AnswerAgent {
   constructor(private provider: LLMProvider) { }
@@ -23,6 +24,9 @@ HARD RULES:
 - Do NOT request secrets (passwords, API keys, tokens).
 - CRITICAL: If the user asks for a calculation (e.g., mortgage, compound interest, net worth), comparison, or assessment BUT provides ZERO numbers or specific options, you MUST set mode="CLARIFY" and ask for the missing parameters in \`followUpQuestions\`. Do not invent default numbers if the user provided none.
 - Otherwise set mode="READY" and provide the best possible answer.
+- CRITICAL CAPABILITY INTEGRATION: Review the 'AVAILABLE COMPONENTS' list below. If the user's query maps perfectly to a specialized downstream component (e.g. Map, Dashboard, Chart), you MUST include the raw structured data (such as precise GPS coordinates [lat, lng], or exact numerical data arrays) within your \`answerMarkdown\` or \`assumptions\` so that the downstream UI generation agents have the data required to render that component.
+
+${generateComponentPromptBlock()}
 
 STYLE RULES (inside answerMarkdown):
 - Natural, helpful, "normal ChatGPT" tone.

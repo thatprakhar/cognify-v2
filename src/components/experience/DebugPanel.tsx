@@ -2,18 +2,20 @@
 
 import React, { useState } from 'react';
 import { AnswerSpec, UXPlan, UISpec } from '@/lib/pipeline/types';
-import { ChevronDown, ChevronUp, Bug, Terminal, Code } from 'lucide-react';
+import { ChevronDown, ChevronUp, Bug, Terminal, Code, BarChart3 } from 'lucide-react';
 
 interface DebugPanelProps {
     answerSpec: AnswerSpec | null;
     uxPlan: UXPlan | null;
     uiSpec: UISpec | null;
     uiSpecRaw: string | null;
+    runMetadata: any;
+    validationData: any;
 }
 
-export const DebugPanel: React.FC<DebugPanelProps> = ({ answerSpec, uxPlan, uiSpec, uiSpecRaw }) => {
+export const DebugPanel: React.FC<DebugPanelProps> = ({ answerSpec, uxPlan, uiSpec, uiSpecRaw, runMetadata, validationData }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState<'answer' | 'ux' | 'ui'>('answer');
+    const [activeTab, setActiveTab] = useState<'answer' | 'ux' | 'ui' | 'metrics'>('answer');
 
     if (!answerSpec && !uxPlan && !uiSpec && !uiSpecRaw) return null;
 
@@ -21,6 +23,7 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({ answerSpec, uxPlan, uiSp
     if (activeTab === 'answer') activeData = answerSpec;
     if (activeTab === 'ux') activeData = uxPlan;
     if (activeTab === 'ui') activeData = uiSpec;
+    if (activeTab === 'metrics') activeData = { runMetadata, validationData };
 
     return (
         <div className={`fixed bottom-0 right-0 w-full lg:w-1/2 bg-zinc-900 border-t border-l border-zinc-800 shadow-2xl transition-transform duration-300 z-50 ${isOpen ? 'translate-y-0' : 'translate-y-full'}`}>
@@ -59,6 +62,13 @@ export const DebugPanel: React.FC<DebugPanelProps> = ({ answerSpec, uxPlan, uiSp
                     >
                         <Bug size={14} />
                         3. UIRenderer
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('metrics')}
+                        className={`px-4 py-3 text-xs font-mono flex items-center gap-2 border-b-2 transition-colors ${activeTab === 'metrics' ? 'border-orange-500 text-orange-400' : 'border-transparent text-zinc-500 hover:text-zinc-300'}`}
+                    >
+                        <BarChart3 size={14} />
+                        4. Metrics/Validation
                     </button>
                 </div>
 

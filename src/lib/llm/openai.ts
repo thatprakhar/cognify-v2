@@ -13,7 +13,7 @@ export class OpenAIProvider extends LLMProvider {
     }
 
     async generateJSON<T extends z.ZodType>(options: GenerateOptions<T>): Promise<z.infer<T>> {
-        const { systemPrompt, userPrompt, schema, temperature = 0.7, maxTokens = 4000, onChunk, modelClass } = options;
+        const { systemPrompt, userPrompt, schema, temperature = 0.7, seed, maxTokens = 4000, onChunk, modelClass } = options;
 
         const modelToUse = modelClass === 'fast' ? "gpt-4o-mini" : "gpt-5.2";
 
@@ -25,6 +25,8 @@ export class OpenAIProvider extends LLMProvider {
             ],
             response_format: { type: "json_object" },
             max_completion_tokens: maxTokens,
+            temperature,
+            ...(seed !== undefined ? { seed } : {}),
             stream: !!onChunk,
         });
 
@@ -49,7 +51,11 @@ export class OpenAIProvider extends LLMProvider {
         } catch (error) {
             console.error("OpenAI Output Parsing or Validation Error:", error);
             console.error("Raw content:", fullContent);
-            throw new Error("Failed to parse or validate LLM response");
+            if (error instanceof z.ZodError) {
+                const details = (error as any).errors.map((e: any) => `${e.path.join('.')}: ${e.message}`).join(', ');
+                throw new Error(`Failed to parse or validate LLM response: ${details}`);
+            }
+            throw new Error(`Failed to parse or validate LLM response: ${(error as Error).message}`);
         }
     }
 }

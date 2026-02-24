@@ -12,6 +12,7 @@ interface ChatPanelProps {
     onSendMessage: (query: string) => void;
     currentStage: PipelineStage | null;
     statusMessage: string | null;
+    statusSteps?: { stage: PipelineStage, message: string }[];
     isGenerating: boolean;
 }
 
@@ -22,6 +23,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
     onSendMessage,
     currentStage,
     statusMessage,
+    statusSteps = [],
     isGenerating
 }) => {
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -56,14 +58,24 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                         </motion.div>
                     ))}
 
-                    {isGenerating && currentStage && statusMessage && (
+                    {isGenerating && statusSteps && statusSteps.length > 0 && (
                         <motion.div
                             key="status"
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95 }}
+                            className="bg-zinc-50 border border-zinc-100/80 rounded-2xl p-4 shadow-sm mb-4"
                         >
-                            <StatusIndicator stage={currentStage} message={statusMessage} />
+                            <div className="flex flex-col gap-1">
+                                {statusSteps.map((step, idx) => (
+                                    <StatusIndicator
+                                        key={idx}
+                                        stage={step.stage}
+                                        message={step.message}
+                                        isCurrent={idx === statusSteps.length - 1}
+                                    />
+                                ))}
+                            </div>
                         </motion.div>
                     )}
                 </AnimatePresence>

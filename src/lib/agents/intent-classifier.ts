@@ -1,9 +1,10 @@
 import { z } from 'zod';
 import { LLMProvider } from '../llm/provider';
 import { AnswerSpecSchema } from '../schema/answer';
+import { generateComponentPromptBlock } from '../schema/allowlist';
 
 export const IntentClassificationSchema = z.object({
-    intent: z.enum(['calculation', 'comparison', 'explanation', 'generic', 'assessment', 'analysis', 'diagram']),
+    intent: z.enum(['calculation', 'comparison', 'explanation', 'generic', 'assessment', 'analysis', 'diagram', 'map']),
     confidence: z.number().min(0).max(1),
     reasoning: z.string()
 }).strict();
@@ -20,12 +21,15 @@ You are the Cognify Intent Classifier.
 Given a user's query and the generated answer content, classify the primary intent to determine the best interactive capability module to render.
 
 Available Intents:
-- 'calculation': The user is asking for financial projections, math, or interactive scenarios based on formulas (e.g., compound interest, net worth, amortization).
-- 'comparison': The user is explicitly comparing two or more options, products, career paths, or ideas side-by-side.
-- 'analysis': The user is asking to summarize, visualize, or analyze structured data (e.g., uploaded CSV/JSON files).
-- 'diagram': The user is asking to visualize a system architecture, process workflow, state machine, or sequence code flow.
-- 'explanation': The user wants a structured, educational breakdown of a topic, concept, or process (e.g., how things work, history, step-by-step guides).
+- 'calculation': The user is asking for financial projections, math, or interactive scenarios based on formulas.
+- 'comparison': The user is explicitly comparing two or more options side-by-side.
+- 'analysis': The user is asking to summarize, visualize, or analyze structured data.
+- 'diagram': The user is asking to visualize an architecture or flowchart.
+- 'map': The user is asking for geographical locations, country borders, or specific geographic markers to be rendered on a map.
+- 'explanation': The user wants a structured, educational breakdown of a topic, concept, or process.
 - 'generic': The query does not fit into any specialized interactive module.
+
+${generateComponentPromptBlock()}
 
 Output strictly valid JSON matching the required schema. You MUST include all three keys: "intent", "confidence" (number between 0 and 1), and "reasoning" (string).
 `;
