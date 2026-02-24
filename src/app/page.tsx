@@ -2,20 +2,21 @@
 
 import React from 'react';
 import { ChatPanel } from '@/components/chat/ChatPanel';
-import { ExperiencePanel } from '@/components/experience/ExperiencePanel';
+import { ModuleRegistryRenderer } from '@/components/studio/ModuleRegistry';
 import { useChat } from '@/hooks/useChat';
 import { useGenerate } from '@/hooks/useGenerate';
 import { X, Activity, Clock, RefreshCw, ChevronUp, ChevronDown } from 'lucide-react';
 
 import { useSession } from 'next-auth/react';
 import { LandingPage } from '@/components/auth/LandingPage';
+import { PipelineStage } from '@/lib/chat-types';
 
 export default function Home() {
     const { data: session, status } = useSession();
     const [showDemo, setShowDemo] = React.useState(false);
     const [isTelemetryOpen, setIsTelemetryOpen] = React.useState(true);
     const { messages, addMessage } = useChat();
-    const { generate, isGenerating, currentStage, statusMessage, uiSpec, uiSpecRaw, answerSpec, uxPlan, runMetadata, statusSteps, validationData, error, clearError } = useGenerate();
+    const { generate, isGenerating, currentStage, statusMessage, studioSpec, computedData, runMetadata, statusSteps, validationData, error, clearError } = useGenerate();
 
     const handleSendMessage = async (query: string) => {
         // Add user message to UI
@@ -44,24 +45,11 @@ export default function Home() {
                 <ChatPanel
                     messages={messages}
                     onSendMessage={handleSendMessage}
-                    currentStage={currentStage}
+                    currentStage={currentStage as PipelineStage | null}
                     statusMessage={statusMessage}
-                    statusSteps={statusSteps}
+                    statusSteps={statusSteps as { stage: PipelineStage; message: string }[]}
                     isGenerating={isGenerating}
                 />
-                {/* Dev Mode Toggle */}
-                <div className="absolute top-4 left-4 z-50 flex items-center gap-2 bg-white/90 backdrop-blur-md px-3 py-2 rounded-lg border border-zinc-200 shadow-sm text-xs font-mono select-none">
-                    <input
-                        type="checkbox"
-                        id="langgraph-toggle"
-                        className="cursor-pointer"
-                        onChange={(e) => {
-                            window.localStorage.setItem('useLangGraph', e.target.checked.toString());
-                        }}
-                        defaultChecked={typeof window !== 'undefined' ? window.localStorage.getItem('useLangGraph') === 'true' : false}
-                    />
-                    <label htmlFor="langgraph-toggle" className="text-zinc-600 cursor-pointer font-semibold">USE LANGGRAPH ENGINE</label>
-                </div>
             </div>
 
             {/* Right Panel: Interactive Experience */}
@@ -105,21 +93,19 @@ export default function Home() {
                         )}
                     </div>
                 )}
-                <ExperiencePanel
-                    uiSpec={uiSpec}
-                    uiSpecRaw={uiSpecRaw}
-                    answerSpec={answerSpec}
-                    uxPlan={uxPlan}
-                    isGenerating={isGenerating}
-                    runMetadata={runMetadata}
-                    validationData={validationData}
-                    onSubmitClarification={(answers) => {
-                        const formattedAnswers = Object.entries(answers)
-                            .map(([key, value]) => `${key}: ${value}`)
-                            .join('\n');
-                        handleSendMessage(`Here are the clarification answers:\n${formattedAnswers}`);
-                    }}
-                />
+                <div className="flex-1 w-full h-full overflow-y-auto p-8">
+                    {studioSpec ? (
+                        <ModuleRegistryRenderer
+                            spec={studioSpec}
+                            computedBySlot={computedData || {}}
+                            slotErrors={validationData?.slotErrors || {}}
+                        />
+                    ) : (
+                        <div className="flex items-center justify-center h-full text-zinc-400">
+                            {isGenerating ? "Composing studio..." : "Enter a query to generate an interactive experience."}
+                        </div>
+                    )}
+                </div>
                 {error && (
                     <div className="absolute bottom-4 right-4 bg-red-50 text-red-600 px-6 py-4 rounded-xl shadow-lg border border-red-100 max-w-md z-50 flex items-start justify-between gap-4">
                         <div>
