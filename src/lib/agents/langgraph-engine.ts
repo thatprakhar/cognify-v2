@@ -249,6 +249,25 @@ export class LangGraphEngine implements RunEngine {
 
         const latencyMs = Date.now() - startTime;
 
+        const engineFingerprint = createHash('sha256')
+            .update(`langgraph - v1 - ${this.provider.constructor.name} `) // Add registry version deep hash later
+            .digest('hex');
+
+        const metadata: RunMetadata = {
+            engine: 'langgraph',
+            engineFingerprint,
+            modelClass: 'capable',
+            latencyMs,
+            promptTokens: 0,
+            completionTokens: 0,
+            retryCount: finalState.retryCount,
+            semanticDriftDetected: finalState.semanticDriftDetected,
+            timestamp: new Date().toISOString(),
+            sessionId: 'session-' + Date.now()
+        };
+
+        streamer.metadata(metadata);
+
         if (finalState.finalSpec) {
             streamer.complete(finalState.finalSpec);
         } else {
@@ -268,24 +287,9 @@ export class LangGraphEngine implements RunEngine {
             streamer.complete(errUi);
         }
 
-        const engineFingerprint = createHash('sha256')
-            .update(`langgraph - v1 - ${this.provider.constructor.name} `) // Add registry version deep hash later
-            .digest('hex');
-
         return {
             spec: finalState.finalSpec || {},
-            metadata: {
-                engine: 'langgraph',
-                engineFingerprint,
-                modelClass: 'capable',
-                latencyMs,
-                promptTokens: 0,
-                completionTokens: 0,
-                retryCount: finalState.retryCount,
-                semanticDriftDetected: finalState.semanticDriftDetected,
-                timestamp: new Date().toISOString(),
-                sessionId: 'session-' + Date.now()
-            },
+            metadata,
             validationFailures: finalState.validationFailures
         };
     }
