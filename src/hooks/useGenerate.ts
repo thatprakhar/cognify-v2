@@ -10,6 +10,9 @@ export function useGenerate() {
     const [uiSpecRaw, setUiSpecRaw] = useState<string | null>(null);
     const [answerSpec, setAnswerSpec] = useState<AnswerSpec | null>(null);
     const [uxPlan, setUxPlan] = useState<UXPlan | null>(null);
+    const [runMetadata, setRunMetadata] = useState<any>(null);
+    const [statusSteps, setStatusSteps] = useState<{ stage: PipelineStage; message: string }[]>([]);
+    const [validationData, setValidationData] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
 
     const generate = useCallback(async (query: string, history: any[] = []) => {
@@ -23,11 +26,19 @@ export function useGenerate() {
         setUiSpecRaw(null);
         setAnswerSpec(null);
         setUxPlan(null);
+        setRunMetadata(null);
+        setStatusSteps([]);
+        setValidationData(null);
 
         try {
+            const isLangGraphOptIn = typeof window !== 'undefined' && window.localStorage.getItem('useLangGraph') === 'true';
+
             const response = await fetch('/api/generate', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-use-langgraph': isLangGraphOptIn ? 'true' : 'false'
+                },
                 body: JSON.stringify({ query, history }),
             });
 
@@ -66,20 +77,28 @@ export function useGenerate() {
                             if (event === 'status') {
                                 setCurrentStage(data.stage);
                                 setStatusMessage(data.message);
+                                setStatusSteps(prev => {
+                                    const last = prev[prev.length - 1];
+                                    if (last && last.message === data.message) return prev;
+                                    return [...prev, { stage: data.stage, message: data.message }];
+                                });
                             } else if (event === 'debug') {
                                 if (data.stage === 'answer') setAnswerSpec(data.data);
                                 if (data.stage === 'ux') setUxPlan(data.data);
+                                if (data.stage === 'validation') setValidationData(data.data);
                                 if (data.stage === 'rendering') setUiSpec(data.data); // optional extra safeguard
                             } else if (event === 'spec-chunk') {
                                 setUiSpecRaw(data.partial);
                                 try {
                                     const parsedPartial = parsePartialJson(data.partial);
-                                    if (parsedPartial && typeof parsedPartial === 'object') {
+                                    if (parsedPartial && typeof parsedPartial === 'object' && 'root' in parsedPartial) {
                                         setUiSpec(parsedPartial as UISpec);
                                     }
                                 } catch (e) {
                                     // ignore incomplete chunks that cannot be parsed
                                 }
+                            } else if (event === 'metadata') {
+                                setRunMetadata(data);
                             } else if (event === 'complete') {
                                 setUiSpec(data.uiSpec);
                             } else if (event === 'error') {
@@ -113,6 +132,9 @@ export function useGenerate() {
         uiSpecRaw,
         answerSpec,
         uxPlan,
+        runMetadata,
+        statusSteps,
+        validationData,
         error,
         clearError
     };

@@ -8,7 +8,8 @@ export class DiagramAgent {
 
     async generateConfig(
         answerSpec: z.infer<typeof AnswerSpecSchema>,
-        onChunk?: (chunk: string) => void
+        onChunk?: (chunk: string) => void,
+        overrides?: { temperature?: number; seed?: number }
     ): Promise<z.infer<typeof DiagramModuleConfigSchema>> {
         const systemPrompt = `
 Your job is to read the provided AnswerSpec and transform it into a strict JSON configuration for a Diagram capability module.
@@ -31,13 +32,14 @@ Return strictly a valid JSON object matching the \`DiagramModuleConfigSchema\`.
 
         const userPrompt = `Query: ${answerSpec.query}\n\nAnswer Content:\n${answerSpec.answerMarkdown}`;
 
-        return this.provider.generateJSON({
+        return this.provider.generateJSON<typeof DiagramModuleConfigSchema>({
             systemPrompt,
             userPrompt,
             schema: DiagramModuleConfigSchema,
             maxTokens: 1500,
             modelClass: 'capable',
-            onChunk
+            onChunk,
+            ...overrides
         });
     }
 }

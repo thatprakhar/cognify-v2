@@ -11,7 +11,7 @@ const iconRetinaUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2
 const iconUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png';
 const shadowUrl = 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png';
 
-let DefaultIcon = L.icon({
+const DefaultIcon = L.icon({
     iconUrl,
     iconRetinaUrl,
     shadowUrl,
@@ -34,28 +34,35 @@ const MapController = ({ center, zoom }: { center: [number, number]; zoom: numbe
 };
 
 export const MapInner: React.FC<CognifyMapProps> = ({ center, zoom = 13, markers = [] }) => {
+    // Defensive check for partial streaming JSON where center might be partially defined or empty
+    const isValidCenter = Array.isArray(center) && center.length === 2 && typeof center[0] === 'number' && typeof center[1] === 'number';
+    const safeCenter = isValidCenter ? center as [number, number] : [0, 0] as [number, number];
+
     return (
         <MapContainer
-            center={center}
+            center={safeCenter}
             zoom={zoom}
             scrollWheelZoom={false}
             className="w-full h-full"
         >
-            <MapController center={center} zoom={zoom} />
+            <MapController center={safeCenter} zoom={zoom ?? 4} />
             <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
             />
 
-            {markers.map((marker, idx) => (
-                <Marker key={idx} position={[marker.lat, marker.lng]}>
-                    {marker.label && (
-                        <Popup>
-                            <span className="font-medium text-zinc-900">{marker.label}</span>
-                        </Popup>
-                    )}
-                </Marker>
-            ))}
+            {(markers || []).map((marker, idx) => {
+                if (!marker || typeof marker.lat !== 'number' || typeof marker.lng !== 'number') return null;
+                return (
+                    <Marker key={idx} position={[marker.lat, marker.lng]}>
+                        {marker.label && (
+                            <Popup>
+                                <span className="font-medium text-zinc-900">{marker.label}</span>
+                            </Popup>
+                        )}
+                    </Marker>
+                );
+            })}
         </MapContainer>
     );
 };

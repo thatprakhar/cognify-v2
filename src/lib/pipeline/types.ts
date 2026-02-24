@@ -63,7 +63,7 @@ export interface UISpec {
 
 // --- Pipeline ---
 
-export type PipelineStage = 'answer' | 'intent' | 'ux' | 'computation' | 'rendering'
+export type PipelineStage = 'answer' | 'intent' | 'ux' | 'computation' | 'rendering' | 'validation'
 export type PipelineStatus = 'idle' | 'running' | 'complete' | 'error'
 
 export interface PipelineState {

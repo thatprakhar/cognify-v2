@@ -67,6 +67,7 @@ export const COMPONENT_DOCS: ComponentDoc[] = [
     { name: 'Slider', category: 'interactive', props: 'label: string, min: number, max: number, step?: number, defaultValue?: number', isLeaf: true },
     { name: 'Chart', category: 'interactive', props: 'type: bar|line|pie|area, data: object[], xKey: string, yKeys: string[], isMockData?: boolean', isLeaf: true },
     { name: 'ProgressTracker', category: 'interactive', props: 'steps: string[], currentStep: number', isLeaf: true },
+    { name: 'Map', category: 'interactive', props: 'center: [lat, lng], zoom?: number, markers?: {lat, lng, label?}[]', isLeaf: true },
 
     // Capability Modules (leaf — self-contained interactive templates)
     { name: 'Comparison', category: 'module' as any, props: 'title, subtitle?, optionA: {name, description?, pros[], cons[], stats{}}, optionB: {same}, criteria: {name, optionAScore: 0-10, optionBScore: 0-10}[], recommendation?, isMockData?', isLeaf: true },

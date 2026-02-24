@@ -5,6 +5,7 @@ export interface GenerateOptions<T extends z.ZodType> {
     userPrompt: string;
     schema: T;
     temperature?: number;
+    seed?: number;
     maxTokens?: number;
     onChunk?: (partialJson: string) => void;
     modelClass?: 'fast' | 'capable';

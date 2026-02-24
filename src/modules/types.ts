@@ -81,3 +81,15 @@ export const DiagramModuleConfigSchema = z.object({
 }).strict();
 
 export type DiagramModuleConfig = z.infer<typeof DiagramModuleConfigSchema>;
+
+export const MapModuleConfigSchema = z.object({
+    center: z.tuple([z.number(), z.number()]),
+    zoom: z.number().min(1).max(20).optional(),
+    markers: z.array(z.object({
+        lat: z.number(),
+        lng: z.number(),
+        label: z.string().optional()
+    })).optional()
+}).strict();
+
+export type MapModuleConfig = z.infer<typeof MapModuleConfigSchema>;

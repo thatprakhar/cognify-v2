@@ -17,6 +17,8 @@ interface ExperiencePanelProps {
     answerSpec: AnswerSpec | null;
     uxPlan: UXPlan | null;
     isGenerating: boolean;
+    runMetadata: any;
+    validationData: any;
     onSubmitClarification?: (answers: Record<string, string>) => void;
 }
 
@@ -26,6 +28,8 @@ export const ExperiencePanel: React.FC<ExperiencePanelProps> = ({
     answerSpec,
     uxPlan,
     isGenerating,
+    runMetadata,
+    validationData,
     onSubmitClarification
 }) => {
     const [viewMode, setViewMode] = React.useState<'simple' | 'advanced'>('simple');
@@ -152,6 +156,8 @@ export const ExperiencePanel: React.FC<ExperiencePanelProps> = ({
                 uxPlan={uxPlan}
                 uiSpec={uiSpec}
                 uiSpecRaw={uiSpecRaw}
+                runMetadata={runMetadata}
+                validationData={validationData}
             />
         </div>
     );

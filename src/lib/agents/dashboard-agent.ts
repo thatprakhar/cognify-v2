@@ -4,13 +4,14 @@ import { AnswerSpecSchema } from '../schema/answer';
 import { DashboardModuleConfigSchema } from '../../modules/types';
 
 export class DashboardAgent {
-    constructor(private provider: LLMProvider) { }
+  constructor(private provider: LLMProvider) { }
 
-    async generateConfig(
-        answerSpec: z.infer<typeof AnswerSpecSchema>,
-        onChunk?: (chunk: string) => void
-    ): Promise<z.infer<typeof DashboardModuleConfigSchema>> {
-        const systemPrompt = `
+  async generateConfig(
+    answerSpec: z.infer<typeof AnswerSpecSchema>,
+    onChunk?: (chunk: string) => void,
+    overrides?: { temperature?: number; seed?: number }
+  ): Promise<z.infer<typeof DashboardModuleConfigSchema>> {
+    const systemPrompt = `
 Your job is to read the provided AnswerSpec (which likely includes CSV or Data summary) and transform it into a strict JSON configuration for a Dashboard capability module.
 
 MODULE OVERVIEW:
@@ -30,15 +31,16 @@ RULES FOR OUTPUT SHAPE:
 - \`isMockData\`: Set to true if you are inventing column names that were not in the actual uploaded file summary.
 `;
 
-        const userPrompt = `Query: ${answerSpec.query}\n\nAnswer Content:\n${answerSpec.answerMarkdown}`;
+    const userPrompt = `Query: ${answerSpec.query}\n\nAnswer Content:\n${answerSpec.answerMarkdown}`;
 
-        return this.provider.generateJSON({
-            systemPrompt,
-            userPrompt,
-            schema: DashboardModuleConfigSchema,
-            maxTokens: 1500,
-            modelClass: 'capable', // using capable model to accurately map columns
-            onChunk
-        });
-    }
+    return this.provider.generateJSON<typeof DashboardModuleConfigSchema>({
+      systemPrompt,
+      userPrompt,
+      schema: DashboardModuleConfigSchema,
+      maxTokens: 1500,
+      modelClass: 'capable', // using capable model to accurately map columns
+      onChunk,
+      ...overrides
+    });
+  }
 }

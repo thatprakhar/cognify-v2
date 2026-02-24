@@ -6,6 +6,7 @@ import { ComparisonAgent } from '../agents/comparison-agent';
 import { CalculatorAgent } from '../agents/calculator-agent';
 import { DashboardAgent } from '../agents/dashboard-agent';
 import { DiagramAgent } from '../agents/diagram-agent';
+import { MapAgent } from '../agents/map-agent';
 import { csvStore } from '../data/store';
 import { SSEStreamer } from './stream';
 import { ChatMessage } from './types';
@@ -19,6 +20,7 @@ export class PipelineOrchestrator {
     private calculatorAgent: CalculatorAgent;
     private dashboardAgent: DashboardAgent;
     private diagramAgent: DiagramAgent;
+    private mapAgent: MapAgent;
 
     constructor(provider: LLMProvider) {
         this.answerAgent = new AnswerAgent(provider);
@@ -28,6 +30,7 @@ export class PipelineOrchestrator {
         this.calculatorAgent = new CalculatorAgent(provider);
         this.dashboardAgent = new DashboardAgent(provider);
         this.diagramAgent = new DiagramAgent(provider);
+        this.mapAgent = new MapAgent(provider);
     }
 
     /**
@@ -83,7 +86,7 @@ export class PipelineOrchestrator {
             // Stage 2: Intent Classification
             streamer.status('ux', 'Categorizing intent');
             const intentResult = await this.intentAgent.classify(query, answerSpec);
-            streamer.debug('intent', intentResult);
+            streamer.debug('ux', intentResult);
 
             // Stage 3: Specialized Rendering
             streamer.status('rendering', `Generating ${intentResult.intent} module`);
@@ -91,7 +94,9 @@ export class PipelineOrchestrator {
             let uiSpec;
 
             if (intentResult.intent === 'comparison') {
-                const config = await this.comparisonAgent.generateConfig(answerSpec, (chunk) => streamer.specChunk(chunk));
+                const config = await this.comparisonAgent.generateConfig(answerSpec, (chunk) => {
+                    streamer.specChunk(`{"version":"1.0","title":"Generating Comparison...","root":{"type":"Stack","props":{"gap":"6"},"children":[{"type":"Comparison","props":${chunk}}]}}`);
+                });
                 uiSpec = {
                     version: "1.0",
                     title: config.title,
@@ -103,7 +108,9 @@ export class PipelineOrchestrator {
                     }
                 };
             } else if (intentResult.intent === 'calculation') {
-                const config = await this.calculatorAgent.generateConfig(answerSpec, (chunk) => streamer.specChunk(chunk));
+                const config = await this.calculatorAgent.generateConfig(answerSpec, (chunk) => {
+                    streamer.specChunk(`{"version":"1.0","title":"Generating Calculator...","root":{"type":"Stack","props":{"gap":"6"},"children":[{"type":"Calculator","props":${chunk}}]}}`);
+                });
 
                 streamer.status('rendering', 'Running Server-Side Computations...');
                 // Server-side computation of default values as proof of concept
@@ -144,7 +151,9 @@ export class PipelineOrchestrator {
                     }
                 };
             } else if (intentResult.intent === 'analysis') {
-                const config = await this.dashboardAgent.generateConfig(answerSpec, (chunk) => streamer.specChunk(chunk));
+                const config = await this.dashboardAgent.generateConfig(answerSpec, (chunk) => {
+                    streamer.specChunk(`{"version":"1.0","title":"Generating Dashboard...","root":{"type":"Stack","props":{"gap":"6"},"children":[{"type":"Dashboard","props":${chunk}}]}}`);
+                });
 
                 let rawData: any[] = [];
                 const fileIdMatch = query.match(/<AttachedFile id="([^"]+)"/);
@@ -166,7 +175,9 @@ export class PipelineOrchestrator {
                     }
                 };
             } else if (intentResult.intent === 'diagram') {
-                const config = await this.diagramAgent.generateConfig(answerSpec, (chunk) => streamer.specChunk(chunk));
+                const config = await this.diagramAgent.generateConfig(answerSpec, (chunk) => {
+                    streamer.specChunk(`{"version":"1.0","title":"Generating Diagram...","root":{"type":"Stack","props":{"gap":"6"},"children":[{"type":"Diagram","props":${chunk}}]}}`);
+                });
                 uiSpec = {
                     version: "1.0",
                     title: config.title,
@@ -175,6 +186,23 @@ export class PipelineOrchestrator {
                         type: "Stack",
                         props: { gap: "6" },
                         children: [{ type: "Diagram", props: config }]
+                    }
+                };
+            } else if (intentResult.intent === 'map') {
+                const config = await this.mapAgent.generateConfig(answerSpec, (chunk) => {
+                    streamer.specChunk(`{"version":"1.0","title":"Generating Map...","root":{"type":"Stack","props":{"gap":"6"},"children":[{"type":"Map","props":${chunk}}]}}`);
+                });
+                uiSpec = {
+                    version: "1.0",
+                    title: "Geographic View",
+                    theme: { accent: "blue" },
+                    root: {
+                        type: "Stack",
+                        props: { gap: "6" },
+                        children: [
+                            { type: "WikiSection", props: { heading: answerSpec.query, body: answerSpec.answerMarkdown } },
+                            { type: "Map", props: config }
+                        ]
                     }
                 };
             } else {

@@ -8,7 +8,8 @@ export class ComparisonAgent {
 
     async generateConfig(
         answerSpec: z.infer<typeof AnswerSpecSchema>,
-        onChunk?: (partialJson: string) => void
+        onChunk?: (partialJson: string) => void,
+        overrides?: { temperature?: number; seed?: number }
     ): Promise<z.infer<typeof ComparisonModuleConfigSchema>> {
         const systemPrompt = `
 You are the Cognify Comparison Agent.
@@ -29,13 +30,14 @@ RULES:
 
         const userPrompt = `Query: ${answerSpec.query}\n\nAnswer Content:\n${answerSpec.answerMarkdown}`;
 
-        return this.provider.generateJSON({
+        return this.provider.generateJSON<typeof ComparisonModuleConfigSchema>({
             systemPrompt,
             userPrompt,
             schema: ComparisonModuleConfigSchema,
             maxTokens: 4000,
             onChunk,
-            modelClass: 'fast'
+            modelClass: 'fast',
+            ...overrides
         });
     }
 }
