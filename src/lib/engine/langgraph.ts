@@ -10,7 +10,7 @@ import { QUERY_TYPE_MODULE_RECOMMENDATIONS, getModuleMenuForPrompt } from "../sc
 // ─── Slot-specific system prompt snippets ────────────────────────────────────
 
 const SLOT_PROMPTS: Record<string, string> = {
-    SystemMap: `Generate a JSON object with these exact fields:
+  SystemMap: `Generate a JSON object with these exact fields:
 {
   "nodes": [ { "id": "api-gateway", "label": "API Gateway", "type": "service", "description": "..." }, ... ],
   "edges": [ { "from": "api-gateway", "to": "user-db", "label": "reads", "type": "sync" }, ... ],
@@ -20,7 +20,7 @@ const SLOT_PROMPTS: Record<string, string> = {
 - edges: type must be one of: sync/async/stream/event
 - All ids: short hyphenated lowercase strings`,
 
-    ModuleCards: `Generate a JSON object with this exact shape:
+  ModuleCards: `Generate a JSON object with this exact shape:
 {
   "heading": "Core Services",
   "modules": [
@@ -30,7 +30,7 @@ const SLOT_PROMPTS: Record<string, string> = {
 }
 - 3-6 module cards. All array fields can be empty arrays [] but must be present.`,
 
-    ConceptCards: `Generate a JSON object with this exact shape:
+  ConceptCards: `Generate a JSON object with this exact shape:
 {
   "heading": "Key Concepts",
   "displayMode": "grid",
@@ -43,7 +43,7 @@ const SLOT_PROMPTS: Record<string, string> = {
 - displayMode: "grid" (default), "list" (6+ cards), "spotlight" (2-3 cards)
 - 4-7 cards total`,
 
-    ExplainerSection: `Generate a JSON object with this exact shape:
+  ExplainerSection: `Generate a JSON object with this exact shape:
 {
   "heading": "How Compound Interest Works",
   "summary": "One or two sentence TL;DR in plaintext.",
@@ -58,7 +58,7 @@ const SLOT_PROMPTS: Record<string, string> = {
 - callout is optional per section but include at least one. type: tip/warning/insight/fact
 - 3-4 sections, 3-5 keyTakeaways`,
 
-    Timeline: `Generate a JSON object with this exact shape:
+  Timeline: `Generate a JSON object with this exact shape:
 {
   "heading": "Timeline of Events",
   "orientation": "vertical",
@@ -70,7 +70,7 @@ const SLOT_PROMPTS: Record<string, string> = {
 - REQUIRED on every item: id, date, title, description
 - 5-8 items ordered chronologically. Mark 1-2 as isHighlighted: true`,
 
-    TradeoffMatrix: `Generate a JSON object with this exact shape:
+  TradeoffMatrix: `Generate a JSON object with this exact shape:
 {
   "options": [ { "id": "option-a", "name": "Option A", "description": "..." }, ... ],
   "criteria": [ { "id": "cost", "name": "Cost", "description": "...", "isMoreBetter": false }, ... ],
@@ -81,7 +81,7 @@ const SLOT_PROMPTS: Record<string, string> = {
 - Scores must vary meaningfully across options for the same criterion.
 - 2-4 options, 4-5 criteria`,
 
-    ComparisonPanel: `Generate a JSON object with this exact shape:
+  ComparisonPanel: `Generate a JSON object with this exact shape:
 {
   "optionA": { "id": "option-a", "name": "Option A", "pros": ["..."], "cons": ["..."], "stats": [ { "key": "Cost", "value": "$10/mo" } ] },
   "optionB": { "id": "option-b", "name": "Option B", "pros": ["..."], "cons": ["..."], "stats": [ { "key": "Cost", "value": "$20/mo" } ] },
@@ -90,7 +90,7 @@ const SLOT_PROMPTS: Record<string, string> = {
 }
 - 3-5 pros/cons each, 3-5 stats each, 4-5 criteria. Scores 1-5, must differ between options.`,
 
-    ScorecardPanel: `Generate a JSON object with this exact shape:
+  ScorecardPanel: `Generate a JSON object with this exact shape:
 {
   "heading": "Performance Scorecard",
   "subject": "What is being scored",
@@ -102,7 +102,7 @@ const SLOT_PROMPTS: Record<string, string> = {
 }
 - 4-6 dimensions. status: strong/adequate/weak/critical. Vary scores — no all-9s.`,
 
-    RiskPanel: `Generate a JSON object with this exact shape:
+  RiskPanel: `Generate a JSON object with this exact shape:
 {
   "risks": [
     { "id": "risk-1", "title": "Risk Title", "description": "What could go wrong.", "severity": "high", "likelihood": "medium", "mitigations": ["action 1", "action 2"], "detectionSignals": ["warning sign 1"] },
@@ -113,7 +113,7 @@ const SLOT_PROMPTS: Record<string, string> = {
 - 4-6 risks. severity: low/medium/high/critical. likelihood: low/medium/high
 - Each risk needs at least 2 mitigations and 1 detectionSignal`,
 
-    ActionPlan: `Generate a JSON object with this exact shape:
+  ActionPlan: `Generate a JSON object with this exact shape:
 {
   "heading": "Action Plan",
   "phases": [
@@ -128,7 +128,7 @@ const SLOT_PROMPTS: Record<string, string> = {
 - 2-3 phases, 3-4 actions per phase. priority: high/medium/low. effort: low/medium/high
 - Actions must be specific and concrete`,
 
-    DiagramModule: `Generate a JSON object with this exact shape:
+  DiagramModule: `Generate a JSON object with this exact shape:
 {
   "heading": "System Diagram",
   "diagramType": "flowchart",
@@ -138,7 +138,7 @@ const SLOT_PROMPTS: Record<string, string> = {
 - mermaidCode must be valid Mermaid syntax starting with diagram type declaration
 - Keep readable — max 12 nodes`,
 
-    Dashboard: `Generate a JSON object with this exact shape:
+  Dashboard: `Generate a JSON object with this exact shape:
 {
   "heading": "Dashboard",
   "isMockData": true,
@@ -148,7 +148,7 @@ const SLOT_PROMPTS: Record<string, string> = {
 }
 - 2-3 charts. type: bar/line/area/pie. Always set isMockData: true unless real data provided.`,
 
-    QuizModule: `Generate a JSON object with this exact shape:
+  QuizModule: `Generate a JSON object with this exact shape:
 {
   "heading": "Test Your Knowledge",
   "questions": [
@@ -158,7 +158,7 @@ const SLOT_PROMPTS: Record<string, string> = {
 }
 - 5-6 questions, 3-4 options each. correctIndex is 0-based. Vary difficulty.`,
 
-    InteractiveCalculator: `Generate a JSON object with this exact shape:
+  InteractiveCalculator: `Generate a JSON object with this exact shape:
 {
   "title": "ROI Calculator",
   "description": "Adjust the sliders to compute your return on investment.",
@@ -177,7 +177,7 @@ const SLOT_PROMPTS: Record<string, string> = {
 - formula must be a valid JS expression (no semicolons, no assignments) — just a return expression
 - format: "number" | "currency" | "percentage"`,
 
-    DecisionTree: `Generate a JSON object with this exact shape:
+  DecisionTree: `Generate a JSON object with this exact shape:
 {
   "title": "Which Framework Should I Use?",
   "description": "Answer a few questions to get a recommendation.",
@@ -195,7 +195,7 @@ const SLOT_PROMPTS: Record<string, string> = {
 - At least 2 question nodes and 2 leaf nodes
 - leaf nodes have: recommendation (short name), reasoning (1-2 sentences), optional nextSteps array`,
 
-    ProsCons: `Generate a JSON object with this exact shape:
+  ProsCons: `Generate a JSON object with this exact shape:
 {
   "title": "Should I Rent or Buy a Home?",
   "question": "What makes more financial sense given my situation?",
@@ -232,7 +232,7 @@ const SLOT_PROMPTS: Record<string, string> = {
 - At least 2 pros and 2 cons per option. weight 1-3 (3 = most important)
 - recommendation is optional but should be included when there's a clear winner`,
 
-    ChecklistModule: `Generate a JSON object with this exact shape:
+  ChecklistModule: `Generate a JSON object with this exact shape:
 {
   "title": "SaaS Launch Checklist",
   "description": "Everything you need to do before going live.",
@@ -261,7 +261,7 @@ const SLOT_PROMPTS: Record<string, string> = {
 - priority: "high" | "medium" | "low" — set realistically
 - description is optional but adds clarity`,
 
-    RecipeModule: `Generate a JSON object with this exact shape:
+  RecipeModule: `Generate a JSON object with this exact shape:
 {
   "title": "Classic Chocolate Chip Cookies",
   "description": "Crispy edges, chewy centers.",
@@ -285,7 +285,7 @@ const SLOT_PROMPTS: Record<string, string> = {
 - At least 5 ingredients and 4 steps. Use realistic amounts and units.
 - Steps can have an optional title, duration (time string), and tip.`,
 
-    HierarchyTree: `Generate a JSON object with this exact shape:
+  HierarchyTree: `Generate a JSON object with this exact shape:
 {
   "title": "Machine Learning Taxonomy",
   "description": "A hierarchical breakdown of ML approaches.",
@@ -323,7 +323,7 @@ const SLOT_PROMPTS: Record<string, string> = {
 - root can have 2-6 children. Children can have their own children (max 3 levels deep).
 - Every node needs id (hyphenated-lowercase) and label. description is optional.`,
 
-    MindMap: `Generate a JSON object with this exact shape:
+  MindMap: `Generate a JSON object with this exact shape:
 {
   "title": "Product-Market Fit Mind Map",
   "centerLabel": "PMF",
@@ -373,7 +373,7 @@ const SLOT_PROMPTS: Record<string, string> = {
 - color is optional (hex color string) — assign distinct colors
 - centerLabel should be a short abbreviation or keyword for the center circle`,
 
-    FlashcardDeck: `Generate a JSON object with this exact shape:
+  FlashcardDeck: `Generate a JSON object with this exact shape:
 {
   "title": "JavaScript Fundamentals",
   "description": "Core JS concepts for interviews and review.",
@@ -390,7 +390,7 @@ const SLOT_PROMPTS: Record<string, string> = {
 - At least 6 cards. front: question or term. back: complete answer.
 - hint is optional but helpful. category groups cards by topic.`,
 
-    NumberedProcess: `Generate a JSON object with this exact shape:
+  NumberedProcess: `Generate a JSON object with this exact shape:
 {
   "title": "How to Deploy a Next.js App to Production",
   "description": "A complete guide from build to live.",
@@ -427,7 +427,7 @@ const SLOT_PROMPTS: Record<string, string> = {
 - detail is optional extra context. substeps is an optional string array.
 - callout types: tip | warning | note | info`,
 
-    ScenarioComparison: `Generate a JSON object with this exact shape:
+  ScenarioComparison: `Generate a JSON object with this exact shape:
 {
   "title": "Startup Funding Scenarios",
   "description": "Compare three funding paths for your startup.",
@@ -483,8 +483,8 @@ const SLOT_PROMPTS: Record<string, string> = {
 // ─── Helper: get the system prompt for a specific slot/module ────────────────
 
 function slotSystemPrompt(moduleName: string, intent: QueryIntent): string {
-    const base = SLOT_PROMPTS[moduleName] ?? `Generate a complete, fully-populated config for the ${moduleName} module.`;
-    return `You are generating content for a single module slot in a structured UI spec.
+  const base = SLOT_PROMPTS[moduleName] ?? `Generate a complete, fully-populated config for the ${moduleName} module.`;
+  return `You are generating content for a single module slot in a structured UI spec.
 Module: ${moduleName}
 Query context: "${intent.subject}" (domain: ${intent.domain})
 Constraints: ${intent.constraints.length > 0 ? intent.constraints.join(", ") : "none"}
@@ -498,10 +498,10 @@ All text fields: plaintext only. All IDs: short hyphenated strings like "item-1"
 // ─── Node 1: IntentExtractorNode ──────────────────────────────────────────────
 
 const intentExtractorNode = async (state: MultiChainGraphState) => {
-    const model = new ChatOpenAI({ modelName: "gpt-4o", temperature: 0 });
+  const model = new ChatOpenAI({ modelName: "gpt-5.2", temperature: 0 });
 
-    const moduleMenu = getModuleMenuForPrompt();
-    const prompt = `Analyze this user query and return a JSON object (no other text) with these exact fields:
+  const moduleMenu = getModuleMenuForPrompt();
+  const prompt = `Analyze this user query and return a JSON object (no other text) with these exact fields:
 {
   "queryType": one of: architecture|explanation|comparison-two|comparison-multi|risk-audit|data-analysis|learning|planning|scoring|process|calculation|decision|brainstorm|creative|financial|general,
   "domain": "the subject domain e.g. distributed systems, personal finance, biology",
@@ -539,82 +539,82 @@ User query: "${state.query}"
 
 Return ONLY valid JSON, nothing else.`;
 
-    const response = await model.invoke([{ role: "user", content: prompt }]);
-    const text = typeof response.content === "string" ? response.content : JSON.stringify(response.content);
+  const response = await model.invoke([{ role: "user", content: prompt }]);
+  const text = typeof response.content === "string" ? response.content : JSON.stringify(response.content);
 
-    try {
-        const cleaned = text.replace(/```json\n?|\n?```/g, "").trim();
-        const intent: QueryIntent = JSON.parse(cleaned);
+  try {
+    const cleaned = text.replace(/```json\n?|\n?```/g, "").trim();
+    const intent: QueryIntent = JSON.parse(cleaned);
 
-        // Fallback: if suggestedModules is empty or invalid, use recommendation map
-        if (!intent.suggestedModules || intent.suggestedModules.length < 2) {
-            intent.suggestedModules = QUERY_TYPE_MODULE_RECOMMENDATIONS[intent.queryType] ?? ["ExplainerSection", "ConceptCards"];
-        }
-        return { intent, messages: [new HumanMessage(`Intent: ${JSON.stringify(intent)}`)] };
-    } catch {
-        // Fallback intent on parse failure
-        const fallback: QueryIntent = {
-            queryType: "general",
-            domain: "general",
-            subject: state.query,
-            suggestedModules: ["ExplainerSection", "ConceptCards", "ActionPlan"],
-            constraints: [],
-            isFollowUp: false,
-        };
-        return { intent: fallback };
+    // Fallback: if suggestedModules is empty or invalid, use recommendation map
+    if (!intent.suggestedModules || intent.suggestedModules.length < 2) {
+      intent.suggestedModules = QUERY_TYPE_MODULE_RECOMMENDATIONS[intent.queryType] ?? ["ExplainerSection", "ConceptCards"];
     }
+    return { intent, messages: [new HumanMessage(`Intent: ${JSON.stringify(intent)}`)] };
+  } catch {
+    // Fallback intent on parse failure
+    const fallback: QueryIntent = {
+      queryType: "general",
+      domain: "general",
+      subject: state.query,
+      suggestedModules: ["ExplainerSection", "ConceptCards", "ActionPlan"],
+      constraints: [],
+      isFollowUp: false,
+    };
+    return { intent: fallback };
+  }
 };
 
 // ─── Node 2: LayoutPlannerNode (deterministic) ────────────────────────────────
 
 const layoutPlannerNode = async (state: MultiChainGraphState) => {
-    const intent = state.intent!;
-    const modules = intent.suggestedModules.slice(0, 4);
+  const intent = state.intent!;
+  const modules = intent.suggestedModules.slice(0, 4);
 
-    // Assign canonical slot names
-    const slotNames: Record<string, string> = {
-        SystemMap: "system_map",
-        ModuleCards: "core_modules",
-        TradeoffMatrix: "tradeoffs",
-        RiskPanel: "risks",
-        ComparisonPanel: "comparison",
-        ConceptCards: "key_concepts",
-        ExplainerSection: "explainer",
-        Timeline: "timeline",
-        ScorecardPanel: "scorecard",
-        QuizModule: "quiz",
-        DiagramModule: "diagram",
-        Dashboard: "dashboard",
-        ActionPlan: "action_plan",
-        InteractiveCalculator: "calculator",
-        DecisionTree: "decision_tree",
-        ProsCons: "pros_cons",
-        ChecklistModule: "checklist",
-        RecipeModule: "recipe",
-        HierarchyTree: "hierarchy",
-        MindMap: "mind_map",
-        FlashcardDeck: "flashcards",
-        NumberedProcess: "process",
-        ScenarioComparison: "scenarios",
-    };
+  // Assign canonical slot names
+  const slotNames: Record<string, string> = {
+    SystemMap: "system_map",
+    ModuleCards: "core_modules",
+    TradeoffMatrix: "tradeoffs",
+    RiskPanel: "risks",
+    ComparisonPanel: "comparison",
+    ConceptCards: "key_concepts",
+    ExplainerSection: "explainer",
+    Timeline: "timeline",
+    ScorecardPanel: "scorecard",
+    QuizModule: "quiz",
+    DiagramModule: "diagram",
+    Dashboard: "dashboard",
+    ActionPlan: "action_plan",
+    InteractiveCalculator: "calculator",
+    DecisionTree: "decision_tree",
+    ProsCons: "pros_cons",
+    ChecklistModule: "checklist",
+    RecipeModule: "recipe",
+    HierarchyTree: "hierarchy",
+    MindMap: "mind_map",
+    FlashcardDeck: "flashcards",
+    NumberedProcess: "process",
+    ScenarioComparison: "scenarios",
+  };
 
-    const moduleAssignments: Record<string, string> = {};
-    const primarySlots: string[] = [];
+  const moduleAssignments: Record<string, string> = {};
+  const primarySlots: string[] = [];
 
-    for (const mod of modules) {
-        const slot = slotNames[mod] ?? mod.toLowerCase().replace(/([a-z])([A-Z])/g, "$1_$2").toLowerCase();
-        moduleAssignments[slot] = mod;
-        primarySlots.push(slot);
-    }
+  for (const mod of modules) {
+    const slot = slotNames[mod] ?? mod.toLowerCase().replace(/([a-z])([A-Z])/g, "$1_$2").toLowerCase();
+    moduleAssignments[slot] = mod;
+    primarySlots.push(slot);
+  }
 
-    const layoutPlan: LayoutPlan = {
-        title: intent.subject,
-        primarySlots,
-        moduleAssignments,
-    };
+  const layoutPlan: LayoutPlan = {
+    title: intent.subject,
+    primarySlots,
+    moduleAssignments,
+  };
 
 
-    return { layoutPlan };
+  return { layoutPlan };
 };
 
 // ─── Node 3: SlotComposerNode (generates all slots sequentially) ───────────────
@@ -622,33 +622,33 @@ const layoutPlannerNode = async (state: MultiChainGraphState) => {
 // The rest are generated in order after.
 
 const slotComposerNode = async (state: MultiChainGraphState) => {
-    const { intent, layoutPlan } = state;
-    if (!intent || !layoutPlan) return {};
+  const { intent, layoutPlan } = state;
+  if (!intent || !layoutPlan) return {};
 
-    const model = new ChatOpenAI({ modelName: "gpt-4o", temperature: 0 });
+  const model = new ChatOpenAI({ modelName: "gpt-5.2", temperature: 0 });
 
-    const slotDrafts: Record<string, any> = { ...state.slotDrafts };
-    const systemMapNodeIds: string[] = [];
+  const slotDrafts: Record<string, any> = { ...state.slotDrafts };
+  const systemMapNodeIds: string[] = [];
 
-    // Sort so SystemMap goes first
-    const orderedSlots = [...layoutPlan.primarySlots].sort((a, b) => {
-        if (layoutPlan.moduleAssignments[a] === "SystemMap") return -1;
-        if (layoutPlan.moduleAssignments[b] === "SystemMap") return 1;
-        return 0;
-    });
+  // Sort so SystemMap goes first
+  const orderedSlots = [...layoutPlan.primarySlots].sort((a, b) => {
+    if (layoutPlan.moduleAssignments[a] === "SystemMap") return -1;
+    if (layoutPlan.moduleAssignments[b] === "SystemMap") return 1;
+    return 0;
+  });
 
-    for (const slot of orderedSlots) {
-        const moduleName = layoutPlan.moduleAssignments[slot];
-        if (!moduleName) continue;
+  for (const slot of orderedSlots) {
+    const moduleName = layoutPlan.moduleAssignments[slot];
+    if (!moduleName) continue;
 
-        let extraContext = "";
-        if (systemMapNodeIds.length > 0 && (moduleName === "RiskPanel" || moduleName === "ModuleCards")) {
-            extraContext = `\nAvailable SystemMap node IDs for cross-referencing: ${systemMapNodeIds.join(", ")}`;
-        }
+    let extraContext = "";
+    if (systemMapNodeIds.length > 0 && (moduleName === "RiskPanel" || moduleName === "ModuleCards")) {
+      extraContext = `\nAvailable SystemMap node IDs for cross-referencing: ${systemMapNodeIds.join(", ")}`;
+    }
 
-        const instructions = SLOT_PROMPTS[moduleName] ?? `Generate a complete, fully-populated config object for the ${moduleName} module.`;
+    const instructions = SLOT_PROMPTS[moduleName] ?? `Generate a complete, fully-populated config object for the ${moduleName} module.`;
 
-        const prompt = `You are generating a config object for a ${moduleName} UI module.
+    const prompt = `You are generating a config object for a ${moduleName} UI module.
 Topic: "${state.query}" (domain: ${intent.domain}, subject: ${intent.subject})
 ${extraContext}
 
@@ -657,84 +657,84 @@ ${instructions}
 Fill every required field with real, high-quality content about the topic.
 Return ONLY a valid JSON object. No explanation, no markdown fences, no extra text — just the raw JSON.`;
 
-        try {
-            const response = await model.invoke([{ role: "user", content: prompt }]);
-            const text = typeof response.content === "string" ? response.content : JSON.stringify(response.content);
-            const cleaned = text.replace(/```json\n?|\n?```/g, "").trim();
-            const config = JSON.parse(cleaned);
-            slotDrafts[slot] = config;
+    try {
+      const response = await model.invoke([{ role: "user", content: prompt }]);
+      const text = typeof response.content === "string" ? response.content : JSON.stringify(response.content);
+      const cleaned = text.replace(/```json\n?|\n?```/g, "").trim();
+      const config = JSON.parse(cleaned);
+      slotDrafts[slot] = config;
 
-            if (moduleName === "SystemMap" && config.nodes) {
-                systemMapNodeIds.push(...(config.nodes as any[]).map((n: any) => n.id).filter(Boolean));
-            }
-        } catch (err) {
-            console.error(`SlotComposer failed for slot ${slot}:`, err);
-        }
+      if (moduleName === "SystemMap" && config.nodes) {
+        systemMapNodeIds.push(...(config.nodes as any[]).map((n: any) => n.id).filter(Boolean));
+      }
+    } catch (err) {
+      console.error(`SlotComposer failed for slot ${slot}:`, err);
     }
+  }
 
-    return { slotDrafts };
+  return { slotDrafts };
 };
 
 // ─── Node 4: SlotValidatorNode ────────────────────────────────────────────────
 
 const slotValidatorNode = async (state: MultiChainGraphState) => {
-    const { layoutPlan, slotDrafts } = state;
-    if (!layoutPlan) return {};
+  const { layoutPlan, slotDrafts } = state;
+  if (!layoutPlan) return {};
 
-    const slotErrors: Record<string, string[]> = {};
+  const slotErrors: Record<string, string[]> = {};
 
-    for (const slot of layoutPlan.primarySlots) {
-        const moduleName = layoutPlan.moduleAssignments[slot];
-        const config = slotDrafts[slot];
-        if (!config) {
-            slotErrors[slot] = [`No config generated for slot ${slot}`];
-            continue;
-        }
-
-        // Validate by assembling a temporary single-module spec
-        const tempSpec = {
-            schemaVersion: "studio_spec.v1",
-            title: "validation-temp",
-            layout: { primarySlots: [slot] },
-            modules: [{ slot, module: moduleName, moduleVersion: "1.0", config }],
-        };
-
-        const { errors, autoFilledSpec } = validateStudioSpec(tempSpec as any);
-
-        // Carry back any auto-filled config
-        if (autoFilledSpec?.modules?.[0]?.config) {
-            state.slotDrafts[slot] = autoFilledSpec.modules[0].config;
-        }
-
-        if (errors.filter(e => !e.startsWith("Spec must have")).length > 0) {
-            slotErrors[slot] = errors.filter(e => !e.startsWith("Spec must have"));
-        }
+  for (const slot of layoutPlan.primarySlots) {
+    const moduleName = layoutPlan.moduleAssignments[slot];
+    const config = slotDrafts[slot];
+    if (!config) {
+      slotErrors[slot] = [`No config generated for slot ${slot}`];
+      continue;
     }
 
+    // Validate by assembling a temporary single-module spec
+    const tempSpec = {
+      schemaVersion: "studio_spec.v1",
+      title: "validation-temp",
+      layout: { primarySlots: [slot] },
+      modules: [{ slot, module: moduleName, moduleVersion: "1.0", config }],
+    };
 
-    return { slotErrors };
+    const { errors, autoFilledSpec } = validateStudioSpec(tempSpec as any);
+
+    // Carry back any auto-filled config
+    if (autoFilledSpec?.modules?.[0]?.config) {
+      state.slotDrafts[slot] = autoFilledSpec.modules[0].config;
+    }
+
+    if (errors.filter(e => !e.startsWith("Spec must have")).length > 0) {
+      slotErrors[slot] = errors.filter(e => !e.startsWith("Spec must have"));
+    }
+  }
+
+
+  return { slotErrors };
 };
 
 // ─── Node 5: SlotRepairNode ───────────────────────────────────────────────────
 
 const slotRepairNode = async (state: MultiChainGraphState) => {
-    const { layoutPlan, slotDrafts, slotErrors, slotAttempts, intent } = state;
-    if (!layoutPlan || !intent) return {};
+  const { layoutPlan, slotDrafts, slotErrors, slotAttempts, intent } = state;
+  if (!layoutPlan || !intent) return {};
 
-    const model = new ChatOpenAI({ modelName: "gpt-4o", temperature: 0 });
+  const model = new ChatOpenAI({ modelName: "gpt-5.2", temperature: 0 });
 
-    const updatedDrafts = { ...slotDrafts };
-    const updatedAttempts = { ...slotAttempts };
+  const updatedDrafts = { ...slotDrafts };
+  const updatedAttempts = { ...slotAttempts };
 
-    for (const [slot, errors] of Object.entries(slotErrors)) {
-        if (!errors || errors.length === 0) continue;
-        const attempts = slotAttempts[slot] ?? 0;
-        if (attempts >= 2) continue;
+  for (const [slot, errors] of Object.entries(slotErrors)) {
+    if (!errors || errors.length === 0) continue;
+    const attempts = slotAttempts[slot] ?? 0;
+    if (attempts >= 2) continue;
 
-        const moduleName = layoutPlan.moduleAssignments[slot];
-        const currentConfig = slotDrafts[slot];
+    const moduleName = layoutPlan.moduleAssignments[slot];
+    const currentConfig = slotDrafts[slot];
 
-        const prompt = `You are repairing a ${moduleName} config that failed validation.
+    const prompt = `You are repairing a ${moduleName} config that failed validation.
 Errors: ${errors.join("; ")}
 Current (invalid) config:
 ${JSON.stringify(currentConfig, null, 2)}
@@ -742,127 +742,127 @@ ${JSON.stringify(currentConfig, null, 2)}
 Fix ONLY the issues listed. Return ONLY the corrected JSON config object. No explanation, no markdown fences.
 Original query context: "${intent.subject}"`;
 
-        try {
-            const response = await model.invoke([{ role: "user", content: prompt }]);
-            const text = typeof response.content === "string" ? response.content : JSON.stringify(response.content);
-            const cleaned = text.replace(/```json\n?|\n?```/g, "").trim();
-            updatedDrafts[slot] = JSON.parse(cleaned);
-        } catch (err) {
-            console.error(`SlotRepair failed for slot ${slot}:`, err);
-        }
-
-        updatedAttempts[slot] = attempts + 1;
+    try {
+      const response = await model.invoke([{ role: "user", content: prompt }]);
+      const text = typeof response.content === "string" ? response.content : JSON.stringify(response.content);
+      const cleaned = text.replace(/```json\n?|\n?```/g, "").trim();
+      updatedDrafts[slot] = JSON.parse(cleaned);
+    } catch (err) {
+      console.error(`SlotRepair failed for slot ${slot}:`, err);
     }
 
-    return { slotDrafts: updatedDrafts, slotAttempts: updatedAttempts };
+    updatedAttempts[slot] = attempts + 1;
+  }
+
+  return { slotDrafts: updatedDrafts, slotAttempts: updatedAttempts };
 };
 
 // ─── Node 6: AssemblerNode ────────────────────────────────────────────────────
 
 const assemblerNode = async (state: MultiChainGraphState) => {
-    const { layoutPlan, slotDrafts } = state;
-    if (!layoutPlan) return {};
+  const { layoutPlan, slotDrafts } = state;
+  if (!layoutPlan) return {};
 
-    const modules = layoutPlan.primarySlots
-        .filter(slot => slotDrafts[slot] != null)
-        .map(slot => ({
-            slot,
-            module: layoutPlan.moduleAssignments[slot],
-            moduleVersion: "1.0",
-            config: slotDrafts[slot],
-        }));
+  const modules = layoutPlan.primarySlots
+    .filter(slot => slotDrafts[slot] != null)
+    .map(slot => ({
+      slot,
+      module: layoutPlan.moduleAssignments[slot],
+      moduleVersion: "1.0",
+      config: slotDrafts[slot],
+    }));
 
-    const draftSpec = {
-        schemaVersion: "studio_spec.v1" as const,
-        title: layoutPlan.title || state.query,
-        layout: { primarySlots: layoutPlan.primarySlots },
-        modules,
-    };
+  const draftSpec = {
+    schemaVersion: "studio_spec.v1" as const,
+    title: layoutPlan.title || state.query,
+    layout: { primarySlots: layoutPlan.primarySlots },
+    modules,
+  };
 
-    return { draftSpec };
+  return { draftSpec };
 };
 
 // ─── Node 7: ComputeNode ──────────────────────────────────────────────────────
 
 const computeNode = async (state: MultiChainGraphState) => {
-    if (!state.draftSpec) return {};
-    try {
-        const computedBySlot = computeSpec(state.draftSpec, state.context?.userEdits ?? {});
-        return { computedBySlot, finalSpec: state.draftSpec };
-    } catch {
-        return { computedBySlot: {}, finalSpec: state.draftSpec };
-    }
+  if (!state.draftSpec) return {};
+  try {
+    const computedBySlot = computeSpec(state.draftSpec, state.context?.userEdits ?? {});
+    return { computedBySlot, finalSpec: state.draftSpec };
+  } catch {
+    return { computedBySlot: {}, finalSpec: state.draftSpec };
+  }
 };
 
 // ─── Node 8: FinalizeNode ─────────────────────────────────────────────────────
 
 const finalizeNode = async (state: MultiChainGraphState) => {
-    const latencyMs = state.startTime ? Date.now() - state.startTime : 0;
-    return {
-        runMeta: {
-            engine: "langgraph" as const,
-            modelVersion: "gpt-4o",
-            promptVersion: "v2",
-            graphVersion: "v2",
-            graphHash: "multi-chain-v2",
-            registryVersion: "v2",
-            computeVersion: "v1",
-            latencyMs,
-            attemptCount: state.globalAttempt,
-        },
-    };
+  const latencyMs = state.startTime ? Date.now() - state.startTime : 0;
+  return {
+    runMeta: {
+      engine: "langgraph" as const,
+      modelVersion: "gpt-5.2",
+      promptVersion: "v2",
+      graphVersion: "v2",
+      graphHash: "multi-chain-v2",
+      registryVersion: "v2",
+      computeVersion: "v1",
+      latencyMs,
+      attemptCount: state.globalAttempt,
+    },
+  };
 };
 
 // ─── Routing ──────────────────────────────────────────────────────────────────
 
 const routeAfterSlotValidator = (state: MultiChainGraphState): "SlotRepairNode" | "AssemblerNode" => {
-    const failingSlots = Object.entries(state.slotErrors ?? {})
-        .filter(([slot, errs]) => errs.length > 0 && (state.slotAttempts[slot] ?? 0) < 2);
-    return failingSlots.length > 0 ? "SlotRepairNode" : "AssemblerNode";
+  const failingSlots = Object.entries(state.slotErrors ?? {})
+    .filter(([slot, errs]) => errs.length > 0 && (state.slotAttempts[slot] ?? 0) < 2);
+  return failingSlots.length > 0 ? "SlotRepairNode" : "AssemblerNode";
 };
 
 // ─── Graph ────────────────────────────────────────────────────────────────────
 
 export const createMultiChainStudioGraph = () => {
-    const workflow = new StateGraph<MultiChainGraphState>({
-        channels: {
-            query: { value: (x, y) => y ?? x, default: () => "" },
-            mode: { value: (x, y) => y ?? x, default: () => "system_studio" },
-            context: { value: (x, y) => y ?? x, default: () => ({ history: [], userEdits: {} }) },
-            messages: { value: (x, y) => x.concat(y), default: () => [] as BaseMessage[] },
-            startTime: { value: (x, y) => y ?? x, default: () => Date.now() },
-            intent: { value: (x, y) => y ?? x, default: () => undefined },
-            layoutPlan: { value: (x, y) => y ?? x, default: () => undefined },
-            slotDrafts: { value: (x, y) => ({ ...x, ...y }), default: () => ({}) },
-            slotErrors: { value: (x, y) => ({ ...x, ...y }), default: () => ({}) },
-            slotAttempts: { value: (x, y) => ({ ...x, ...y }), default: () => ({}) },
-            draftSpec: { value: (x, y) => y ?? x, default: () => undefined },
-            computedBySlot: { value: (x, y) => y ?? x, default: () => undefined },
-            finalSpec: { value: (x, y) => y ?? x, default: () => undefined },
-            runMeta: { value: (x, y) => y ?? x, default: () => undefined },
-            globalAttempt: { value: (x, y) => y ?? x, default: () => 1 },
-        },
-    })
-        .addNode("IntentExtractorNode", intentExtractorNode)
-        .addNode("LayoutPlannerNode", layoutPlannerNode)
-        .addNode("SlotComposerNode", slotComposerNode)
-        .addNode("SlotValidatorNode", slotValidatorNode)
-        .addNode("SlotRepairNode", slotRepairNode)
-        .addNode("AssemblerNode", assemblerNode)
-        .addNode("ComputeNode", computeNode)
-        .addNode("FinalizeNode", finalizeNode)
+  const workflow = new StateGraph<MultiChainGraphState>({
+    channels: {
+      query: { value: (x, y) => y ?? x, default: () => "" },
+      mode: { value: (x, y) => y ?? x, default: () => "system_studio" },
+      context: { value: (x, y) => y ?? x, default: () => ({ history: [], userEdits: {} }) },
+      messages: { value: (x, y) => x.concat(y), default: () => [] as BaseMessage[] },
+      startTime: { value: (x, y) => y ?? x, default: () => Date.now() },
+      intent: { value: (x, y) => y ?? x, default: () => undefined },
+      layoutPlan: { value: (x, y) => y ?? x, default: () => undefined },
+      slotDrafts: { value: (x, y) => ({ ...x, ...y }), default: () => ({}) },
+      slotErrors: { value: (x, y) => ({ ...x, ...y }), default: () => ({}) },
+      slotAttempts: { value: (x, y) => ({ ...x, ...y }), default: () => ({}) },
+      draftSpec: { value: (x, y) => y ?? x, default: () => undefined },
+      computedBySlot: { value: (x, y) => y ?? x, default: () => undefined },
+      finalSpec: { value: (x, y) => y ?? x, default: () => undefined },
+      runMeta: { value: (x, y) => y ?? x, default: () => undefined },
+      globalAttempt: { value: (x, y) => y ?? x, default: () => 1 },
+    },
+  })
+    .addNode("IntentExtractorNode", intentExtractorNode)
+    .addNode("LayoutPlannerNode", layoutPlannerNode)
+    .addNode("SlotComposerNode", slotComposerNode)
+    .addNode("SlotValidatorNode", slotValidatorNode)
+    .addNode("SlotRepairNode", slotRepairNode)
+    .addNode("AssemblerNode", assemblerNode)
+    .addNode("ComputeNode", computeNode)
+    .addNode("FinalizeNode", finalizeNode)
 
-        .addEdge(START, "IntentExtractorNode")
-        .addEdge("IntentExtractorNode", "LayoutPlannerNode")
-        .addEdge("LayoutPlannerNode", "SlotComposerNode")
-        .addEdge("SlotComposerNode", "SlotValidatorNode")
-        .addConditionalEdges("SlotValidatorNode", routeAfterSlotValidator)
-        .addEdge("SlotRepairNode", "SlotValidatorNode")
-        .addEdge("AssemblerNode", "ComputeNode")
-        .addEdge("ComputeNode", "FinalizeNode")
-        .addEdge("FinalizeNode", END);
+    .addEdge(START, "IntentExtractorNode")
+    .addEdge("IntentExtractorNode", "LayoutPlannerNode")
+    .addEdge("LayoutPlannerNode", "SlotComposerNode")
+    .addEdge("SlotComposerNode", "SlotValidatorNode")
+    .addConditionalEdges("SlotValidatorNode", routeAfterSlotValidator)
+    .addEdge("SlotRepairNode", "SlotValidatorNode")
+    .addEdge("AssemblerNode", "ComputeNode")
+    .addEdge("ComputeNode", "FinalizeNode")
+    .addEdge("FinalizeNode", END);
 
-    return workflow.compile();
+  return workflow.compile();
 };
 
 // Keep old export for any remaining references

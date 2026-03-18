@@ -31,6 +31,8 @@ export function useGenerate() {
         setValidationData(null);
         setStatusSteps([{ stage: "intent", message: "Extracting intent" }]);
 
+        let result: { studioSpec: any; computedData: any; runMetadata: any; validationData: any } | undefined;
+
         try {
             const response = await fetch('/api/run', {
                 method: 'POST',
@@ -95,6 +97,12 @@ export function useGenerate() {
                             setCurrentStage("complete");
                             setStatusMessage("Finished");
                             setStatusSteps(prev => [...prev, { stage: "complete", message: "Studio rendered" }]);
+                            result = {
+                                studioSpec: payload.studioSpec,
+                                computedData: payload.computed,
+                                runMetadata: payload.runMeta,
+                                validationData: payload.validation,
+                            };
                             break;
 
                         case "error":
@@ -109,6 +117,7 @@ export function useGenerate() {
         } finally {
             setIsGenerating(false);
         }
+        return result;
     }, []);
 
     const clearError = useCallback(() => setError(null), []);
