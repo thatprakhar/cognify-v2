@@ -1,11 +1,25 @@
 import { z } from "zod";
 
-// The allowed module types for P0
 export const ModuleNameSchema = z.enum([
+    // Structural
     "SystemMap",
     "ModuleCards",
+    "DiagramModule",
+    // Explanation
+    "ExplainerSection",
+    "ConceptCards",
+    "Timeline",
+    // Decision
     "TradeoffMatrix",
-    "RiskPanel"
+    "ComparisonPanel",
+    "ScorecardPanel",
+    // Risk & Action
+    "RiskPanel",
+    "ActionPlan",
+    // Data
+    "Dashboard",
+    // Assessment
+    "QuizModule",
 ]);
 export type ModuleName = z.infer<typeof ModuleNameSchema>;
 

@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cognify V2 — LangGraph Pipeline</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080B0F;
+    --surface: #0E1318;
+    --surface2: #141B23;
+    --border: #1E2A35;
+    --border-bright: #2A3A4A;
+    --amber: #F59E0B;
+    --amber-dim: #92610A;
+    --cyan: #22D3EE;
+    --cyan-dim: #0E6B7A;
+    --red: #F87171;
+    --red-dim: #7A2020;
+    --green: #34D399;
+    --green-dim: #0F6645;
+    --purple: #A78BFA;
+    --text: #E2E8F0;
+    --text-dim: #64748B;
+    --text-mid: #94A3B8;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Subtle grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(34,211,238,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(34,211,238,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 60px 32px 120px;
+  }
+
+  /* Header */
+  .header {
+    margin-bottom: 64px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards;
+  }
+  .header-eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 12px;
+  }
+  .header-title {
+    font-family: var(--display);
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .header-title span { color: var(--amber); }
+  .header-desc {
+    font-size: 13px;
+    color: var(--text-dim);
+    max-width: 560px;
+    line-height: 1.7;
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 56px;
+    padding: 16px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.15s forwards;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--text-mid);
+  }
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 2px;
+  }
+  .legend-line {
+    width: 24px; height: 2px;
+    border-radius: 1px;
+  }
+
+  /* Pipeline container */
+  .pipeline {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 0 40px;
+    align-items: start;
+  }
+
+  .main-track { grid-column: 1; }
+  .repair-track { grid-column: 2; }
+
+  /* Node card */
+  .node-wrap {
+    opacity: 0;
+    animation: fadeUp 0.5s ease forwards;
+  }
+
+  .node {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+  }
+  .node:hover {
+    border-color: var(--border-bright);
+    box-shadow: 0 0 0 1px var(--border-bright), 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .node.expanded { border-color: var(--border-bright); }
+
+  .node-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+    user-select: none;
+  }
+
+  .node-index {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .node-meta { flex: 1; min-width: 0; }
+  .node-name {
+    font-family: var(--display);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+  .node-subtitle {
+    font-size: 11px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .node-tag {
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  .node-toggle {
+    font-size: 18px;
+    color: var(--text-dim);
+    transition: transform 0.25s, color 0.2s;
+    flex-shrink: 0;
+  }
+  .node.expanded .node-toggle { transform: rotate(180deg); color: var(--amber); }
+
+  .node-body {
+    display: none;
+    border-top: 1px solid var(--border);
+  }
+  .node.expanded .node-body { display: block; }
+
+  .node-section {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .node-section:last-child { border-bottom: none; }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+
+  /* IO table */
+  .io-table { width: 100%; border-collapse: collapse; }
+  .io-table tr { border-bottom: 1px solid var(--border); }
+  .io-table tr:last-child { border-bottom: none; }
+  .io-table td {
+    padding: 7px 0;
+    font-size: 12px;
+    vertical-align: top;
+  }
+  .io-key {
+    color: var(--cyan);
+    font-weight: 500;
+    width: 150px;
+    padding-right: 16px;
+  }
+  .io-type {
+    color: var(--amber);
+    font-size: 11px;
+    width: 120px;
+    padding-right: 16px;
+  }
+  .io-desc { color: var(--text-mid); line-height: 1.5; }
+
+  /* Logic block */
+  .logic-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .logic-step {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .step-num {
+    width: 20px; height: 20px;
+    border-radius: 4px;
+    background: var(--surface2);
+    border: 1px solid var(--border-bright);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-dim);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .step-text {
+    font-size: 12px;
+    color: var(--text-mid);
+    line-height: 1.6;
+  }
+  .step-text code {
+    color: var(--amber);
+    background: rgba(245,158,11,0.08);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 11px;
+  }
+  .step-text .hl-cyan { color: var(--cyan); }
+  .step-text .hl-red { color: var(--red); }
+  .step-text .hl-green { color: var(--green); }
+
+  /* Connector */
+  .connector {
+    display: flex;
+    align-items: center;
+    padding: 0 0 0 34px;
+    height: 32px;
+    position: relative;
+  }
+  .connector-line {
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(to bottom, var(--border-bright), var(--border-bright));
+    position: absolute;
+    left: 47px;
+  }
+  .connector-arrow {
+    font-size: 14px;
+    color: var(--border-bright);
+    position: absolute;
+    left: 41px;
+    bottom: 0;
+  }
+
+  /* Conditional connector */
+  .conditional-split {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding: 0 0 0 34px;
+    position: relative;
+    margin: 0;
+  }
+
+  .cond-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 4px;
+  }
+  .cond-main { color: var(--green); background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.2); }
+  .cond-repair { color: var(--red); background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.2); }
+
+  .cond-branch-wrap {
+    padding: 12px 0 12px 20px;
+    position: relative;
+  }
+  .cond-branch-wrap::before {
+    content: '';
+    position: absolute;
+    left: 47px;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: var(--border-bright);
+  }
+
+  .cond-split-visual {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0 10px 14px;
+    position: relative;
+  }
+  .cond-split-visual::before {
+    content: '';
+    position: absolute;
+    left: 47px;
+    top: 0; bottom: 50%;
+    width: 2px;
+    background: var(--border-bright);
+  }
+  .cond-split-h-line {
+    position: absolute;
+    left: 47px;
+    top: 50%;
+    height: 2px;
+    background: var(--border-bright);
+  }
+
+  /* Repair node (right column) */
+  .repair-node-wrap {
+    opacity: 0;
+    animation: fadeUp 0.5s ease forwards;
+    position: sticky;
+    top: 40px;
+  }
+
+  .repair-loop-label {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .repair-loop-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--red-dim);
+  }
+
+  .loop-arrow {
+    text-align: center;
+    font-size: 11px;
+    color: var(--red);
+    margin-top: 12px;
+    padding: 8px;
+    border: 1px dashed var(--red-dim);
+    border-radius: 6px;
+    background: rgba(248,113,113,0.04);
+  }
+
+  /* Model badge */
+  .model-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    background: rgba(167,139,250,0.1);
+    border: 1px solid rgba(167,139,250,0.2);
+    color: var(--purple);
+  }
+  .model-badge::before {
+    content: '◆';
+    font-size: 8px;
+  }
+
+  /* START / END badges */
+  .terminus {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    margin-bottom: 0;
+  }
+  .terminus-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .terminus-start {
+    background: rgba(52,211,153,0.1);
+    border: 1px solid rgba(52,211,153,0.3);
+    color: var(--green);
+  }
+  .terminus-end {
+    background: rgba(100,116,139,0.1);
+    border: 1px solid rgba(100,116,139,0.3);
+    color: var(--text-dim);
+  }
+  .terminus-desc { font-size: 11px; color: var(--text-dim); }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Responsive */
+  @media (max-width: 800px) {
+    .pipeline { grid-template-columns: 1fr; }
+    .repair-track { grid-column: 1; margin-top: 8px; }
+    .repair-node-wrap { position: static; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-eyebrow">Cognify V2 · Internal Reference</div>
+    <h1 class="header-title">LangGraph<br><span>Execution Pipeline</span></h1>
+    <p class="header-desc">
+      Multi-chain orchestration engine. Each node is a discrete async function operating on <code style="color:var(--amber);font-size:12px">MultiChainGraphState</code>. Nodes pass partial state updates — the graph merges them via channel reducers.
+    </p>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div> LLM Node (GPT-4o)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--cyan)"></div> Deterministic Node</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div> Conditional / Repair</div>
+    <div class="legend-item"><div class="legend-line" style="background:var(--border-bright)"></div> Direct Edge</div>
+    <div class="legend-item"><div class="legend-line" style="background:var(--red); border-top: 1px dashed var(--red)"></div> Conditional Edge</div>
+    <div class="legend-item"><span style="color:var(--purple);font-size:11px">◆</span>&nbsp; GPT-4o call</div>
+  </div>
+
+  <div class="pipeline">
+    <div class="main-track">
+
+      <!-- START -->
+      <div class="node-wrap" style="animation-delay:0.1s">
+        <div class="terminus">
+          <span class="terminus-badge terminus-start">START</span>
+          <span class="terminus-desc">Initial state: <code style="color:var(--amber);font-size:11px">{ query, context, messages }</code></span>
+        </div>
+      </div>
+      <div class="connector"><div class="connector-line"></div><div class="connector-arrow">▼</div></div>
+
+      <!-- Node 1 -->
+      <div class="node-wrap" style="animation-delay:0.15s">
+        <div class="node" onclick="toggle(this)">
+          <div class="node-header">
+            <div class="node-index" style="background:rgba(245,158,11,0.12);color:var(--amber);border:1px solid rgba(245,158,11,0.3)">01</div>
+            <div class="node-meta">
+              <div class="node-name">IntentExtractorNode</div>
+              <div class="node-subtitle">
+                <span class="model-badge">gpt-4o</span>
+                <span class="node-tag" style="background:rgba(245,158,11,0.1);color:var(--amber);border:1px solid rgba(245,158,11,0.2)">LLM · JSON parse</span>
+              </div>
+            </div>
+            <div class="node-toggle">▾</div>
+          </div>
+          <div class="node-body">
+            <div class="node-section">
+              <div class="section-label">Inputs (reads from state)</div>
+              <table class="io-table">
+                <tr><td class="io-key">state.query</td><td class="io-type">string</td><td class="io-desc">Raw user message</td></tr>
+                <tr><td class="io-key">MODULE_MANIFEST</td><td class="io-type">const</td><td class="io-desc">13-module menu injected into prompt via <code>getModuleMenuForPrompt()</code></td></tr>
+              </table>
+            </div>
+            <div class="node-section">
+              <div class="section-label">Outputs (state updates)</div>
+              <table class="io-table">
+                <tr><td class="io-key">intent</td><td class="io-type">QueryIntent</td><td class="io-desc"><code>queryType</code>, <code>domain</code>, <code>subject</code>, <code>suggestedModules[]</code>, <code>constraints[]</code>, <code>isFollowUp</code></td></tr>
+                <tr><td class="io-key">messages</td><td class="io-type">HumanMessage[]</td><td class="io-desc">Appends intent summary to message history</td></tr>
+              </table>
+            </div>
+            <div class="node-section">
+              <div class="section-label">Internal Logic</div>
+              <div class="logic-steps">
+                <div class="logic-step"><div class="step-num">1</div><div class="step-text">Sends user query + full module menu to GPT-4o with a structured JSON prompt (no tool call)</div></div>
+                <div class="logic-step"><div class="step-num">2</div><div class="step-text">Strips <code>```json</code> fences and parses response. Falls back to <code class="hl-red">general</code> intent on parse error</div></div>
+                <div class="logic-step"><div class="step-num">3</div><div class="step-text">If <code>suggestedModules.length &lt; 2</code>, backfills from <code>QUERY_TYPE_MODULE_RECOMMENDATIONS</code> map</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="connector"><div class="connector-line"></div><div class="connector-arrow">▼</div></div>
+
+      <!-- Node 2 -->
+      <div class="node-wrap" style="animation-delay:0.2s">
+        <div class="node" onclick="toggle(this)">
+          <div class="node-header">
+            <div class="node-index" style="background:rgba(34,211,238,0.1);color:var(--cyan);border:1px solid rgba(34,211,238,0.2)">02</div>
+            <div class="node-meta">
+              <div class="node-name">LayoutPlannerNode</div>
+              <div class="node-subtitle">
+                <span class="node-tag" style="background:rgba(34,211,238,0.08);color:var(--cyan);border:1px solid rgba(34,211,238,0.15)">Deterministic · no LLM</span>
+              </div>
+            </div>
+            <div class="node-toggle">▾</div>
+          </div>
+          <div class="node-body">
+            <div class="node-section">
+              <div class="section-label">Inputs</div>
+              <table class="io-table">
+                <tr><td class="io-key">state.intent</td><td class="io-type">QueryIntent</td><td class="io-desc"><code>suggestedModules[]</code> drives slot assignment</td></tr>
+              </table>
+            </div>
+            <div class="node-section">
+              <div class="section-label">Outputs</div>
+              <table class="io-table">
+                <tr><td class="io-key">layoutPlan</td><td class="io-type">LayoutPlan</td><td class="io-desc"><code>title</code>, <code>primarySlots[]</code>, <code>moduleAssignments</code> (slot→module map)</td></tr>
+              </table>
+            </div>
+            <div class="node-section">
+              <div class="section-label">Internal Logic</div>
+              <div class="logic-steps">
+                <div class="logic-step"><div class="step-num">1</div><div class="step-text">Maps each module name to a canonical slot name via a static lookup: <code>ExplainerSection → "explainer"</code>, <code>SystemMap → "system_map"</code>, etc.</div></div>
+                <div class="logic-step"><div class="step-num">2</div><div class="step-text">Takes first 4 modules max. Builds <code>moduleAssignments</code> record and <code>primarySlots</code> array</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="connector"><div class="connector-line"></div><div class="connector-arrow">▼</div></div>
+
+      <!-- Node 3 -->
+      <div class="node-wrap" style="animation-delay:0.25s">
+        <div class="node" onclick="toggle(this)">
+          <div class="node-header">
+            <div class="node-index" style="background:rgba(245,158,11,0.12);color:var(--amber);border:1px solid rgba(245,158,11,0.3)">03</div>
+            <div class="node-meta">
+              <div class="node-name">SlotComposerNode</div>
+              <div class="node-subtitle">
+                <span class="model-badge">gpt-4o × N slots</span>
+                <span class="node-tag" style="background:rgba(245,158,11,0.1);color:var(--amber);border:1px solid rgba(245,158,11,0.2)">LLM · sequential loop</span>
+              </div>
+            </div>
+            <div class="node-toggle">▾</div>
+          </div>
+          <div class="node-body">
+            <div class="node-section">
+              <div class="section-label">Inputs</div>
+              <table class="io-table">
+                <tr><td class="io-key">state.intent</td><td class="io-type">QueryIntent</td><td class="io-desc">Subject, domain, constraints for prompt context</td></tr>
+                <tr><td class="io-key">state.layoutPlan</td><td class="io-type">LayoutPlan</td><td class="io-desc">Which slots to generate and which module goes in each</td></tr>
+                <tr><td class="io-key">state.query</td><td class="io-type">string</td><td class="io-desc">Original user query (included in each slot prompt)</td></tr>
+              </table>
+            </div>
+            <div class="node-section">
+              <div class="section-label">Outputs</div>
+              <table class="io-table">
+                <tr><td class="io-key">slotDrafts</td><td class="io-type">Record&lt;slot, any&gt;</td><td class="io-desc">One raw config object per slot, keyed by slot name</td></tr>
+              </table>
+            </div>
+            <div class="node-section">
+              <div class="section-label">Internal Logic</div>
+              <div class="logic-steps">
+                <div class="logic-step"><div class="step-num">1</div><div class="step-text"><span class="hl-cyan">SystemMap always goes first</span> — its node IDs are captured and injected into downstream RiskPanel/ModuleCards prompts</div></div>
+                <div class="logic-step"><div class="step-num">2</div><div class="step-text">For each slot: looks up <code>SLOT_PROMPTS[moduleName]</code> — a detailed schema-shaped JSON template with all required fields</div></div>
+                <div class="logic-step"><div class="step-num">3</div><div class="step-text">Calls GPT-4o with: <code>"Return ONLY raw JSON, no fences"</code>. Strips fences, JSON.parses the response</div></div>
+                <div class="logic-step"><div class="step-num">4</div><div class="step-text">On parse failure, the slot is silently skipped (no error thrown) — <code class="hl-red">validator will catch it</code></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="connector"><div class="connector-line"></div><div class="connector-arrow">▼</div></div>
+
+      <!-- Node 4 -->
+      <div class="node-wrap" style="animation-delay:0.3s">
+        <div class="node" onclick="toggle(this)">
+          <div class="node-header">
+            <div class="node-index" style="background:rgba(34,211,238,0.1);color:var(--cyan);border:1px solid rgba(34,211,238,0.2)">04</div>
+            <div class="node-meta">
+              <div class="node-name">SlotValidatorNode</div>
+              <div class="node-subtitle">
+                <span class="node-tag" style="background:rgba(34,211,238,0.08);color:var(--cyan);border:1px solid rgba(34,211,238,0.15)">Deterministic · Zod</span>
+              </div>
+            </div>
+            <div class="node-toggle">▾</div>
+          </div>
+          <div class="node-body">
+            <div class="node-section">
+              <div class="section-label">Inputs</div>
+              <table class="io-table">
+                <tr><td class="io-key">state.slotDrafts</td><td class="io-type">Record&lt;slot, any&gt;</td><td class="io-desc">Raw configs from composer (or repair)</td></tr>
+                <tr><td class="io-key">state.layoutPlan</td><td class="io-type">LayoutPlan</td><td class="io-desc">Module name for each slot (needed to pick the right Zod schema)</td></tr>
+              </table>
+            </div>
+            <div class="node-section">
+              <div class="section-label">Outputs</div>
+              <table class="io-table">
+                <tr><td class="io-key">slotErrors</td><td class="io-type">Record&lt;slot, string[]&gt;</td><td class="io-desc">Zod error messages per failing slot. Empty array = slot is valid.</td></tr>
+              </table>
+            </div>
+            <div class="node-section">
+              <div class="section-label">Internal Logic</div>
+              <div class="logic-steps">
+                <div class="logic-step"><div class="step-num">1</div><div class="step-text">For each slot: wraps config in a temporary single-module <code>StudioSpecV1</code> and runs <code>validateStudioSpec()</code></div></div>
+                <div class="logic-step"><div class="step-num">2</div><div class="step-text"><span class="hl-green">Auto-fill</span>: if validator returns an <code>autoFilledSpec</code>, the config is silently upgraded in <code>state.slotDrafts</code></div></div>
+                <div class="logic-step"><div class="step-num">3</div><div class="step-text">Filters out <code>"Spec must have…"</code> count errors (single-module temp spec always fails those). Only real schema errors are kept</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conditional split -->
+      <div class="node-wrap" style="animation-delay:0.35s;margin-top:8px">
+        <div style="padding: 16px 0 4px 14px;">
+          <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:12px;">◈ Conditional Routing</div>
+          <div style="display:flex;flex-direction:column;gap:8px;padding-left:6px;border-left:2px solid var(--border-bright);">
+            <div>
+              <span class="cond-label cond-main">→ AssemblerNode</span>
+              <div style="font-size:11px;color:var(--text-dim);margin-top:4px;padding-left:2px;">All slots valid <strong style="color:var(--text-mid)">OR</strong> all attempts ≥ 2</div>
+            </div>
+            <div>
+              <span class="cond-label cond-repair">→ SlotRepairNode ↗</span>
+              <div style="font-size:11px;color:var(--text-dim);margin-top:4px;padding-left:2px;">Any slot has errors <strong style="color:var(--text-mid)">AND</strong> that slot's <code style="color:var(--amber);font-size:10px">attempts &lt; 2</code></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="connector"><div class="connector-line"></div><div class="connector-arrow">▼</div></div>
+
+      <!-- Node 6 (Assembler) -->
+      <div class="node-wrap" style="animation-delay:0.4s">
+        <div class="node" onclick="toggle(this)">
+          <div class="node-header">
+            <div class="node-index" style="background:rgba(34,211,238,0.1);color:var(--cyan);border:1px solid rgba(34,211,238,0.2)">06</div>
+            <div class="node-meta">
+              <div class="node-name">AssemblerNode</div>
+              <div class="node-subtitle">
+                <span class="node-tag" style="background:rgba(34,211,238,0.08);color:var(--cyan);border:1px solid rgba(34,211,238,0.15)">Deterministic</span>
+              </div>
+            </div>
+            <div class="node-toggle">▾</div>
+          </div>
+          <div class="node-body">
+            <div class="node-section">
+              <div class="section-label">Inputs</div>
+              <table class="io-table">
+                <tr><td class="io-key">state.slotDrafts</td><td class="io-type">Record&lt;slot, any&gt;</td><td class="io-desc">Validated (and optionally repaired) configs</td></tr>
+                <tr><td class="io-key">state.layoutPlan</td><td class="io-type">LayoutPlan</td><td class="io-desc">Provides <code>primarySlots</code> order and <code>moduleAssignments</code></td></tr>
+              </table>
+            </div>
+            <div class="node-section">
+              <div class="section-label">Outputs</div>
+              <table class="io-table">
+                <tr><td class="io-key">draftSpec</td><td class="io-type">StudioSpecV1</td><td class="io-desc">Full spec: <code>{ schemaVersion, title, layout, modules[] }</code>. Only slots with non-null configs are included.</td></tr>
+              </table>
+            </div>
+            <div class="node-section">
+              <div class="section-label">Internal Logic</div>
+              <div class="logic-steps">
+                <div class="logic-step"><div class="step-num">1</div><div class="step-text">Filters <code>primarySlots</code> to only those with a config in <code>slotDrafts</code></div></div>
+                <div class="logic-step"><div class="step-num">2</div><div class="step-text">Maps each to a <code>ModuleInvocation</code>: <code>{ slot, module, moduleVersion: "1.0", config }</code></div></div>
+                <div class="logic-step"><div class="step-num">3</div><div class="step-text">Wraps in the <code>StudioSpecV1</code> envelope with <code>schemaVersion: "studio_spec.v1"</code></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="connector"><div class="connector-line"></div><div class="connector-arrow">▼</div></div>
+
+      <!-- Node 7 (Compute) -->
+      <div class="node-wrap" style="animation-delay:0.45s">
+        <div class="node" onclick="toggle(this)">
+          <div class="node-header">
+            <div class="node-index" style="background:rgba(34,211,238,0.1);color:var(--cyan);border:1px solid rgba(34,211,238,0.2)">07</div>
+            <div class="node-meta">
+              <div class="node-name">ComputeNode</div>
+              <div class="node-subtitle">
+                <span class="node-tag" style="background:rgba(34,211,238,0.08);color:var(--cyan);border:1px solid rgba(34,211,238,0.15)">Deterministic · math</span>
+              </div>
+            </div>
+            <div class="node-toggle">▾</div>
+          </div>
+          <div class="node-body">
+            <div class="node-section">
+              <div class="section-label">Inputs</div>
+              <table class="io-table">
+                <tr><td class="io-key">state.draftSpec</td><td class="io-type">StudioSpecV1</td><td class="io-desc">Assembled spec to compute derived data for</td></tr>
+                <tr><td class="io-key">state.context.userEdits</td><td class="io-type">Record&lt;string,any&gt;</td><td class="io-desc">Optional user overrides to apply before computing</td></tr>
+              </table>
+            </div>
+            <div class="node-section">
+              <div class="section-label">Outputs</div>
+              <table class="io-table">
+                <tr><td class="io-key">computedBySlot</td><td class="io-type">Record&lt;slot, any&gt;</td><td class="io-desc">Derived data per slot: layout positions, weighted scores, etc.</td></tr>
+                <tr><td class="io-key">finalSpec</td><td class="io-type">StudioSpecV1</td><td class="io-desc">Passthrough of <code>draftSpec</code> (compute doesn't modify the spec)</td></tr>
+              </table>
+            </div>
+            <div class="node-section">
+              <div class="section-label">Internal Logic</div>
+              <div class="logic-steps">
+                <div class="logic-step"><div class="step-num">1</div><div class="step-text">Calls <code>computeSpec(draftSpec, userEdits)</code> from <code>src/lib/compute/index.ts</code></div></div>
+                <div class="logic-step"><div class="step-num">2</div><div class="step-text">SystemMap: runs DAGRE layout algorithm → returns <code>{ x, y }</code> positions per node</div></div>
+                <div class="logic-step"><div class="step-num">3</div><div class="step-text">TradeoffMatrix: calculates weighted scores per option. Errors are caught and <code>computedBySlot = {}</code> returned as safe fallback</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="connector"><div class="connector-line"></div><div class="connector-arrow">▼</div></div>
+
+      <!-- Node 8 (Finalize) -->
+      <div class="node-wrap" style="animation-delay:0.5s">
+        <div class="node" onclick="toggle(this)">
+          <div class="node-header">
+            <div class="node-index" style="background:rgba(34,211,238,0.1);color:var(--cyan);border:1px solid rgba(34,211,238,0.2)">08</div>
+            <div class="node-meta">
+              <div class="node-name">FinalizeNode</div>
+              <div class="node-subtitle">
+                <span class="node-tag" style="background:rgba(34,211,238,0.08);color:var(--cyan);border:1px solid rgba(34,211,238,0.15)">Deterministic · metadata</span>
+              </div>
+            </div>
+            <div class="node-toggle">▾</div>
+          </div>
+          <div class="node-body">
+            <div class="node-section">
+              <div class="section-label">Inputs</div>
+              <table class="io-table">
+                <tr><td class="io-key">state.startTime</td><td class="io-type">number</td><td class="io-desc">Unix ms set at graph invocation — used to compute total latency</td></tr>
+                <tr><td class="io-key">state.globalAttempt</td><td class="io-type">number</td><td class="io-desc">Total repair cycles attempted across all slots</td></tr>
+              </table>
+            </div>
+            <div class="node-section">
+              <div class="section-label">Outputs</div>
+              <table class="io-table">
+                <tr><td class="io-key">runMeta</td><td class="io-type">RunMeta</td><td class="io-desc"><code>engine, modelVersion, promptVersion, graphVersion, graphHash, latencyMs, attemptCount</code></td></tr>
+              </table>
+            </div>
+            <div class="node-section">
+              <div class="section-label">Internal Logic</div>
+              <div class="logic-steps">
+                <div class="logic-step"><div class="step-num">1</div><div class="step-text">Computes <code>latencyMs = Date.now() - state.startTime</code></div></div>
+                <div class="logic-step"><div class="step-num">2</div><div class="step-text">Stamps version strings: <code>graphVersion: "v2"</code>, <code>promptVersion: "v2"</code>, <code>graphHash: "multi-chain-v2"</code></div></div>
+                <div class="logic-step"><div class="step-num">3</div><div class="step-text">After the graph: route.ts computes <code>canonicalHash</code> via SHA-256 of stable key-sorted JSON, used for drift detection</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- END -->
+      <div class="connector"><div class="connector-line"></div><div class="connector-arrow">▼</div></div>
+      <div class="node-wrap" style="animation-delay:0.55s">
+        <div class="terminus">
+          <span class="terminus-badge terminus-end">END</span>
+          <span class="terminus-desc">State: <code style="color:var(--amber);font-size:11px">{ finalSpec, computedBySlot, runMeta }</code> — returned to route.ts</span>
+        </div>
+      </div>
+
+    </div><!-- /main-track -->
+
+    <!-- Repair track (right column) -->
+    <div class="repair-track">
+      <div class="repair-node-wrap" style="animation-delay:0.35s;margin-top:380px;">
+        <div class="repair-loop-label">Repair Loop (max 2×)</div>
+
+        <div class="node" onclick="toggle(this)" style="border-color:var(--red-dim)">
+          <div class="node-header">
+            <div class="node-index" style="background:rgba(248,113,113,0.1);color:var(--red);border:1px solid rgba(248,113,113,0.3)">05</div>
+            <div class="node-meta">
+              <div class="node-name">SlotRepairNode</div>
+              <div class="node-subtitle">
+                <span class="model-badge" style="background:rgba(248,113,113,0.08);border-color:rgba(248,113,113,0.2);color:var(--red)">gpt-4o</span>
+                <span class="node-tag" style="background:rgba(248,113,113,0.08);color:var(--red);border:1px solid rgba(248,113,113,0.2)">conditional</span>
+              </div>
+            </div>
+            <div class="node-toggle">▾</div>
+          </div>
+          <div class="node-body">
+            <div class="node-section">
+              <div class="section-label">Inputs</div>
+              <table class="io-table">
+                <tr><td class="io-key">state.slotErrors</td><td class="io-type">Record&lt;slot, string[]&gt;</td><td class="io-desc">Zod errors to fix per slot</td></tr>
+                <tr><td class="io-key">state.slotDrafts</td><td class="io-type">Record&lt;slot, any&gt;</td><td class="io-desc">Current invalid configs (shown to LLM for context)</td></tr>
+                <tr><td class="io-key">state.slotAttempts</td><td class="io-type">Record&lt;slot, number&gt;</td><td class="io-desc">Guards against infinite loops — skip slots at ≥ 2 attempts</td></tr>
+              </table>
+            </div>
+            <div class="node-section">
+              <div class="section-label">Outputs</div>
+              <table class="io-table">
+                <tr><td class="io-key">slotDrafts</td><td class="io-type">Record&lt;slot, any&gt;</td><td class="io-desc">Merged with updated (repaired) configs</td></tr>
+                <tr><td class="io-key">slotAttempts</td><td class="io-type">Record&lt;slot, number&gt;</td><td class="io-desc">Incremented per repaired slot</td></tr>
+              </table>
+            </div>
+            <div class="node-section">
+              <div class="section-label">Internal Logic</div>
+              <div class="logic-steps">
+                <div class="logic-step"><div class="step-num">1</div><div class="step-text">For each slot with errors where <code>attempts &lt; 2</code>: builds a targeted repair prompt with errors + current invalid JSON</div></div>
+                <div class="logic-step"><div class="step-num">2</div><div class="step-text">Calls GPT-4o: <code>"Fix ONLY the issues listed. Return corrected JSON."</code></div></div>
+                <div class="logic-step"><div class="step-num">3</div><div class="step-text">Parses response. Updates <code>slotDrafts[slot]</code> and increments <code>slotAttempts[slot]</code></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="loop-arrow">
+          ↑ loops back to SlotValidatorNode<br>
+          <span style="color:var(--text-dim);font-size:10px;margin-top:4px;display:block">exits when all errors resolved OR attempts ≥ 2</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /pipeline -->
+
+  <!-- Footer -->
+  <div style="margin-top:80px;padding-top:32px;border-top:1px solid var(--border);display:flex;gap:40px;flex-wrap:wrap;opacity:0;animation:fadeUp 0.5s ease 0.6s forwards">
+    <div>
+      <div style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px">State Type</div>
+      <code style="color:var(--amber);font-size:12px">MultiChainGraphState</code>
+    </div>
+    <div>
+      <div style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px">Graph Version</div>
+      <code style="color:var(--cyan);font-size:12px">multi-chain-v2</code>
+    </div>
+    <div>
+      <div style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px">Source</div>
+      <code style="color:var(--text-mid);font-size:12px">src/lib/engine/langgraph.ts</code>
+    </div>
+    <div>
+      <div style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px">LLM Calls</div>
+      <code style="color:var(--purple);font-size:12px">2 + N slots + up to 2N repairs</code>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function toggle(node) {
+    node.classList.toggle('expanded');
+  }
+  // Open first node by default after load
+  window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      document.querySelector('.node')?.classList.add('expanded');
+    }, 600);
+  });
+</script>
+</body>
+</html>
