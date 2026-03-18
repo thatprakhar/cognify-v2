@@ -1,0 +1,431 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "https://excalidraw.com",
+  "elements": [
+    {
+      "id": "user-input",
+      "type": "rectangle",
+      "x": 60,
+      "y": 60,
+      "width": 160,
+      "height": 50,
+      "backgroundColor": "#e7f5ff",
+      "strokeColor": "#1971c2",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roundness": { "type": 3 },
+      "label": { "text": "User Query" }
+    },
+    {
+      "id": "label-user",
+      "type": "text",
+      "x": 108,
+      "y": 76,
+      "text": "User Query",
+      "fontSize": 16,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "fillStyle": "solid",
+      "strokeColor": "#1971c2"
+    },
+
+    {
+      "id": "page",
+      "type": "rectangle",
+      "x": 60,
+      "y": 170,
+      "width": 160,
+      "height": 60,
+      "backgroundColor": "#fff9db",
+      "strokeColor": "#e67700",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roundness": { "type": 3 }
+    },
+    {
+      "id": "label-page",
+      "type": "text",
+      "x": 72,
+      "y": 183,
+      "text": "page.tsx\nuseChat + useGenerate",
+      "fontSize": 13,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "fillStyle": "solid",
+      "strokeColor": "#e67700"
+    },
+
+    {
+      "id": "arrow-user-page",
+      "type": "arrow",
+      "x": 140,
+      "y": 110,
+      "width": 0,
+      "height": 60,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [[0,0],[0,60]]
+    },
+
+    {
+      "id": "api-run",
+      "type": "rectangle",
+      "x": 320,
+      "y": 170,
+      "width": 180,
+      "height": 60,
+      "backgroundColor": "#fff0f6",
+      "strokeColor": "#c2255c",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roundness": { "type": 3 }
+    },
+    {
+      "id": "label-api-run",
+      "type": "text",
+      "x": 340,
+      "y": 183,
+      "text": "POST /api/run\nNext.js Route Handler",
+      "fontSize": 13,
+      "fontFamily": 1,
+      "textAlign": "center",
+      "fillStyle": "solid",
+      "strokeColor": "#c2255c"
+    },
+
+    {
+      "id": "arrow-page-api",
+      "type": "arrow",
+      "x": 220,
+      "y": 200,
+      "width": 100,
+      "height": 0,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [[0,0],[100,0]]
+    },
+
+    {
+      "id": "langgraph-box",
+      "type": "rectangle",
+      "x": 290,
+      "y": 310,
+      "width": 700,
+      "height": 320,
+      "backgroundColor": "#f8f9fa",
+      "strokeColor": "#495057",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roundness": { "type": 3 }
+    },
+    {
+      "id": "label-langgraph",
+      "type": "text",
+      "x": 560,
+      "y": 318,
+      "text": "LangGraph Engine  (src/lib/engine/langgraph.ts)",
+      "fontSize": 15,
+      "fontFamily": 1,
+      "fontStyle": "bold",
+      "textAlign": "center",
+      "strokeColor": "#495057"
+    },
+
+    {
+      "id": "router",
+      "type": "rectangle",
+      "x": 310,
+      "y": 350,
+      "width": 110,
+      "height": 44,
+      "backgroundColor": "#e9ecef",
+      "strokeColor": "#868e96",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roundness": { "type": 3 }
+    },
+    { "id": "t-router", "type": "text", "x": 318, "y": 363, "text": "RouterNode", "fontSize": 13, "fontFamily": 1, "strokeColor": "#343a40" },
+
+    {
+      "id": "composer",
+      "type": "rectangle",
+      "x": 460,
+      "y": 350,
+      "width": 130,
+      "height": 44,
+      "backgroundColor": "#d0ebff",
+      "strokeColor": "#1971c2",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roundness": { "type": 3 }
+    },
+    { "id": "t-composer", "type": "text", "x": 468, "y": 356, "text": "ComposerNode\nGPT-4o tool call", "fontSize": 12, "fontFamily": 1, "strokeColor": "#1971c2" },
+
+    {
+      "id": "validator",
+      "type": "rectangle",
+      "x": 620,
+      "y": 350,
+      "width": 120,
+      "height": 44,
+      "backgroundColor": "#ebfbee",
+      "strokeColor": "#2f9e44",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roundness": { "type": 3 }
+    },
+    { "id": "t-validator", "type": "text", "x": 628, "y": 356, "text": "ValidatorNode\nZod + auto-fill", "fontSize": 12, "fontFamily": 1, "strokeColor": "#2f9e44" },
+
+    {
+      "id": "repair",
+      "type": "rectangle",
+      "x": 620,
+      "y": 450,
+      "width": 120,
+      "height": 44,
+      "backgroundColor": "#fff4e6",
+      "strokeColor": "#e67700",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roundness": { "type": 3 }
+    },
+    { "id": "t-repair", "type": "text", "x": 630, "y": 456, "text": "RepairNode\n(max 4 retries)", "fontSize": 12, "fontFamily": 1, "strokeColor": "#e67700" },
+
+    {
+      "id": "compute",
+      "type": "rectangle",
+      "x": 780,
+      "y": 350,
+      "width": 120,
+      "height": 44,
+      "backgroundColor": "#f3f0ff",
+      "strokeColor": "#7048e8",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roundness": { "type": 3 }
+    },
+    { "id": "t-compute", "type": "text", "x": 790, "y": 356, "text": "ComputeNode\nDagre + scores", "fontSize": 12, "fontFamily": 1, "strokeColor": "#7048e8" },
+
+    {
+      "id": "finalize",
+      "type": "rectangle",
+      "x": 780,
+      "y": 450,
+      "width": 120,
+      "height": 44,
+      "backgroundColor": "#fff9db",
+      "strokeColor": "#e67700",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roundness": { "type": 3 }
+    },
+    { "id": "t-finalize", "type": "text", "x": 793, "y": 463, "text": "FinalizeNode\n+ runMeta", "fontSize": 12, "fontFamily": 1, "strokeColor": "#e67700" },
+
+    { "id": "a-r-c", "type": "arrow", "x": 420, "y": 372, "width": 40, "height": 0, "strokeColor": "#495057", "strokeWidth": 1, "points": [[0,0],[40,0]] },
+    { "id": "a-c-v", "type": "arrow", "x": 590, "y": 372, "width": 30, "height": 0, "strokeColor": "#495057", "strokeWidth": 1, "points": [[0,0],[30,0]] },
+    { "id": "a-v-compute", "type": "arrow", "x": 740, "y": 372, "width": 40, "height": 0, "strokeColor": "#2f9e44", "strokeWidth": 1, "points": [[0,0],[40,0]] },
+    { "id": "a-v-repair", "type": "arrow", "x": 680, "y": 394, "width": 0, "height": 56, "strokeColor": "#e67700", "strokeWidth": 1, "points": [[0,0],[0,56]] },
+    { "id": "a-repair-v", "type": "arrow", "x": 620, "y": 472, "width": -60, "height": -100, "strokeColor": "#e67700", "strokeWidth": 1, "points": [[0,0],[-60,0],[-60,-100]] },
+    { "id": "a-compute-fin", "type": "arrow", "x": 840, "y": 394, "width": 0, "height": 56, "strokeColor": "#495057", "strokeWidth": 1, "points": [[0,0],[0,56]] },
+
+    {
+      "id": "validation-box",
+      "type": "rectangle",
+      "x": 290,
+      "y": 670,
+      "width": 200,
+      "height": 90,
+      "backgroundColor": "#ebfbee",
+      "strokeColor": "#2f9e44",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roundness": { "type": 3 }
+    },
+    { "id": "t-vbox", "type": "text", "x": 300, "y": 678, "text": "strict-validator.ts\n1. Envelope (Zod)\n2. Required slots\n3. Module configs", "fontSize": 12, "fontFamily": 1, "strokeColor": "#2f9e44" },
+
+    {
+      "id": "canon-box",
+      "type": "rectangle",
+      "x": 520,
+      "y": 670,
+      "width": 200,
+      "height": 70,
+      "backgroundColor": "#f3f0ff",
+      "strokeColor": "#7048e8",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roundness": { "type": 3 }
+    },
+    { "id": "t-canon", "type": "text", "x": 530, "y": 683, "text": "canonicalization.ts\nstableStringify + SHA-256\n→ canonicalHash", "fontSize": 12, "fontFamily": 1, "strokeColor": "#7048e8" },
+
+    {
+      "id": "compute-box",
+      "type": "rectangle",
+      "x": 750,
+      "y": 670,
+      "width": 200,
+      "height": 70,
+      "backgroundColor": "#fff4e6",
+      "strokeColor": "#e67700",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roundness": { "type": 3 }
+    },
+    { "id": "t-cbox", "type": "text", "x": 758, "y": 683, "text": "compute/index.ts\nSystemMap layout\nTradeoff weights", "fontSize": 12, "fontFamily": 1, "strokeColor": "#e67700" },
+
+    {
+      "id": "arrow-api-down",
+      "type": "arrow",
+      "x": 410,
+      "y": 230,
+      "width": 0,
+      "height": 80,
+      "strokeColor": "#c2255c",
+      "strokeWidth": 2,
+      "points": [[0,0],[0,80]]
+    },
+
+    {
+      "id": "schema-box",
+      "type": "rectangle",
+      "x": 1050,
+      "y": 310,
+      "width": 220,
+      "height": 220,
+      "backgroundColor": "#fff9db",
+      "strokeColor": "#f08c00",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roundness": { "type": 3 }
+    },
+    { "id": "t-schema", "type": "text", "x": 1060, "y": 318, "text": "Schema Layer\nschema/studio-spec.ts\n\nStudioSpecV1\n  └ modules[]\n     ├ SystemMap\n     ├ ModuleCards\n     ├ TradeoffMatrix\n     └ RiskPanel\n\nmodule-configs/*.ts\n(Zod per module)", "fontSize": 12, "fontFamily": 1, "strokeColor": "#f08c00" },
+
+    {
+      "id": "llm-box",
+      "type": "rectangle",
+      "x": 1050,
+      "y": 560,
+      "width": 220,
+      "height": 100,
+      "backgroundColor": "#e7f5ff",
+      "strokeColor": "#1971c2",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roundness": { "type": 3 }
+    },
+    { "id": "t-llm", "type": "text", "x": 1060, "y": 570, "text": "LLM Provider\nllm/provider.ts (abstract)\nllm/openai.ts\n  fast → gpt-4o-mini\n  capable → gpt-4o", "fontSize": 12, "fontFamily": 1, "strokeColor": "#1971c2" },
+
+    {
+      "id": "response-box",
+      "type": "rectangle",
+      "x": 60,
+      "y": 670,
+      "width": 190,
+      "height": 90,
+      "backgroundColor": "#fff0f6",
+      "strokeColor": "#c2255c",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roundness": { "type": 3 }
+    },
+    { "id": "t-resp", "type": "text", "x": 70, "y": 678, "text": "API Response\n{ studioSpec,\n  computed,\n  runMeta,\n  validation }", "fontSize": 12, "fontFamily": 1, "strokeColor": "#c2255c" },
+
+    {
+      "id": "frontend-box",
+      "type": "rectangle",
+      "x": 60,
+      "y": 820,
+      "width": 890,
+      "height": 220,
+      "backgroundColor": "#f8f9fa",
+      "strokeColor": "#343a40",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "roundness": { "type": 3 }
+    },
+    { "id": "t-frontend", "type": "text", "x": 400, "y": 828, "text": "Frontend Rendering", "fontSize": 15, "fontFamily": 1, "fontStyle": "bold", "strokeColor": "#343a40" },
+
+    {
+      "id": "chat-panel",
+      "type": "rectangle",
+      "x": 80,
+      "y": 855,
+      "width": 200,
+      "height": 160,
+      "backgroundColor": "#e7f5ff",
+      "strokeColor": "#1971c2",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roundness": { "type": 3 }
+    },
+    { "id": "t-chat", "type": "text", "x": 88, "y": 863, "text": "ChatPanel (left)\nChatInput\nMessageBubble\nStatusIndicator\n\nEngine Telemetry\nOverlay", "fontSize": 12, "fontFamily": 1, "strokeColor": "#1971c2" },
+
+    {
+      "id": "registry",
+      "type": "rectangle",
+      "x": 320,
+      "y": 855,
+      "width": 200,
+      "height": 80,
+      "backgroundColor": "#ebfbee",
+      "strokeColor": "#2f9e44",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roundness": { "type": 3 }
+    },
+    { "id": "t-reg", "type": "text", "x": 328, "y": 863, "text": "ModuleRegistry.tsx\nDynamic slot → component\nlookup + error callout", "fontSize": 12, "fontFamily": 1, "strokeColor": "#2f9e44" },
+
+    {
+      "id": "modules-box",
+      "type": "rectangle",
+      "x": 320,
+      "y": 960,
+      "width": 600,
+      "height": 55,
+      "backgroundColor": "#fff9db",
+      "strokeColor": "#f08c00",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roundness": { "type": 3 }
+    },
+    { "id": "t-modules", "type": "text", "x": 328, "y": 973, "text": "SystemMap   |   ModuleCards   |   TradeoffMatrix   |   RiskPanel", "fontSize": 13, "fontFamily": 1, "strokeColor": "#f08c00" },
+
+    {
+      "id": "auth-box",
+      "type": "rectangle",
+      "x": 560,
+      "y": 855,
+      "width": 200,
+      "height": 80,
+      "backgroundColor": "#f3f0ff",
+      "strokeColor": "#7048e8",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roundness": { "type": 3 }
+    },
+    { "id": "t-auth", "type": "text", "x": 568, "y": 863, "text": "Auth\nNextAuth v5 (Google/GitHub)\nPrisma + SQLite session", "fontSize": 12, "fontFamily": 1, "strokeColor": "#7048e8" },
+
+    {
+      "id": "upload-box",
+      "type": "rectangle",
+      "x": 780,
+      "y": 855,
+      "width": 160,
+      "height": 80,
+      "backgroundColor": "#fff4e6",
+      "strokeColor": "#e67700",
+      "fillStyle": "solid",
+      "strokeWidth": 1,
+      "roundness": { "type": 3 }
+    },
+    { "id": "t-upload", "type": "text", "x": 788, "y": 863, "text": "CSV Upload\n/api/upload\nPapaParse\n→ csvStore (memory)", "fontSize": 12, "fontFamily": 1, "strokeColor": "#e67700" },
+
+    { "id": "a-resp-frontend", "type": "arrow", "x": 155, "y": 760, "width": 0, "height": 60, "strokeColor": "#c2255c", "strokeWidth": 2, "points": [[0,0],[0,60]] },
+    { "id": "a-reg-modules", "type": "arrow", "x": 420, "y": 935, "width": 0, "height": 25, "strokeColor": "#2f9e44", "strokeWidth": 1, "points": [[0,0],[0,25]] }
+  ],
+  "appState": {
+    "viewBackgroundColor": "#ffffff",
+    "gridSize": 20
+  }
+}

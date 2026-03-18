@@ -12,6 +12,16 @@ import { QuizModuleConfigSchema } from "../schema/module-configs/quiz-module";
 import { DiagramModuleConfigSchema } from "../schema/module-configs/diagram-module";
 import { DashboardConfigSchema } from "../schema/module-configs/dashboard";
 import { ActionPlanConfigSchema } from "../schema/module-configs/action-plan";
+import { InteractiveCalculatorConfigSchema } from "../schema/module-configs/interactive-calculator";
+import { DecisionTreeConfigSchema } from "../schema/module-configs/decision-tree";
+import { ProsConsConfigSchema } from "../schema/module-configs/pros-cons";
+import { ChecklistModuleConfigSchema } from "../schema/module-configs/checklist-module";
+import { RecipeModuleConfigSchema } from "../schema/module-configs/recipe-module";
+import { HierarchyTreeConfigSchema } from "../schema/module-configs/hierarchy-tree";
+import { MindMapConfigSchema } from "../schema/module-configs/mind-map";
+import { FlashcardDeckConfigSchema } from "../schema/module-configs/flashcard-deck";
+import { NumberedProcessConfigSchema } from "../schema/module-configs/numbered-process";
+import { ScenarioComparisonConfigSchema } from "../schema/module-configs/scenario-comparison";
 
 type ValidationResult = {
     isValid: boolean;
@@ -33,6 +43,16 @@ const configSchemas: Record<string, any> = {
     DiagramModule: DiagramModuleConfigSchema,
     Dashboard: DashboardConfigSchema,
     ActionPlan: ActionPlanConfigSchema,
+    InteractiveCalculator: InteractiveCalculatorConfigSchema,
+    DecisionTree: DecisionTreeConfigSchema,
+    ProsCons: ProsConsConfigSchema,
+    ChecklistModule: ChecklistModuleConfigSchema,
+    RecipeModule: RecipeModuleConfigSchema,
+    HierarchyTree: HierarchyTreeConfigSchema,
+    MindMap: MindMapConfigSchema,
+    FlashcardDeck: FlashcardDeckConfigSchema,
+    NumberedProcess: NumberedProcessConfigSchema,
+    ScenarioComparison: ScenarioComparisonConfigSchema,
 };
 
 /** Auto-fill empty critical arrays to prevent downstream crashes */
@@ -65,6 +85,26 @@ function autoFillArrays(inv: any): void {
     if (m === "Dashboard" && !inv.config.charts) inv.config.charts = [];
     if (m === "ComparisonPanel") {
         if (!inv.config.criteria) inv.config.criteria = [];
+    }
+
+    // New modules
+    if (m === "InteractiveCalculator") {
+        if (!inv.config.inputs) inv.config.inputs = [];
+        if (!inv.config.outputs) inv.config.outputs = [];
+    }
+    if (m === "DecisionTree" && !inv.config.nodes) inv.config.nodes = [];
+    if (m === "ProsCons" && !inv.config.options) inv.config.options = [];
+    if (m === "ChecklistModule" && !inv.config.sections) inv.config.sections = [];
+    if (m === "RecipeModule") {
+        if (!inv.config.ingredients) inv.config.ingredients = [];
+        if (!inv.config.steps) inv.config.steps = [];
+    }
+    if (m === "MindMap" && !inv.config.branches) inv.config.branches = [];
+    if (m === "FlashcardDeck" && !inv.config.cards) inv.config.cards = [];
+    if (m === "NumberedProcess" && !inv.config.steps) inv.config.steps = [];
+    if (m === "ScenarioComparison") {
+        if (!inv.config.metrics) inv.config.metrics = [];
+        if (!inv.config.scenarios) inv.config.scenarios = [];
     }
 }
 
@@ -154,6 +194,46 @@ function applyMinimumThresholds(inv: any): void {
                 actions: [
                     { id: "auto-action-0", title: "Placeholder Action", description: "Auto-filled.", priority: "medium", effort: "medium" },
                 ],
+            });
+        }
+    }
+
+    if (inv.module === "FlashcardDeck") {
+        while (cfg.cards.length < 4) {
+            cfg.cards.push({
+                id: `auto-card-${cfg.cards.length}`,
+                front: "Placeholder question",
+                back: "Placeholder answer. Auto-filled.",
+            });
+        }
+    }
+
+    if (inv.module === "NumberedProcess") {
+        while (cfg.steps.length < 3) {
+            cfg.steps.push({
+                id: `auto-step-${cfg.steps.length}`,
+                title: "Placeholder Step",
+                description: "Auto-filled placeholder step.",
+            });
+        }
+    }
+
+    if (inv.module === "ChecklistModule") {
+        while (cfg.sections.length < 1) {
+            cfg.sections.push({
+                id: `auto-section-0`,
+                title: "Checklist",
+                items: [{ id: "auto-item-0", text: "Placeholder item" }],
+            });
+        }
+    }
+
+    if (inv.module === "MindMap") {
+        while (cfg.branches.length < 2) {
+            cfg.branches.push({
+                id: `auto-branch-${cfg.branches.length}`,
+                label: "Placeholder Branch",
+                topics: [{ id: `auto-topic-${cfg.branches.length}`, label: "Topic" }],
             });
         }
     }

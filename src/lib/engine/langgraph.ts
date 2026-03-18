@@ -157,6 +157,327 @@ const SLOT_PROMPTS: Record<string, string> = {
   ]
 }
 - 5-6 questions, 3-4 options each. correctIndex is 0-based. Vary difficulty.`,
+
+    InteractiveCalculator: `Generate a JSON object with this exact shape:
+{
+  "title": "ROI Calculator",
+  "description": "Adjust the sliders to compute your return on investment.",
+  "inputs": [
+    { "id": "initial_investment", "label": "Initial Investment", "unit": "$", "min": 1000, "max": 100000, "step": 1000, "defaultValue": 10000 },
+    { "id": "annual_return", "label": "Annual Return Rate", "unit": "%", "min": 1, "max": 30, "step": 0.5, "defaultValue": 7 },
+    { "id": "years", "label": "Investment Period", "unit": "years", "min": 1, "max": 30, "step": 1, "defaultValue": 10 }
+  ],
+  "outputs": [
+    { "id": "final_value", "label": "Final Value", "unit": "$", "formula": "initial_investment * Math.pow(1 + annual_return / 100, years)", "format": "currency" },
+    { "id": "total_gain", "label": "Total Gain", "unit": "$", "formula": "initial_investment * Math.pow(1 + annual_return / 100, years) - initial_investment", "format": "currency" }
+  ]
+}
+- 2-4 inputs with sensible min/max/step/defaultValue for the topic
+- 1-3 outputs with valid JS formula strings that reference input ids by exact id
+- formula must be a valid JS expression (no semicolons, no assignments) — just a return expression
+- format: "number" | "currency" | "percentage"`,
+
+    DecisionTree: `Generate a JSON object with this exact shape:
+{
+  "title": "Which Framework Should I Use?",
+  "description": "Answer a few questions to get a recommendation.",
+  "rootId": "q-start",
+  "nodes": [
+    { "id": "q-start", "label": "Start", "type": "question", "question": "What is your primary use case?", "choices": [{ "label": "Web app", "nextId": "q-team-size" }, { "label": "Mobile app", "nextId": "leaf-react-native" }] },
+    { "id": "q-team-size", "label": "Team Size", "type": "question", "question": "How large is your team?", "choices": [{ "label": "Solo or small", "nextId": "leaf-next" }, { "label": "Large team", "nextId": "leaf-remix" }] },
+    { "id": "leaf-next", "label": "Next.js", "type": "leaf", "recommendation": "Next.js", "reasoning": "Great for small teams building fast web apps.", "nextSteps": ["Run npx create-next-app", "Read the docs"] },
+    { "id": "leaf-remix", "label": "Remix", "type": "leaf", "recommendation": "Remix", "reasoning": "Better data loading patterns for large teams.", "nextSteps": ["Run npx create-remix", "Study loaders"] },
+    { "id": "leaf-react-native", "label": "React Native", "type": "leaf", "recommendation": "React Native", "reasoning": "Best cross-platform mobile experience.", "nextSteps": ["Install Expo CLI"] }
+  ]
+}
+- rootId must match an existing node id
+- Every choice.nextId must reference an existing node id
+- At least 2 question nodes and 2 leaf nodes
+- leaf nodes have: recommendation (short name), reasoning (1-2 sentences), optional nextSteps array`,
+
+    ProsCons: `Generate a JSON object with this exact shape:
+{
+  "title": "Should I Rent or Buy a Home?",
+  "question": "What makes more financial sense given my situation?",
+  "options": [
+    {
+      "id": "renting",
+      "label": "Renting",
+      "pros": [
+        { "id": "p1", "text": "Flexibility to move", "weight": 2 },
+        { "id": "p2", "text": "No maintenance costs", "weight": 2 },
+        { "id": "p3", "text": "Lower upfront cost", "weight": 3 }
+      ],
+      "cons": [
+        { "id": "c1", "text": "No equity buildup", "weight": 3 },
+        { "id": "c2", "text": "Subject to rent increases", "weight": 2 }
+      ]
+    },
+    {
+      "id": "buying",
+      "label": "Buying",
+      "pros": [
+        { "id": "p1", "text": "Build equity over time", "weight": 3 },
+        { "id": "p2", "text": "Stable monthly payments", "weight": 2 }
+      ],
+      "cons": [
+        { "id": "c1", "text": "High upfront costs", "weight": 3 },
+        { "id": "c2", "text": "Less flexibility", "weight": 2 },
+        { "id": "c3", "text": "Maintenance responsibilities", "weight": 1 }
+      ]
+    }
+  ],
+  "recommendation": "Buying makes more sense if you plan to stay 5+ years."
+}
+- At least 2 pros and 2 cons per option. weight 1-3 (3 = most important)
+- recommendation is optional but should be included when there's a clear winner`,
+
+    ChecklistModule: `Generate a JSON object with this exact shape:
+{
+  "title": "SaaS Launch Checklist",
+  "description": "Everything you need to do before going live.",
+  "sections": [
+    {
+      "id": "pre-launch",
+      "title": "Pre-Launch",
+      "items": [
+        { "id": "item-1", "text": "Set up error monitoring", "description": "Configure Sentry or similar.", "priority": "high" },
+        { "id": "item-2", "text": "Write privacy policy", "priority": "high" },
+        { "id": "item-3", "text": "Test payment flow end-to-end", "priority": "high" },
+        { "id": "item-4", "text": "Set up analytics", "description": "GA4 or Plausible.", "priority": "medium" }
+      ]
+    },
+    {
+      "id": "post-launch",
+      "title": "Post-Launch",
+      "items": [
+        { "id": "item-5", "text": "Monitor error rates for 24h", "priority": "high" },
+        { "id": "item-6", "text": "Send launch email to waitlist", "priority": "medium" }
+      ]
+    }
+  ]
+}
+- 2-4 sections, 3-6 items each
+- priority: "high" | "medium" | "low" — set realistically
+- description is optional but adds clarity`,
+
+    RecipeModule: `Generate a JSON object with this exact shape:
+{
+  "title": "Classic Chocolate Chip Cookies",
+  "description": "Crispy edges, chewy centers.",
+  "servings": 24,
+  "totalTime": "45 minutes",
+  "ingredients": [
+    { "id": "ing-1", "name": "all-purpose flour", "amount": 2.25, "unit": "cups" },
+    { "id": "ing-2", "name": "butter", "amount": 1, "unit": "cup", "notes": "softened" },
+    { "id": "ing-3", "name": "granulated sugar", "amount": 0.75, "unit": "cup" },
+    { "id": "ing-4", "name": "brown sugar", "amount": 0.75, "unit": "cup", "notes": "packed" },
+    { "id": "ing-5", "name": "eggs", "amount": 2, "unit": "large" },
+    { "id": "ing-6", "name": "chocolate chips", "amount": 2, "unit": "cups" }
+  ],
+  "steps": [
+    { "id": "step-1", "title": "Preheat & Prep", "instruction": "Preheat oven to 375°F. Line baking sheets with parchment paper.", "duration": "5 min" },
+    { "id": "step-2", "title": "Mix Wet Ingredients", "instruction": "Beat butter and both sugars until creamy. Add eggs one at a time.", "tip": "Room temperature butter creams much better." },
+    { "id": "step-3", "title": "Combine", "instruction": "Gradually mix in flour. Fold in chocolate chips.", "duration": "5 min" },
+    { "id": "step-4", "title": "Bake", "instruction": "Drop rounded tablespoons onto sheets. Bake 9-11 minutes until golden.", "duration": "10 min" }
+  ]
+}
+- At least 5 ingredients and 4 steps. Use realistic amounts and units.
+- Steps can have an optional title, duration (time string), and tip.`,
+
+    HierarchyTree: `Generate a JSON object with this exact shape:
+{
+  "title": "Machine Learning Taxonomy",
+  "description": "A hierarchical breakdown of ML approaches.",
+  "root": {
+    "id": "ml",
+    "label": "Machine Learning",
+    "description": "The root of all ML approaches.",
+    "children": [
+      {
+        "id": "supervised",
+        "label": "Supervised Learning",
+        "description": "Training with labeled data.",
+        "children": [
+          { "id": "classification", "label": "Classification", "description": "Predict discrete categories." },
+          { "id": "regression", "label": "Regression", "description": "Predict continuous values." }
+        ]
+      },
+      {
+        "id": "unsupervised",
+        "label": "Unsupervised Learning",
+        "description": "Training without labels.",
+        "children": [
+          { "id": "clustering", "label": "Clustering" },
+          { "id": "dim-reduction", "label": "Dimensionality Reduction" }
+        ]
+      },
+      {
+        "id": "reinforcement",
+        "label": "Reinforcement Learning",
+        "description": "Learning through rewards and penalties."
+      }
+    ]
+  }
+}
+- root can have 2-6 children. Children can have their own children (max 3 levels deep).
+- Every node needs id (hyphenated-lowercase) and label. description is optional.`,
+
+    MindMap: `Generate a JSON object with this exact shape:
+{
+  "title": "Product-Market Fit Mind Map",
+  "centerLabel": "PMF",
+  "description": "Key dimensions of product-market fit.",
+  "branches": [
+    {
+      "id": "customer",
+      "label": "Customer",
+      "color": "#3b82f6",
+      "topics": [
+        { "id": "t1", "label": "ICP Definition", "detail": "Ideal customer profile clarity." },
+        { "id": "t2", "label": "Pain Points", "detail": "Core problems being solved." },
+        { "id": "t3", "label": "Willingness to Pay" }
+      ]
+    },
+    {
+      "id": "product",
+      "label": "Product",
+      "color": "#10b981",
+      "topics": [
+        { "id": "t4", "label": "Core Feature Set" },
+        { "id": "t5", "label": "Retention Rate" },
+        { "id": "t6", "label": "NPS Score" }
+      ]
+    },
+    {
+      "id": "market",
+      "label": "Market",
+      "color": "#f59e0b",
+      "topics": [
+        { "id": "t7", "label": "TAM Size" },
+        { "id": "t8", "label": "Competitive Moat" }
+      ]
+    },
+    {
+      "id": "growth",
+      "label": "Growth",
+      "color": "#8b5cf6",
+      "topics": [
+        { "id": "t9", "label": "Organic Acquisition" },
+        { "id": "t10", "label": "Referral Rate" }
+      ]
+    }
+  ]
+}
+- 3-6 branches, each with 2-5 topics
+- color is optional (hex color string) — assign distinct colors
+- centerLabel should be a short abbreviation or keyword for the center circle`,
+
+    FlashcardDeck: `Generate a JSON object with this exact shape:
+{
+  "title": "JavaScript Fundamentals",
+  "description": "Core JS concepts for interviews and review.",
+  "subject": "JavaScript",
+  "cards": [
+    { "id": "card-1", "front": "What is a closure?", "back": "A closure is a function that retains access to its lexical scope even when executed outside that scope.", "hint": "Think about inner functions.", "category": "Functions" },
+    { "id": "card-2", "front": "What does 'hoisting' mean?", "back": "Variable and function declarations are moved to the top of their scope before code execution.", "category": "Execution" },
+    { "id": "card-3", "front": "What is the event loop?", "back": "A mechanism that handles asynchronous callbacks by processing items from the callback queue after the call stack empties.", "category": "Async" },
+    { "id": "card-4", "front": "Difference between == and ===?", "back": "== coerces types before comparing. === compares value AND type with no coercion.", "hint": "Think about type coercion.", "category": "Operators" },
+    { "id": "card-5", "front": "What is a Promise?", "back": "An object representing the eventual completion or failure of an asynchronous operation.", "category": "Async" },
+    { "id": "card-6", "front": "What is 'this' in JavaScript?", "back": "A reference to the current execution context. Its value depends on how a function is called.", "hint": "Arrow functions behave differently.", "category": "Scope" }
+  ]
+}
+- At least 6 cards. front: question or term. back: complete answer.
+- hint is optional but helpful. category groups cards by topic.`,
+
+    NumberedProcess: `Generate a JSON object with this exact shape:
+{
+  "title": "How to Deploy a Next.js App to Production",
+  "description": "A complete guide from build to live.",
+  "context": "Assumes you have a working Next.js app and a Vercel account.",
+  "steps": [
+    {
+      "id": "step-1",
+      "title": "Run production build",
+      "description": "Run npm run build to compile your app. Fix any TypeScript or ESLint errors before proceeding.",
+      "detail": "The build output goes to .next/. Check for large bundle warnings.",
+      "callout": { "type": "warning", "text": "Do not skip the build step — runtime errors surface here." }
+    },
+    {
+      "id": "step-2",
+      "title": "Set environment variables",
+      "description": "Configure all required env vars in your deployment platform.",
+      "substeps": ["Copy .env.local to Vercel dashboard", "Mark secrets as encrypted", "Never commit .env files to git"]
+    },
+    {
+      "id": "step-3",
+      "title": "Deploy to Vercel",
+      "description": "Push to main branch or run vercel --prod from the CLI.",
+      "callout": { "type": "tip", "text": "Use preview deployments for every PR to catch issues early." }
+    },
+    {
+      "id": "step-4",
+      "title": "Verify deployment",
+      "description": "Check the deployment URL, run smoke tests, and monitor error logs for 30 minutes.",
+      "detail": "Use Vercel Analytics to confirm page loads are normal."
+    }
+  ]
+}
+- 4-7 steps. Each must have id, title, description.
+- detail is optional extra context. substeps is an optional string array.
+- callout types: tip | warning | note | info`,
+
+    ScenarioComparison: `Generate a JSON object with this exact shape:
+{
+  "title": "Startup Funding Scenarios",
+  "description": "Compare three funding paths for your startup.",
+  "metrics": [
+    { "id": "runway", "label": "Runway", "unit": "months", "format": "number", "higherIsBetter": true },
+    { "id": "dilution", "label": "Equity Dilution", "unit": "%", "format": "percentage", "higherIsBetter": false },
+    { "id": "capital", "label": "Capital Raised", "format": "currency", "higherIsBetter": true },
+    { "id": "speed", "label": "Time to Close", "unit": "weeks", "format": "number", "higherIsBetter": false }
+  ],
+  "scenarios": [
+    {
+      "id": "bootstrap",
+      "label": "Bootstrap",
+      "description": "Self-funded growth",
+      "metrics": {
+        "runway": { "value": 18 },
+        "dilution": { "value": 0 },
+        "capital": { "value": 0 },
+        "speed": { "value": 0 }
+      }
+    },
+    {
+      "id": "angel",
+      "label": "Angel Round",
+      "description": "$500K from angels",
+      "isHighlighted": true,
+      "metrics": {
+        "runway": { "value": 24 },
+        "dilution": { "value": 10 },
+        "capital": { "value": 500000 },
+        "speed": { "value": 8 }
+      }
+    },
+    {
+      "id": "seed",
+      "label": "Seed VC",
+      "description": "$2M seed round",
+      "metrics": {
+        "runway": { "value": 36 },
+        "dilution": { "value": 20 },
+        "capital": { "value": 2000000 },
+        "speed": { "value": 16 }
+      }
+    }
+  ],
+  "showChart": true
+}
+- 2-5 metrics, 2-4 scenarios. Every scenario must have a value for every metric id.
+- higherIsBetter determines which cells are highlighted green vs red.
+- Mark one scenario as isHighlighted: true for the recommended option.`,
 };
 
 // ─── Helper: get the system prompt for a specific slot/module ────────────────
@@ -182,7 +503,7 @@ const intentExtractorNode = async (state: MultiChainGraphState) => {
     const moduleMenu = getModuleMenuForPrompt();
     const prompt = `Analyze this user query and return a JSON object (no other text) with these exact fields:
 {
-  "queryType": one of: architecture|explanation|comparison-two|comparison-multi|risk-audit|data-analysis|learning|planning|scoring|general,
+  "queryType": one of: architecture|explanation|comparison-two|comparison-multi|risk-audit|data-analysis|learning|planning|scoring|process|calculation|decision|brainstorm|creative|financial|general,
   "domain": "the subject domain e.g. distributed systems, personal finance, biology",
   "subject": "the main thing being asked about",
   "suggestedModules": ["2-4 module names from the list below that best answer this query"],
@@ -203,6 +524,16 @@ MODULE SELECTION GUIDE:
 - "quiz me" / "test my knowledge" → QuizModule + ExplainerSection
 - "help me plan" / "what should I do" → ActionPlan + ScorecardPanel
 - "rate" / "evaluate" / "how good is" → ScorecardPanel + ExplainerSection
+- "calculate" / "estimate" / "how much" / "ROI" / "mortgage" → InteractiveCalculator + ScenarioComparison
+- "help me decide" / "should I" / "which should I pick" → DecisionTree + ProsCons
+- "pros and cons" / "is it worth it" → ProsCons + ActionPlan
+- "checklist" / "what do I need" / "before I launch" → ChecklistModule + ActionPlan
+- "step by step" / "how to" / "process for" / "guide to" → NumberedProcess + ChecklistModule
+- "brainstorm" / "mind map" / "ideas around" → MindMap + ConceptCards
+- "flashcards" / "study" / "memorize" / "learn terms" → FlashcardDeck + ExplainerSection
+- "org chart" / "hierarchy" / "taxonomy" / "tree" → HierarchyTree + ExplainerSection
+- "scenarios" / "what if" / "projection" / "financial forecast" → ScenarioComparison + InteractiveCalculator
+- "recipe" / "how to make" / "ingredients" → RecipeModule
 
 User query: "${state.query}"
 
@@ -255,6 +586,16 @@ const layoutPlannerNode = async (state: MultiChainGraphState) => {
         DiagramModule: "diagram",
         Dashboard: "dashboard",
         ActionPlan: "action_plan",
+        InteractiveCalculator: "calculator",
+        DecisionTree: "decision_tree",
+        ProsCons: "pros_cons",
+        ChecklistModule: "checklist",
+        RecipeModule: "recipe",
+        HierarchyTree: "hierarchy",
+        MindMap: "mind_map",
+        FlashcardDeck: "flashcards",
+        NumberedProcess: "process",
+        ScenarioComparison: "scenarios",
     };
 
     const moduleAssignments: Record<string, string> = {};

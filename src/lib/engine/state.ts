@@ -8,7 +8,7 @@ export interface ExperienceContext {
 }
 
 export interface QueryIntent {
-    queryType: "architecture" | "explanation" | "comparison-two" | "comparison-multi" | "risk-audit" | "data-analysis" | "learning" | "planning" | "scoring" | "general";
+    queryType: "architecture" | "explanation" | "comparison-two" | "comparison-multi" | "risk-audit" | "data-analysis" | "learning" | "planning" | "scoring" | "process" | "calculation" | "decision" | "brainstorm" | "creative" | "financial" | "general";
     domain: string;
     subject: string;
     suggestedModules: string[];

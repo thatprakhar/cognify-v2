@@ -20,6 +20,18 @@ export const ModuleNameSchema = z.enum([
     "Dashboard",
     // Assessment
     "QuizModule",
+    // Interactive
+    "InteractiveCalculator",
+    "DecisionTree",
+    "ProsCons",
+    "ChecklistModule",
+    "RecipeModule",
+    // Visual/Structural
+    "HierarchyTree",
+    "MindMap",
+    "FlashcardDeck",
+    "NumberedProcess",
+    "ScenarioComparison",
 ]);
 export type ModuleName = z.infer<typeof ModuleNameSchema>;
 

@@ -14,6 +14,16 @@ import { QuizModule } from "./modules/QuizModule";
 import { DiagramModule } from "./modules/DiagramModule";
 import { Dashboard } from "./modules/Dashboard";
 import { ActionPlan } from "./modules/ActionPlan";
+import { InteractiveCalculator } from "./modules/InteractiveCalculator";
+import { DecisionTree } from "./modules/DecisionTree";
+import { ProsCons } from "./modules/ProsCons";
+import { ChecklistModule } from "./modules/ChecklistModule";
+import { RecipeModule } from "./modules/RecipeModule";
+import { HierarchyTree } from "./modules/HierarchyTree";
+import { MindMap } from "./modules/MindMap";
+import { FlashcardDeck } from "./modules/FlashcardDeck";
+import { NumberedProcess } from "./modules/NumberedProcess";
+import { ScenarioComparison } from "./modules/ScenarioComparison";
 
 const Registry: Record<string, React.FC<any>> = {
     SystemMap,
@@ -29,6 +39,16 @@ const Registry: Record<string, React.FC<any>> = {
     DiagramModule,
     Dashboard,
     ActionPlan,
+    InteractiveCalculator,
+    DecisionTree,
+    ProsCons,
+    ChecklistModule,
+    RecipeModule,
+    HierarchyTree,
+    MindMap,
+    FlashcardDeck,
+    NumberedProcess,
+    ScenarioComparison,
 };
 
 const ErrorCallout = ({ slot, errorCode, message }: { slot: string; errorCode: string; message: string }) => (
