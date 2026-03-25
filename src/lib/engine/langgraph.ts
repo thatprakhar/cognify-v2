@@ -83,12 +83,42 @@ const SLOT_PROMPTS: Record<string, string> = {
 
   ComparisonPanel: `Generate a JSON object with this exact shape:
 {
-  "optionA": { "id": "option-a", "name": "Option A", "pros": ["..."], "cons": ["..."], "stats": [ { "key": "Cost", "value": "$10/mo" } ] },
-  "optionB": { "id": "option-b", "name": "Option B", "pros": ["..."], "cons": ["..."], "stats": [ { "key": "Cost", "value": "$20/mo" } ] },
-  "criteria": [ { "id": "perf", "name": "Performance", "scoreA": 4, "scoreB": 3, "winner": "optionA" } ],
-  "recommendation": { "winner": "optionA", "reasoning": "...", "bestFor": ["use case 1"] }
+  "heading": "React vs Vue",
+  "context": "1-2 sentences explaining what is being compared and why it matters.",
+  "optionA": {
+    "name": "React",
+    "description": "1-2 sentence summary of this option.",
+    "pros": ["Large ecosystem", "Flexible", "Strong job market"],
+    "cons": ["Steeper learning curve", "Requires extra libraries"],
+    "stats": { "Performance": "High", "Learning Curve": "Medium", "Bundle Size": "~40kb" },
+    "badge": "Most Popular"
+  },
+  "optionB": {
+    "name": "Vue",
+    "description": "1-2 sentence summary of this option.",
+    "pros": ["Gentle learning curve", "Great docs"],
+    "cons": ["Smaller ecosystem", "Less enterprise adoption"],
+    "stats": { "Performance": "High", "Learning Curve": "Low", "Bundle Size": "~34kb" }
+  },
+  "criteria": [
+    { "name": "Performance", "optionAScore": 4, "optionBScore": 4, "isMoreBetter": true },
+    { "name": "Ease of Use", "optionAScore": 3, "optionBScore": 5, "isMoreBetter": true },
+    { "name": "Ecosystem Size", "optionAScore": 5, "optionBScore": 3, "isMoreBetter": true }
+  ],
+  "recommendation": {
+    "winner": "optionA",
+    "reasoning": "React wins for large teams due to ecosystem.",
+    "whenToChooseA": "Large teams, enterprise projects.",
+    "whenToChooseB": "Smaller projects, teams prioritizing ease of use."
+  }
 }
-- 3-5 pros/cons each, 3-5 stats each, 4-5 criteria. Scores 1-5, must differ between options.`,
+- heading and context are REQUIRED top-level fields
+- optionA and optionB MUST have: name, description, pros (3-5 items), cons (3-5 items)
+- stats MUST be a plain key-value object like {"Cost": "$10/mo"} — NOT an array
+- criteria: each item MUST have name (string), optionAScore (1-5), optionBScore (1-5), isMoreBetter (boolean). Scores must differ between options.
+- recommendation.winner must be "optionA", "optionB", or "depends"
+- recommendation.whenToChooseA and whenToChooseB are optional but helpful
+- 3-6 criteria`,
 
   ScorecardPanel: `Generate a JSON object with this exact shape:
 {
@@ -115,18 +145,32 @@ const SLOT_PROMPTS: Record<string, string> = {
 
   ActionPlan: `Generate a JSON object with this exact shape:
 {
-  "heading": "Action Plan",
+  "heading": "Your Action Plan",
+  "context": "1-2 sentences of situational framing for this plan.",
   "phases": [
     {
-      "id": "phase-1", "name": "Immediate", "description": "What to do now.",
+      "id": "immediate",
+      "name": "Immediate",
+      "timeframe": "This week",
       "actions": [
-        { "id": "action-1", "title": "Specific action title", "description": "Details.", "priority": "high", "effort": "low", "owner": "Team" }
+        { "id": "setup-auth", "title": "Set up authentication", "description": "Specific concrete details.", "priority": "high", "effort": "medium" },
+        { "id": "review-budget", "title": "Review initial budget", "description": "Specific concrete details.", "priority": "high", "effort": "low" }
+      ]
+    },
+    {
+      "id": "short-term",
+      "name": "Short-term",
+      "timeframe": "1-3 months",
+      "actions": [
+        { "id": "build-mvp", "title": "Build MVP features", "description": "Specific concrete details.", "priority": "medium", "effort": "high" }
       ]
     }
   ]
 }
-- 2-3 phases, 3-4 actions per phase. priority: high/medium/low. effort: low/medium/high
-- Actions must be specific and concrete`,
+- heading and context are REQUIRED top-level fields
+- Each phase MUST have: id (hyphenated-lowercase), name, timeframe (e.g. "This week", "1-3 months", "6+ months"), actions (2-5 items)
+- Each action MUST have: id (hyphenated-lowercase), title (3-8 words, imperative), description (1-2 sentences), priority (high/medium/low), effort (low/medium/high)
+- 2-4 phases ordered from most immediate to longest-term`,
 
   DiagramModule: `Generate a JSON object with this exact shape:
 {
