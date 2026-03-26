@@ -6,6 +6,7 @@ import { BaseMessage, HumanMessage, ToolMessage } from "@langchain/core/messages
 import { validateStudioSpec } from "../validation/strict-validator";
 import { computeSpec } from "../compute";
 import { QUERY_TYPE_MODULE_RECOMMENDATIONS, getModuleMenuForPrompt } from "../schema/module-manifest";
+import { getSchemaRequirements } from "../schema/schema-hints";
 
 // ─── Slot-specific system prompt snippets ────────────────────────────────────
 
@@ -23,13 +24,23 @@ const SLOT_PROMPTS: Record<string, string> = {
 
   ModuleCards: `Generate a JSON object with this exact shape:
 {
-  "heading": "Core Services",
   "modules": [
-    { "id": "auth-service", "name": "Auth Service", "description": "...", "responsibility": "...", "apis": ["POST /login"], "dataStores": ["users-db"], "keyDecisions": ["JWT over sessions"], "failureModes": ["token expiry"], "dependsOnModuleIds": [] },
-    ...
+    {
+      "id": "auth-service",
+      "name": "Auth Service",
+      "description": "Handles user identity and session management.",
+      "responsibility": "Issues and validates JWT tokens for all authenticated requests.",
+      "apis": [ { "id": "api-login", "name": "POST /login", "description": "Accepts credentials and returns a signed JWT." } ],
+      "dataStores": [ { "id": "ds-users", "name": "users-db", "description": "Stores hashed credentials and profile data." } ],
+      "keyDecisions": ["JWT over sessions for stateless auth"],
+      "failureModes": ["token expiry causes silent logout"],
+      "dependsOnModuleIds": []
+    }
   ]
 }
-- 3-6 module cards. All array fields can be empty arrays [] but must be present.`,
+- 3-6 modules. Top-level has ONLY "modules" array — do NOT add a "heading" field.
+- apis and dataStores MUST be arrays of objects with id, name, description — NOT plain strings.
+- keyDecisions, failureModes, dependsOnModuleIds are string arrays and can be [].`,
 
   ConceptCards: `Generate a JSON object with this exact shape:
 {
@@ -185,23 +196,32 @@ const SLOT_PROMPTS: Record<string, string> = {
 
   Dashboard: `Generate a JSON object with this exact shape:
 {
-  "heading": "Dashboard",
+  "heading": "Sales Analysis",
+  "description": "Overview of sales performance by region and product.",
   "isMockData": true,
   "charts": [
-    { "id": "chart-1", "type": "bar", "title": "Chart Title", "xKey": "category", "yKey": "value", "data": [ { "category": "A", "value": 10 }, { "category": "B", "value": 20 } ] }
+    { "type": "bar", "title": "Revenue by Region", "xAxisKey": "region", "yAxisKeys": ["revenue"] },
+    { "type": "line", "title": "Monthly Trend", "xAxisKey": "month", "yAxisKeys": ["sales", "returns"] }
   ]
 }
-- 2-3 charts. type: bar/line/area/pie. Always set isMockData: true unless real data provided.`,
+- charts have NO "id" field. Each chart needs: type, title, xAxisKey, yAxisKeys (array of strings).
+- xAxisKey: the column used as X axis / category label.
+- yAxisKeys: array of column names for Y axis values — always an array even for one series.
+- Do NOT include a "data" array — charts use uploaded CSV data.
+- type: bar/line/area/pie. Set isMockData: true unless user uploaded real data.`,
 
   QuizModule: `Generate a JSON object with this exact shape:
 {
-  "heading": "Test Your Knowledge",
+  "heading": "Test Your Knowledge: Neural Networks",
+  "description": "1-2 sentences describing what the quiz covers.",
   "questions": [
-    { "id": "q-1", "text": "Question text?", "options": ["Option A", "Option B", "Option C", "Option D"], "correctIndex": 0, "explanation": "Why A is correct." },
+    { "id": "q-1", "question": "Question text?", "options": ["Option A", "Option B", "Option C", "Option D"], "correctIndex": 0, "explanation": "Why A is correct and others are wrong." },
     ...
   ]
 }
-- 5-6 questions, 3-4 options each. correctIndex is 0-based. Vary difficulty.`,
+- heading and description are REQUIRED at the top level.
+- Each question MUST use "question" (not "text") for the question string.
+- 3-8 questions, 3-4 options each. correctIndex is 0-based. Vary difficulty.`,
 
   InteractiveCalculator: `Generate a JSON object with this exact shape:
 {
@@ -692,12 +712,15 @@ const slotComposerNode = async (state: MultiChainGraphState) => {
     }
 
     const instructions = SLOT_PROMPTS[moduleName] ?? `Generate a complete, fully-populated config object for the ${moduleName} module.`;
+    const schemaRequirements = getSchemaRequirements(moduleName);
 
     const prompt = `You are generating a config object for a ${moduleName} UI module.
 Topic: "${state.query}" (domain: ${intent.domain}, subject: ${intent.subject})
 ${extraContext}
 
 ${instructions}
+
+${schemaRequirements}
 
 Fill every required field with real, high-quality content about the topic.
 Return ONLY a valid JSON object. No explanation, no markdown fences, no extra text — just the raw JSON.`;
@@ -780,6 +803,7 @@ const slotRepairNode = async (state: MultiChainGraphState) => {
     const currentConfig = slotDrafts[slot];
 
     const schemaHint = SLOT_PROMPTS[moduleName] ?? "";
+    const schemaRequirements = getSchemaRequirements(moduleName);
     const prompt = `You are repairing a ${moduleName} config that failed validation.
 
 ERRORS (each error includes the field path):
@@ -790,6 +814,8 @@ ${JSON.stringify(currentConfig, null, 2)}
 
 CORRECT SCHEMA SHAPE FOR REFERENCE:
 ${schemaHint}
+
+${schemaRequirements}
 
 Fix every field listed in the errors above. Pay close attention to the field paths in each error.
 Return ONLY the corrected JSON config object. No explanation, no markdown fences.
