@@ -1,5 +1,9 @@
 # Cognify
 
+
+https://github.com/user-attachments/assets/ff32a972-6746-43f2-b91c-aed9cf179b18
+
+
 **Chat-in, UX-out.** Type a query; get back a structured, interactive interface — never a wall of text.
 
 Cognify is a Next.js app that turns natural language prompts into rich UI panels using a multi-step LangGraph pipeline. Instead of returning prose, it generates a validated JSON spec that the frontend renders as interactive modules: system diagrams, comparison matrices, quizzes, calculators, dashboards, and more.
