@@ -13,11 +13,12 @@ const SLOT_PROMPTS: Record<string, string> = {
   SystemMap: `Generate a JSON object with these exact fields:
 {
   "nodes": [ { "id": "api-gateway", "label": "API Gateway", "type": "service", "description": "..." }, ... ],
-  "edges": [ { "from": "api-gateway", "to": "user-db", "label": "reads", "type": "sync" }, ... ],
-  "legend": [ { "type": "service", "color": "#3B82F6" }, ... ]
+  "edges": [ { "id": "edge-1", "from": "api-gateway", "to": "user-db", "label": "reads", "type": "sync" }, ... ],
+  "legend": [ { "type": "service", "label": "Service" }, { "type": "database", "label": "Database" }, ... ]
 }
-- nodes: 4-8 nodes. type must be one of: user/service/database/external/client/worker/queue/concept/process
-- edges: type must be one of: sync/async/stream/event
+- nodes: 4-8 nodes. type must be one of: user/service/database/external/client/worker/queue
+- edges: MUST include id (e.g. "edge-1", "edge-2"). type must be one of: sync/async/stream/event
+- legend: each entry MUST have type (string) and label (string) — no color field
 - All ids: short hyphenated lowercase strings`,
 
   ModuleCards: `Generate a JSON object with this exact shape:
