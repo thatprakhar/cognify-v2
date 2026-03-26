@@ -779,13 +779,22 @@ const slotRepairNode = async (state: MultiChainGraphState) => {
     const moduleName = layoutPlan.moduleAssignments[slot];
     const currentConfig = slotDrafts[slot];
 
+    const schemaHint = SLOT_PROMPTS[moduleName] ?? "";
     const prompt = `You are repairing a ${moduleName} config that failed validation.
-Errors: ${errors.join("; ")}
-Current (invalid) config:
+
+ERRORS (each error includes the field path):
+${errors.join("\n")}
+
+CURRENT (INVALID) CONFIG:
 ${JSON.stringify(currentConfig, null, 2)}
 
-Fix ONLY the issues listed. Return ONLY the corrected JSON config object. No explanation, no markdown fences.
-Original query context: "${intent.subject}"`;
+CORRECT SCHEMA SHAPE FOR REFERENCE:
+${schemaHint}
+
+Fix every field listed in the errors above. Pay close attention to the field paths in each error.
+Return ONLY the corrected JSON config object. No explanation, no markdown fences.
+Query context: "${intent.subject}"`;
+
 
     try {
       const response = await model.invoke([{ role: "user", content: prompt }]);

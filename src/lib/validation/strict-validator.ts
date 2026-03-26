@@ -276,7 +276,7 @@ export function validateStudioSpec(spec: any): ValidationResult {
 
         const configResult = schema.safeParse(inv.config);
         if (!configResult.success) {
-            errors.push(`Slot ${inv.slot} (${inv.module}): Schema invalid - ${configResult.error.issues.map((e: any) => e.message).join(", ")}`);
+            errors.push(`Slot ${inv.slot} (${inv.module}): Schema invalid - ${configResult.error.issues.map((e: any) => `${e.path.join(".") || "root"}: ${e.message}`).join(", ")}`);
         } else {
             // 4. Experience threshold auto-fill (after schema passes)
             applyMinimumThresholds(inv);
